@@ -2,22 +2,21 @@ import z from "zod";
 
 export const SignUpSchema = z.object({
     email: z.string().email(),
-    password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/),
     name: z.string().min(1).max(50),
+    publicKey: z.string().min(32).max(64),
 })
 
 export const SignInSchema = z.object({
     email: z.string().email(),
-    password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/),
+    publicKey: z.string().min(32).max(64),
 })
 
 export const VmInstanceSchema = z.object({
-    endTime: z.date(),
+    name: z.string().min(1).max(50),
     price: z.number().positive(),
     region: z.string().default("asia-south-2c"),
     provider: z.enum(["AWS", "AZURE", "GCP", "DIGITALOCEAN", "VULTR"]),
     os: z.string().default("ubuntu-20.04"),
     cpu: z.string().default("t2.micro"),
-    memory: z.string().default("1GB"),
-    disk: z.string().default("20GB"),
+    disk: z.number().positive().default(20),
 })
