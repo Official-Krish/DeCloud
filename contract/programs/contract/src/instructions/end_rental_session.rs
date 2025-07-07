@@ -15,12 +15,13 @@ pub fn end_rental_session(ctx: Context<EndRentalSession>, _id: u64) -> Result<()
 }
 
 #[derive(Accounts)]
+#[instruction(id: u64)]
 pub struct EndRentalSession<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
         mut,
-        seeds = [b"rental_session", payer.key().as_ref(), rental_session.id .to_le_bytes().as_ref()],
+        seeds = [b"rental_session", payer.key().as_ref(), id.to_le_bytes().as_ref()],
         bump = rental_session.bump,
         constraint = rental_session.is_active @ Errors::Unauthorized,
         constraint = rental_session.user == payer.key() @ Errors::Unauthorized,

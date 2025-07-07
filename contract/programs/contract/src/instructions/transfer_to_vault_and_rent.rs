@@ -9,12 +9,12 @@ pub fn transfer_to_vault_and_rent(
     ctx: Context<TransferToVaultAndRent>, 
     amount: u64, 
     duration_seconds: i64,
-    id: u64
+    id: u64,
+    _secret_key: String,
 ) -> Result<()> {
     require!(amount > 0, Errors::InvalidAmount);
     require!(duration_seconds > 0, Errors::InvalidDuration);
     
-    // First, transfer funds to vault
     let cpi_context = CpiContext::new(
         ctx.accounts.system_program.to_account_info(),
         system_program::Transfer {
@@ -24,7 +24,6 @@ pub fn transfer_to_vault_and_rent(
     );
     system_program::transfer(cpi_context, amount)?;
     
-    // Only initialize rental session AFTER successful payment
     let rental_session = &mut ctx.accounts.rental_session;
     rental_session.user = ctx.accounts.payer.key();
     rental_session.amount_paid = amount;
@@ -45,14 +44,14 @@ pub fn transfer_to_vault_and_rent(
 }
 
 #[derive(Accounts)]
-#[instruction(amount: u64, duration_seconds: i64, id: u64)]
+#[instruction(amount: u64, duration_seconds: i64, id: u64, _secret_key: String)]
 pub struct TransferToVaultAndRent<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
     #[account(
         mut,
-        seeds = [b"vault_account", admin.key().as_ref(), b"vault"],
+        seeds = [b"vault_account", admin.key().as_ref(), _secret_key.as_bytes()],
         bump = vault_account.bump,
         constraint = vault_account.owner == admin.key() @ Errors::Unauthorized,
     )]  
@@ -64,7 +63,7 @@ pub struct TransferToVaultAndRent<'info> {
     #[account(
         init_if_needed,
         payer = payer,
-        space = 8 + 32 + 8 + 8 + 8 + 8 + 1 + 1,
+        space = 8 + 32 + 8 + 8 + 8 + 8 + 8 + 1 + 1,
         seeds = [b"rental_session", payer.key().as_ref(), id.to_le_bytes().as_ref()],
         bump
     )]
