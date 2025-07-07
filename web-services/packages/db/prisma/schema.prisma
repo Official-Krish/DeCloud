@@ -23,6 +23,7 @@ model VMInstance {
   userId      String
   name        String
   status      String      @default("PENDING")
+  ipAddress   String?
   startTime   DateTime
   endTime     DateTime
   price       Float
