@@ -3,14 +3,14 @@ import { Router } from "express";
 import { authMiddleware } from "../utils/middleware";
 import { VmInstanceSchema } from "@decloud/types";
 import prisma from "@decloud/db";
-import { InstancesClient } from "@google-cloud/compute";
+import { createInstance } from "../utils/createVm";
+import { deleteInstance } from "../utils/delteVm";
+import compute from '@google-cloud/compute';
 
 const vmInstance = Router();
-const projectId = process.env.PROJECT_ID;
-const instanceClient = new InstancesClient();
-const userId = "123";
+const instancesClient = new compute.InstancesClient();
 
-vmInstance.post("/create", authMiddleware, async (req, res) => {
+vmInstance.post("/create", async (req, res) => {
     const userId = req.userId;
     if (!userId) {
         res.status(400).json({
@@ -27,61 +27,61 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
     }
 
     try {
-        const { name, region, price, provider, os, cpu, disk } = parsedBody.data;
-
-        const [operation] = await instanceClient.insert({
-            project: projectId,
-            zone: region,
-            instanceResource: {
+        const { name, region, price, provider, os, cpu, disk, endTime } = parsedBody.data;
+        const existingVm = await prisma.vMInstance.findFirst({
+            where: {
                 name,
-                machineType: `zones/${region}/machineTypes/${cpu}`, // Ensure cpu is a valid type like "e2-standard-4"
-                disks: [
-                    {
-                        initializeParams: {
-                            sourceImage: `projects/debian-cloud/global/images/family/${os}`,
-                            diskSizeGb: disk,
-                        },
-                        boot: true,
-                        autoDelete: true,
-                    },
-                ],
-                networkInterfaces: [
-                    {
-                        network: "global/networks/default",
-                    },
-                ],
-            },
-        });
-
-        const [response] = await operation.promise();
-        const vmId = response.targetId as unknown as string;
-
-        const vm = await prisma.vMInstance.create({
-            data: {
-                name,
-                region,
-                endTime: new Date(Date.now() + 3600000), // 1 hour later
-                price,
-                provider,
-                startTime: new Date(),
                 userId,
-                instanceId: vmId,
-                status: "STARTING"
+                status: {
+                    not: "DELETED"
+                }
             }
         });
-        const vMConfig = await prisma.vMConfig.create({
-            data: {
-                os,
-                cpu,
-                diskSize: String(disk),
-                vmId: vm.id,
-            }
+    
+        if (existingVm) {
+            res.status(409).json({
+                error: "VM with this name already exists",
+            });
+            return;
+        }
+
+        const transaction = await prisma.$transaction(async (tx) => {
+            const response = await createInstance(name, region, cpu, disk, os);
+
+            const vm = await prisma.vMInstance.create({
+                data: {
+                    name,
+                    region,
+                    ipAddress: response.ipAddress,
+                    endTime: new Date(Date.now() + Number(endTime) * 60000),
+                    price,
+                    provider,
+                    startTime: new Date(),
+                    userId,
+                    instanceId: response.instanceId as unknown as string ?? "unknown",
+                    status: "STARTING"
+                }
+            });
+            await prisma.vMConfig.create({
+                data: {
+                    os,
+                    cpu,
+                    diskSize: disk,
+                    vmId: vm.id,
+                }
+            });
+            return {
+                vm,
+                instanceId: response.instanceId,
+                ipAddress: response.ipAddress
+            };
         });
         res.status(200).json({
             message: "VM instance created successfully",
             json: {
-                vmId: vmId,
-                vMConfigId: vMConfig.id,
+                vmId: transaction.vm.id,
+                instanceId: transaction.instanceId,
+                ip: transaction.ipAddress
             }
         });
     } catch (error) {
@@ -100,9 +100,9 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
         });
         return;
     }
-    const vmId = req.query.vmId as string;
-    const id = req.query.id as string;
-    if (!vmId || !id) {
+    const instanceId = req.query.instanceId as string;
+    const vmId = req.query.id as string;
+    if (!instanceId || !vmId) {
         res.status(400).json({
             error: `ID is required`,
         });
@@ -112,8 +112,8 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
     try {
         const vmInstance = await prisma.vMInstance.findUnique({
             where: {
-                id,
-                instanceId: vmId,
+                id: vmId,
+                instanceId: instanceId,
             },
         });
         if (!vmInstance) {
@@ -122,10 +122,17 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
             });
             return;
         }
-        const [instance] = await instanceClient.get({
-            project: projectId,
+        const operationsClient = new compute.ZoneOperationsClient();
+        await operationsClient.wait({
+            operation: vmInstance.instanceId,
+            project: process.env.PROJECT_ID,
             zone: vmInstance.region,
-            instance: vmId,
+        });
+
+        const [instance] = await instancesClient.get({
+            project: process.env.PROJECT_ID,
+            zone: vmInstance.region,
+            instance: vmInstance.instanceId,
         });
 
         const status = instance.status; 
@@ -138,7 +145,7 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
 
         await prisma.vMInstance.update({
             where: {
-                id,
+                id: vmId,
                 instanceId: vmId,
             },
             data: {
@@ -158,7 +165,7 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
 
 });
 
-vmInstance.delete("/", authMiddleware, async (req, res) => {
+vmInstance.delete("/destroy", async (req, res) => {
     const userId = req.userId;
     if (!userId) {  
         res.status(400).json({
@@ -166,11 +173,12 @@ vmInstance.delete("/", authMiddleware, async (req, res) => {
         });
         return;
     }
-    const vmId = req.query.vmId as string;
-    const id = req.query.id as string;
-    if (!vmId || !id) {
+    const instanceId = req.query.instanceId as string;
+    const vmId = req.query.id as string;
+    const zone = req.body.zone;
+    if (!instanceId || !vmId || !zone) {
         res.status(400).json({
-            error: "VM ID is required",
+            error: "ID, VM ID, and zone are required",
         });
         return;
     }
@@ -178,8 +186,8 @@ vmInstance.delete("/", authMiddleware, async (req, res) => {
     try {
         const vmInstance = await prisma.vMInstance.findUnique({
             where: {
-                id,
-                instanceId: vmId,
+                id: vmId,
+                instanceId: instanceId,
             },
         });
         if (!vmInstance) {
@@ -188,22 +196,13 @@ vmInstance.delete("/", authMiddleware, async (req, res) => {
             });
             return;
         }
-        const [operation] = await instanceClient.delete({
-            project: projectId,
-            zone: vmInstance.region,
-            instance: vmId,
-        });
+        await deleteInstance(zone, vmId);
 
-        await operation.promise();
-
-        await prisma.vMInstance.update({
+        await prisma.vMInstance.delete({
             where: {
-                id,
+                id: vmId,
                 instanceId: vmId,
             },
-            data: {
-                status: "DELETED",
-            }
         });
 
         res.status(200).json({
