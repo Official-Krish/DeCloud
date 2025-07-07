@@ -14,6 +14,7 @@ Key changes include:
 
 ## 📦 Monorepo Structure
 
+```bash
 DeCloud/
 ├── contract/ # Solana smart contract (Anchor)
 ├── web-services/ # App services (API and frontend)
@@ -21,7 +22,7 @@ DeCloud/
 │ │ ├── backend/ # bun-based backend
 │ │ └── frontend/ # React frontend
 │ └── packages/ # Databse, Shared code, utils, or SDK
-
+```
 
 
 ## 🔐 Smart Contract (Anchor)
@@ -78,7 +79,7 @@ bun dev
 ```bash 
 cd web-services/packages/db
 bun install
-bun prisma migrate dev  
+bunx prisma migrate dev  
 ```
 
 ## 🧪 Flow (v1 – Prepaid Billing)
