@@ -1,19 +1,18 @@
 {
-  "name": "@decloud/db",
+  "name": "@decloud/types",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
   },
-  "exports": {
-    ".": "./index.ts"
-  },
   "peerDependencies": {
     "typescript": "^5"
   },
+  "exports": {
+    ".": "./index.ts"
+  },
   "dependencies": {
-    "@prisma/client": "6.11.1",
-    "prisma": "^6.11.1"
+    "zod": "^3.25.75"
   }
 }
