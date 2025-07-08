@@ -6,6 +6,7 @@ import prisma from "@decloud/db";
 import { createInstance } from "../utils/createVm";
 import { deleteInstance } from "../utils/delteVm";
 import compute from '@google-cloud/compute';
+import { vmQueue } from "../redis";
 
 const vmInstance = Router();
 const instancesClient = new compute.InstancesClient();
@@ -53,7 +54,7 @@ vmInstance.post("/create", async (req, res) => {
                     name,
                     region,
                     ipAddress: response.ipAddress,
-                    endTime: new Date(Date.now() + Number(endTime) * 60000),
+                    endTime: new Date(Date.now() + Number(endTime) * 60 * 1000),
                     price,
                     provider,
                     startTime: new Date(),
@@ -75,6 +76,13 @@ vmInstance.post("/create", async (req, res) => {
                 instanceId: response.instanceId,
                 ipAddress: response.ipAddress
             };
+        });
+        await vmQueue.add("terminate-vm", { 
+            instanceId: transaction.instanceId, 
+            vmId: transaction.vm.id,
+            zone: region,
+        }, {
+            delay: Number(transaction.vm.endTime) - Date.now(),
         });
         res.status(200).json({
             message: "VM instance created successfully",
@@ -178,13 +186,13 @@ vmInstance.delete("/destroy", async (req, res) => {
     const zone = req.body.zone;
     if (!instanceId || !vmId || !zone) {
         res.status(400).json({
-            error: "ID, VM ID, and zone are required",
+            error: "instance Id, VM ID, and zone are required",
         });
         return;
     }
 
     try {
-        const vmInstance = await prisma.vMInstance.findUnique({
+        const vmInstance = await prisma.vMInstance.findFirst({
             where: {
                 id: vmId,
                 instanceId: instanceId,
