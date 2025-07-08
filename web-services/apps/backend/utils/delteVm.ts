@@ -11,5 +11,6 @@ export async function deleteInstance(zone: string, instanceId: string) {
         instance: instanceId,
     });
     
-    return response.done;
+    await response.promise();
+    return true;
 }
