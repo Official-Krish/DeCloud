@@ -1,0 +1,18 @@
+{
+  "name": "@decloud/worker",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@decloud/db": "workspace:^"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@google-cloud/compute": "^5.2.0",
+    "bullmq": "^5.56.2",
+    "ioredis": "^5.6.1"
+  }
+}
