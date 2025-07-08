@@ -7,6 +7,7 @@ import { createInstance } from "../utils/createVm";
 import { deleteInstance } from "../utils/delteVm";
 import compute from '@google-cloud/compute';
 import { vmQueue } from "../redis";
+import jwt from "jsonwebtoken";
 
 const vmInstance = Router();
 const instancesClient = new compute.InstancesClient();
@@ -74,7 +75,8 @@ vmInstance.post("/create", async (req, res) => {
             return {
                 vm,
                 instanceId: response.instanceId,
-                ipAddress: response.ipAddress
+                ipAddress: response.ipAddress,
+                privateKey: response.privateKey,
             };
         });
         await vmQueue.add("terminate-vm", { 
@@ -84,12 +86,22 @@ vmInstance.post("/create", async (req, res) => {
         }, {
             delay: Number(transaction.vm.endTime) - Date.now(),
         });
+
+        const AuthToken = jwt.sign({
+            userId,
+            allowedVms: [transaction.vm.ipAddress],
+            privateKey: transaction.privateKey,
+        }, process.env.JWT_SECRET || "my-secret", {
+            expiresIn: Math.floor((Date.now() + Number(endTime) * 60 * 1000) / 1000),
+        });
+        
         res.status(200).json({
-            message: "VM instance created successfully",
+                message: "VM instance created successfully",
             json: {
                 vmId: transaction.vm.id,
                 instanceId: transaction.instanceId,
-                ip: transaction.ipAddress
+                ip: transaction.ipAddress,
+                AuthToken,
             }
         });
     } catch (error) {
