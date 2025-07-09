@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion';
-import { Cloud, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FaDiscord, FaXTwitter } from "react-icons/fa6";
+import { FaDiscord, FaGithub, FaXTwitter } from "react-icons/fa6";
 
 function Footer() {
   const socialLinks = [
     { name: 'Twitter', icon: FaXTwitter , href: 'https://x.com/KrishAnand0103', color: 'hover:text-blue-400' },
     { name: 'Discord', icon: FaDiscord, href: '#', color: 'hover:text-indigo-400' },
-    { name: 'GitHub', icon: Github, href: 'https://github.com/Official-Krish', color: 'hover:text-gray-400' },
+    { name: 'GitHub', icon: FaGithub, href: 'https://github.com/Official-Krish', color: 'hover:text-gray-400' },
   ];
 
   const footerLinks = [
@@ -75,8 +74,8 @@ function Footer() {
             {/* Brand section */}
             <motion.div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
-                  <Cloud className="h-5 w-5 text-primary-foreground" />
+                <div className="flex items-center justify-center rounded-full">
+                  <img src="/Logo.png" alt="DeCloud Logo" className="w-9 h-9 rounded-full" />
                 </div>
                 <span className="text-xl font-bold">DeCloud</span>
               </div>
