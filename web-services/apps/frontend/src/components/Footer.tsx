@@ -74,8 +74,8 @@ function Footer() {
             {/* Brand section */}
             <motion.div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
-                  <img src="/Logo.png" alt="DeCloud Logo" className="h-9 w-9" />
+                <div className="flex items-center justify-center rounded-full">
+                  <img src="/Logo.png" alt="DeCloud Logo" className="w-9 h-9 rounded-full" />
                 </div>
                 <span className="text-xl font-bold">DeCloud</span>
               </div>
