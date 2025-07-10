@@ -13,3 +13,14 @@ export interface VM {
     endTime: Date;
     sshEnabled: true;
 }
+
+export interface VmTypes {
+    
+}
+
+export interface FinalConfig {
+    vmId: string;
+    instanceId: string;
+    ipAddress: string;
+    privateKey: string;
+}
