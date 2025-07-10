@@ -14,8 +14,12 @@ export interface VM {
     sshEnabled: true;
 }
 
-export interface VmTypes {
-    
+export interface VMTypes {
+    id: string      
+    machineType: string      
+    cpu: Number
+    ram: Number
+    description: string
 }
 
 export interface FinalConfig {

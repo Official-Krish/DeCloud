@@ -1,10 +1,11 @@
 import prisma from "@decloud/db";
 import { Router } from "express";
 import axios from "axios";
+import { authMiddleware } from "../utils/middleware";
 
 const vm = Router();
 
-vm.get("/calculatePrice", async (req, res) => {
+vm.get("/calculatePrice", authMiddleware, async (req, res) => {
     try {
         const machineType = req.query.machineType as string;
         const diskSize = parseInt(req.query.diskSize as string, 10);
@@ -27,7 +28,7 @@ vm.get("/calculatePrice", async (req, res) => {
     }
 })
 
-vm.get("/getVMTypes", async (req, res) => {
+vm.get("/getVMTypes", authMiddleware, async (req, res) => {
     try {
         const vmTypes = await prisma.vMTypes.findMany();
         res.status(200).json(vmTypes);
