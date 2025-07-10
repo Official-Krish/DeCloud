@@ -16,6 +16,7 @@
     "@google-cloud/deploy": "^5.1.0",
     "@google-cloud/resource-manager": "^6.1.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "axios": "^1.10.0",
     "bullmq": "^5.56.2",
     "dotenv": "^17.0.1",
     "ioredis": "^5.6.1",
