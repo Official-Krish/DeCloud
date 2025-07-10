@@ -26,10 +26,6 @@ export default function Appbar() {
       name: "DePIN Hosting",
       link: "/hosting",
     },
-    {
-      name: "Admin",
-      link: "/admin",
-    },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

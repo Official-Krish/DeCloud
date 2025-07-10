@@ -56,7 +56,7 @@ export function Dashboard() {
                 </div>
                 
                 <Link to="/rent">
-                    <Button className="mt-4 sm:mt-0">
+                    <Button className="mt-4 sm:mt-0 cursor-pointer">
                         <Plus className="h-4 w-4 mr-2" />
                         New VM
                     </Button>
@@ -87,7 +87,7 @@ export function Dashboard() {
                             variant={filter === status ? "default" : "outline"}
                             size="sm"
                             onClick={() => setFilter(status)}
-                            className="capitalize"
+                            className="capitalize cursor-pointer"
                         >
                             {status}
                         </Button>
@@ -119,7 +119,7 @@ export function Dashboard() {
                                     </Link>
                                     <StatusBadge status={vm.status} />
                                     <Link to={`/vm/${vm.id}`}>
-                                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                             <ExternalLink className="h-4 w-4" />
                                         </Button>
                                     </Link>
@@ -146,7 +146,7 @@ export function Dashboard() {
                             </div>
 
                             <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="outline" size="sm" 
+                                <Button variant="outline" size="sm"  className="cursor-pointer"
                                     onClick={() => deleteVM(vm.id, vm.instanceId, vm.region)}
                                 >
                                     <Trash2 className="h-4 w-4" />
@@ -172,7 +172,7 @@ export function Dashboard() {
                         {searchQuery || filter !== "all" ? "No VMs match your criteria" : "No VMs created yet"}
                     </div>
                     <Link to="/rent">
-                        <Button>Create your first VM</Button>
+                        <Button className="cursor-pointer">Create your first VM</Button>
                     </Link>
                 </motion.div>
             )}

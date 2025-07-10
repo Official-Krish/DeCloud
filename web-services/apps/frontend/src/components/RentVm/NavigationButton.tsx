@@ -29,7 +29,7 @@ export const NavigationButton = ({
               variant="outline"
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
               disabled={currentStep === 1}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>Back</span>
@@ -39,7 +39,7 @@ export const NavigationButton = ({
               <Button
                 onClick={() => setCurrentStep(currentStep + 1)}
                 disabled={!canProceedToStep2}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 cursor-pointer"
               >
                 <span>Continue</span>
                 <ChevronRight className="h-4 w-4" />
@@ -47,7 +47,7 @@ export const NavigationButton = ({
             ) : (
               <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <DialogTrigger asChild>
-                  <Button className="flex items-center space-x-2">
+                  <Button className="flex items-center space-x-2 cursor-pointer">
                     <Zap className="h-4 w-4" />
                     <span>Deploy Instance</span>
                   </Button>

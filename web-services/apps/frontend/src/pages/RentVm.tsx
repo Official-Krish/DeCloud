@@ -96,7 +96,7 @@ export function RentVM() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold mb-2">Create VM Instance</h1>
+        <h1 className="text-3xl font-bold mb-2">Rent VM Instance</h1>
         <p className="text-muted-foreground">Deploy your virtual machine with predefined configurations</p>
       </motion.div>
 

@@ -100,7 +100,9 @@ export const Step1 = ({
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-mono font-medium">{calculatePrice(config.machineType, diskSize)} SOL/hr</div>
+                            <div className="font-mono font-medium">
+                              {calculatePrice(config.machineType, diskSize).then((price) => `${price} SOL/hr`)}
+                            </div>
                           </div>
                         </div>
                       </div>

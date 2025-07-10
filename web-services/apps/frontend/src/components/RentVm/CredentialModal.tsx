@@ -74,6 +74,7 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         <Label>SSH Command</Label>
                                         <Button 
                                             variant="ghost" 
+                                            className="cursor-pointer"
                                             size="sm"
                                             onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem ubuntu@${finalConfig?.ipAddress}`)}
                                         >
@@ -90,13 +91,14 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         <Label>Private Key</Label>
                                         <div className="flex space-x-2">
                                             <Button 
+                                                className="cursor-pointer"
                                                 variant="ghost" 
                                                 size="sm"
                                                 onClick={() => copyToClipboard(finalConfig?.privateKey || '')}
                                             >
                                                 <Copy className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="sm" onClick={() => {
+                                            <Button variant="ghost" size="sm" className="cursor-pointer" onClick={() => {
                                                 const element = document.createElement("a");
                                                 const file = new Blob([finalConfig?.privateKey || ""], { type: "text/plain" });
                                                 element.href = URL.createObjectURL(file);
@@ -132,13 +134,13 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                         <div className="flex space-x-3">
                             <Button 
                                 variant="outline" 
-                                className="flex-1"
+                                className="flex-1 cursor-pointer"
                                 onClick={() => navigate(`/dashboard/vm/${finalConfig?.vmId}`)}
                             >
                                 View in Dashboard
                             </Button>
                             <Button 
-                                className="flex-1"
+                                className="flex-1 cursor-pointer"
                                 onClick={() => setIsCredentialsOpen(false)}
                             >
                                 Got it, thanks!

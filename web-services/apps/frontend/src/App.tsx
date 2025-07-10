@@ -3,6 +3,7 @@ import Landing from './pages/Landing'
 import { Dashboard } from './pages/Dashboard'
 import { RentVM } from './pages/RentVm'
 import { VMDetails } from './pages/vmDetail'
+import { Hosting } from './pages/Hosting'
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
           <Route path="/" element={<Landing/>} />
           <Route path="/dashboard" element={<Dashboard/>} />
           <Route path="/rent" element={<RentVM/>} />
-          <Route path="/vm/?id" element={<VMDetails/>} />
+          <Route path="/vm/:id" element={<VMDetails/>} />
+          <Route path="/hosting" element={<Hosting/>} />
         </Routes>
       </BrowserRouter>
     </>

@@ -68,7 +68,7 @@ export function VMDetails() {
       >
         <div className="flex items-center space-x-4 mb-4">
           <Link to="/dashboard">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" className="cursor-pointer" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -83,7 +83,7 @@ export function VMDetails() {
           
           <div className="flex items-center space-x-2">
             
-            <Button variant="destructive" size="sm" onClick={() => handleDelete()}>
+            <Button variant="destructive" size="sm" className="cursor-pointer" onClick={() => handleDelete()}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
@@ -133,7 +133,7 @@ export function VMDetails() {
                         variant="ghost" 
                         size="sm"
                         onClick={() => copyToClipboard(vm.ipAddress)}
-                        className="h-6 w-6 p-0"
+                        className="h-6 w-6 p-0 cursor-pointer"
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -216,6 +216,7 @@ export function VMDetails() {
                       <Button 
                         variant="ghost" 
                         size="sm"
+                        className="cursor-pointer"
                         onClick={() => copyToClipboard(`ssh ubuntu@${vm.ipAddress}`)}
                       >
                         <Copy className="h-4 w-4" />
@@ -231,13 +232,23 @@ export function VMDetails() {
                       <Label>With Private Key</Label>
                       <div className="flex space-x-2">
                         <Button 
+                        className="cursor-pointer"
                           variant="ghost" 
                           size="sm"
                           onClick={() => copyToClipboard(`ssh -i ${vm.name}-key.pem ubuntu@${vm.ipAddress}`)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="cursor-pointer"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = `${BACKEND_URL}/vm/downloadKey/${vm.id}`;
+                            link.download = `${vm.name}-key.pem`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>
