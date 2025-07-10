@@ -22,7 +22,7 @@ model VMInstance {
   id          String     @id @default(cuid())
   userId      String
   name        String
-  status      String      @default("PENDING")
+  status      String      @default("BOOTING")
   ipAddress   String?
   startTime   DateTime
   endTime     DateTime
@@ -37,15 +37,24 @@ model VMInstance {
 }
 
 model VMConfig {
-  id         String      @id @default(cuid())
-  vmId       String      @unique
-  os         String
-  cpu        String
-  diskSize   String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id          String      @id @default(cuid())
+  vmId        String      @unique
+  os          String
+  machineType String
+  diskSize    String
+  createdAt   DateTime    @default(now())
 
   VmInstance VMInstance  @relation(fields: [vmId], references: [id])
+}
+
+
+model VMTypes {
+  id            String      @id @default(cuid())
+  machineType   String      @unique
+  cpu           Int
+  ram           Int
+  priceMonthlyUSD  Float
+  description    String?
 }
 
 
@@ -55,4 +64,5 @@ enum VMProvider {
   GCP
   DIGITALOCEAN
   VULTR
+  LOCAL
 }
