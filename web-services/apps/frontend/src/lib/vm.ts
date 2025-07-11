@@ -6,7 +6,10 @@ export const calculatePrice = async (machineType: string, diskSize: number): Pro
         params: {
           machineType,
           diskSize,
-        }
+        },
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
       });
       return response.data.price;
     } catch (error) {

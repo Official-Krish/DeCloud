@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 export default function Steps() {
   return (
-    <div className="items-center py-20 border-b border-neutral-200 dark:border-neutral-800 ">
+    <div className="items-center py-20 border-b border-neutral-200 dark:border-neutral-800">
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

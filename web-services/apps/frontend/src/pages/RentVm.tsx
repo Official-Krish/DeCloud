@@ -12,7 +12,7 @@ import { NavigationButton } from "@/components/RentVm/NavigationButton";
 import { CostSummary } from "@/components/RentVm/CostSummary";
 import { CredentialModal } from "@/components/RentVm/CredentialModal";
 
-export function RentVM() {
+export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [vmName, setVmName] = useState("");
   const [selectedConfig, setSelectedConfig] = useState<string>("");
@@ -189,7 +189,6 @@ export function RentVM() {
             duration={duration}
             handlePayment={() => {
               handlePayment();
-              setIsCredentialsOpen(true);
             }}
           />
         </div>

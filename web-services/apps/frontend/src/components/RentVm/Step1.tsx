@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Globe } from "lucide-react";
 import { calculatePrice } from "@/lib/vm";
 import { operatingSystems, regions } from "@/lib/constants";
+import { useEffect, useState } from "react";
 
 export const Step1 = ({
     vmName,
@@ -41,6 +42,21 @@ export const Step1 = ({
     duration: number; 
     setDuration: (duration: number) => void;
 }) => {
+  const [prices, setPrices] = useState<Record<string, string>>({});
+  useEffect(() => {
+    // Calculate prices for all VM configurations
+    const calculateAllPrices = async () => {
+      const newPrices: Record<string, string> = {};
+      for (const config of vms) {
+        const price = await calculatePrice(config.machineType, diskSize);
+        newPrices[config.id] = `${price} SOL/hr`;
+      }
+      setPrices(newPrices);
+    };
+
+    calculateAllPrices();
+  }, [vms, diskSize]);
+
     return (
         <div>
             <motion.div
@@ -77,8 +93,8 @@ export const Step1 = ({
                   <div className="grid gap-4">
                     {vms.map((config) => (
                       <div
-                        key={config.id as React.Key}
-                        onClick={() => setSelectedConfig(config.id as string)}
+                        key={config.id}
+                        onClick={() => setSelectedConfig(config.id)}
                         className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-primary/50 ${
                           selectedConfig === config.id 
                             ? 'border-primary bg-primary/5' 
@@ -101,7 +117,7 @@ export const Step1 = ({
                           </div>
                           <div className="text-right">
                             <div className="font-mono font-medium">
-                              {calculatePrice(config.machineType, diskSize).then((price) => `${price} SOL/hr`)}
+                              {prices[config.id] || "Calculating..."}
                             </div>
                           </div>
                         </div>

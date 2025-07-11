@@ -50,7 +50,7 @@ export default function Appbar() {
                   alt="Wallet Address"
                   className="h-8 w-8 rounded-full"
                 />
-                <span className="ml-2 text-sm text-neutral-300 dark:text-neutral-600">
+                <span className="ml-2 text-sm text-neutral-800">
                   {wallet?.adapter.publicKey?.toString().slice(0,10).concat("...") || ""}
                 </span>
               </NavbarButton>
