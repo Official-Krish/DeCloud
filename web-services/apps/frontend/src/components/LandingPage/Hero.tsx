@@ -2,8 +2,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Play } from 'lucide-react';
 import { BackgroundBeams } from '../ui/background-beams';
 import  { HoverBorderGradient }  from '@/components/ui/hover-border-gradient';
+import { useNavigate } from 'react-router-dom';
 
 export function Hero() {
+  const navigate = useNavigate();
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-100">
       <BackgroundBeams/>
@@ -50,7 +52,7 @@ export function Hero() {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button size="lg" className="text-lg px-8 py-6 group cursor-pointer" onClick={() => window.location.href = '/dashboard'}>
+            <Button size="lg" className="text-lg px-8 py-6 group cursor-pointer" onClick={() => navigate('/dashboard')}>
               Get Started
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>

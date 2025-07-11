@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Plus, Search, Trash2, ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import { type VM } from "../../types/vm";
@@ -14,11 +14,16 @@ export function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("all");
     const [vms, setVMs] = useState<VM[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getVMs = async () => {
             try {
-                const res = await axios.get(`${BACKEND_URL}/vmInstnace/getAll`);
+                const res = await axios.get(`${BACKEND_URL}/vmInstance/getAll`, {
+                    headers: {
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                });
                 setVMs(res.data.vms);
             } catch (error) {
                 console.error("Error fetching VMs:", error);    
@@ -29,7 +34,11 @@ export function Dashboard() {
 
     const deleteVM = async (id: string, instanceId: string, zone: string) => {
         try {
-            await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${instanceId}&zone=${zone}`);
+            await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${instanceId}&zone=${zone}`, {
+                headers: {
+                    Authorization: `${localStorage.getItem("token")}`,
+                },
+            });
             setVMs(vms.filter(vm => vm.id !== id));
         } catch (error) {
             console.error("Error deleting VM:", error);
@@ -106,7 +115,7 @@ export function Dashboard() {
                         className="group p-6 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 transition-all duration-300 cursor-poiner"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => window.location.href = `/vm/${vm.id}`}
+                        onClick={() => navigate(`/vm/${vm.id}`)}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">

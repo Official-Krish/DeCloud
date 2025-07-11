@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -8,7 +8,6 @@ import {
   ArrowLeft, 
   Terminal, 
   Copy, 
-  Download, 
   Trash2,
   Monitor,
   HardDrive,
@@ -23,11 +22,16 @@ import { BACKEND_URL } from "@/config";
 export function VMDetails() {
   const { id } = useParams();
   const [vm, setVm] = useState<VM>();
+  const navigate = useNavigate();
 
   useEffect(()=> {
     const fetchVMDetails = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/vmInstnace/${id}`);
+        const response = await axios.get(`${BACKEND_URL}/vmInstnace/${id}`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
         setVm(response.data);
       } catch (error) {
         console.error("Error fetching VM details:", error);
@@ -44,7 +48,16 @@ export function VMDetails() {
 
   const handleDelete = async () => {
     try {
-        await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${vm?.instanceId}&zone=${vm?.region}`);
+        const res = await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${vm?.instanceId}&zone=${vm?.region}`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+        if (res.status === 200) {
+          navigate("/dashboard");
+        } else {
+            alert("Failed to delete VM");
+        }
     } catch (error) {
         console.error("Error deleting VM:", error);
     }
@@ -239,18 +252,6 @@ export function VMDetails() {
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="cursor-pointer"
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.href = `${BACKEND_URL}/vm/downloadKey/${vm.id}`;
-                            link.download = `${vm.name}-key.pem`;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                     <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
@@ -284,15 +285,6 @@ export function VMDetails() {
                 <Copy className="h-4 w-4 mr-2" />
                 Copy IP Address
               </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download SSH Key
-              </Button>
-              
               <Button 
                 variant="outline" 
                 className="w-full justify-start"

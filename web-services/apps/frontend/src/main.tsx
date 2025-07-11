@@ -4,11 +4,20 @@ import App from './App.tsx'
 import Appbar from './components/Appbar.tsx'
 import { ThemeProvider } from './components/themeProvider.tsx'
 import Footer from './components/Footer.tsx'
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { clusterApiUrl } from '@solana/web3.js'
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 
 createRoot(document.getElementById('root')!).render(
     <ThemeProvider defaultTheme='dark'>
-        <Appbar/>
-        <App />
-        <Footer />
+        <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
+        <WalletProvider wallets={[]} autoConnect>
+            <WalletModalProvider>
+                <Appbar/>
+                <App />
+                <Footer />
+            </WalletModalProvider>
+        </WalletProvider>
+        </ConnectionProvider>
     </ThemeProvider>
 )

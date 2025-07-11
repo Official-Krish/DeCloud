@@ -11,8 +11,12 @@ import {
 } from "@/components/ui/Resizable-Appbar";
 import { useState } from "react";
 import { ModeToggle } from "./toggle-theme";
+import { useWallet } from "@solana/wallet-adapter-react";
+import UserProfileDropdown from "./user-dropdown";
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 export default function Appbar() {
+  const { wallet } = useWallet();
   const navItems = [
     {
       name: "Dashboard",
@@ -28,8 +32,8 @@ export default function Appbar() {
     },
   ];
 
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   return (
     <div className="relative w-full border-b border-neutral-200 dark:border-neutral-800">
       <Navbar>
@@ -39,9 +43,27 @@ export default function Appbar() {
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
             <NavbarButton variant="secondary"><ModeToggle/></NavbarButton>
-            <NavbarButton variant="primary">Profile</NavbarButton>
+            {(localStorage.getItem("token") && wallet?.adapter.connected) ? (
+              <NavbarButton className="flex items-center gap-1 cursor-pointer" onClick={() => setUserDropdownOpen(!userDropdownOpen)}>
+                <img
+                  src={wallet.adapter.icon || ""}
+                  alt="Wallet Address"
+                  className="h-8 w-8 rounded-full"
+                />
+                <span className="ml-2 text-sm text-neutral-300 dark:text-neutral-600">
+                  {wallet?.adapter.publicKey?.toString().slice(0,10).concat("...") || ""}
+                </span>
+              </NavbarButton>
+            ) : (
+              <NavbarButton variant="primary" onClick={() => window.location.href="/signin"}>SignIn</NavbarButton>
+            )}
           </div>
         </NavBody>
+        <UserProfileDropdown
+          isOpen={userDropdownOpen}
+          onClose={() => setUserDropdownOpen(false)}
+        />
+        
 
         {/* Mobile Navigation */}
         <MobileNav>
@@ -71,7 +93,7 @@ export default function Appbar() {
               <NavbarButton
                 onClick={() => setIsMobileMenuOpen(false)}
                 variant="primary"
-                className="w-full"
+                className="w-full cursor-pointer"
               >
                 <ModeToggle />
               </NavbarButton>

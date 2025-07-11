@@ -33,7 +33,11 @@ export function RentVM() {
   useEffect(() => {
     const fetchVMConfigs = async () => {
       try {
-        const res = await axios.get(`${BACKEND_URL}/vm/getVMTypes`);
+        const res = await axios.get(`${BACKEND_URL}/vm/getVMTypes`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
         setVms(res.data);
       } catch (error) {
         console.error("Error fetching VM configurations:", error);
@@ -72,6 +76,10 @@ export function RentVM() {
         endTime: duration,
         machineType: selectedVMConfig?.machineType,
         provider: "GCP", // Assuming GCP for now, can be dynamic based on selectedConfig
+      }, {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
       });
       if (res.status === 200) {
         setFinalConfig({
