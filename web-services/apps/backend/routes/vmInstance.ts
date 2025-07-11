@@ -61,7 +61,7 @@ vmInstance.post("/create", async (req, res) => {
                     startTime: new Date(),
                     userId,
                     instanceId: response.instanceId as unknown as string ?? "unknown",
-                    status: "STARTING"
+                    status: "STARTING",
                 }
             });
             await prisma.vMConfig.create({
@@ -84,7 +84,7 @@ vmInstance.post("/create", async (req, res) => {
             vmId: transaction.vm.id,
             zone: region,
         }, {
-            delay: Number(transaction.vm.endTime) - Date.now(),
+            delay: Date.now() + Number(endTime),
         });
 
         const AuthToken = jwt.sign({

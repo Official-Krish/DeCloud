@@ -57,7 +57,7 @@ export async function createInstance(instanceName: string, zone: string, machine
     const ipAddress = networkInterface?.networkIP;
     const instanceId = instance.id;
 
-    return { ipAddress, instanceId, privateKey };
+    return { ipAddress, instanceId, privateKey, publicKey };
 }
 
 

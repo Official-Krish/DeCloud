@@ -26,11 +26,9 @@ UserRouter.post("/signup", async (req, res) => {
 
         res.status(200).json({
             message: "User signed up successfully",
-            json: {
-                token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret123", {
-                    expiresIn: "1h",
-                }),
-            }
+            token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret123", {
+                expiresIn: "1h",
+            }),
         });
     } catch (error) {
         console.error("Error during signup:", error);
@@ -50,7 +48,7 @@ UserRouter.post("/login", async (req, res) => {
     }
     try {
         const { email, publicKey } = parsedBody.data;  
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findFirst({
             where: {
                 email,
                 publicKey,
@@ -64,11 +62,9 @@ UserRouter.post("/login", async (req, res) => {
         }
         res.status(200).json({
             message: "User logged in successfully",
-            json: {
-                id: jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret123", {
-                    expiresIn: "1h",
-                }),
-            }
+            token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret123", {
+                expiresIn: "1h",
+            }),
         });
     } catch (error) {
         console.error("Error during login:", error);
