@@ -7,12 +7,14 @@ import Footer from './components/Footer.tsx'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { clusterApiUrl } from '@solana/web3.js'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
+import { ToastContainer } from 'react-toastify'
 
 createRoot(document.getElementById('root')!).render(
     <ThemeProvider defaultTheme='dark'>
         <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
         <WalletProvider wallets={[]} autoConnect>
             <WalletModalProvider>
+                <ToastContainer/>
                 <Appbar/>
                 <App />
                 <Footer />

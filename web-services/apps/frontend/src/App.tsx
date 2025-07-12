@@ -8,7 +8,7 @@ import { SignUp } from './pages/Signup'
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { SignIn } from './pages/Signin';
 import SSHTerminal from './pages/Terminal'
-
+import { AdminPage } from './pages/Admin'
 
 function App() {
   return (
@@ -23,6 +23,7 @@ function App() {
           <Route path="/signup" element={<SignUp/>} />
           <Route path="/signin" element={<SignIn/>} />
           <Route path="/ssh/:id" element={<SSHTerminal/>} />
+          <Route path="/admin" element={<AdminPage/>} />
         </Routes>
       </BrowserRouter>
     </>

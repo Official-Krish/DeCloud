@@ -21,7 +21,7 @@ function Contarct(wallet: AnchorWallet): Program {
 }
  
 
-export const InitiatesVaultAccount = async (wallet: AnchorWallet) => {
+export const InitiatesVaultAccount = async (wallet: AnchorWallet, secretKey: string) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -30,7 +30,7 @@ export const InitiatesVaultAccount = async (wallet: AnchorWallet) => {
     }
   
     try {
-        const tx = await program.methods.initializeVault(SECRET_KEY).accounts({
+        const tx = await program.methods.initializeVault(secretKey).accounts({
             admin: wallet.publicKey,
         })
         .rpc();
@@ -45,7 +45,7 @@ export const InitiatesVaultAccount = async (wallet: AnchorWallet) => {
     }
 };
 
-export const FundVaultAccount = async (wallet: AnchorWallet, amount: number) => {
+export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, secretKey: string) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -54,12 +54,12 @@ export const FundVaultAccount = async (wallet: AnchorWallet, amount: number) => 
     }
   
     try {
-        const tx = await program.methods.fundVault(new BN(amount * LAMPORTS_PER_SOL), SECRET_KEY).accounts({
+        const tx = await program.methods.fundVault(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
             admin: wallet.publicKey,
         })
         .rpc();
         const vaultAccount = await PublicKey.findProgramAddress(
-            [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(SECRET_KEY)],
+            [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(secretKey)],
             program.programId
         );
         const vaultAccountBalance = await program.provider.connection.getBalance(vaultAccount[0]);
@@ -165,7 +165,7 @@ export const TransferToVaultAndStartRental = async (amount: number, duration: nu
     }
 }
 
-export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet) => {
+export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet, secretKey: string) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -174,7 +174,7 @@ export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet) =>
     }
   
     try {
-        const tx = await program.methods.withdrawFromVault(new BN(amount * LAMPORTS_PER_SOL), SECRET_KEY).accounts({
+        const tx = await program.methods.withdrawFromVault(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
             admin: wallet.publicKey,
         })
         .rpc();
@@ -185,6 +185,31 @@ export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet) =>
         };
     } catch (error) {
       console.error("Error withdrawing from vault account", error);
+      return null;
+    }
+}
+
+export const GetVaultBalance = async (wallet: AnchorWallet, secretKey: string) => {
+    const program = Contarct(wallet);
+  
+    if (!wallet) {
+      console.error("Wallet not connected");
+      return null;
+    }
+  
+    try {
+        const vaultAccount = await PublicKey.findProgramAddressSync(
+            [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(secretKey)],
+            program.programId
+        );
+        const vaultAccountBalance = await program.provider.connection.getBalance(vaultAccount[0]);
+        return {
+            success: true,
+            balance: vaultAccountBalance / LAMPORTS_PER_SOL,
+            message: "Vault balance retrieved successfully",
+        };
+    } catch (error) {
+      console.error("Error fetching vault balance", error);
       return null;
     }
 }

@@ -12,6 +12,7 @@ export interface VM {
     ipAddress: string;
     endTime: Date;
     sshEnabled: true;
+    machineType?: string;
 }
 
 export interface VMTypes {
