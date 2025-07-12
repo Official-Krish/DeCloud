@@ -12,7 +12,7 @@ import jwt from "jsonwebtoken";
 const vmInstance = Router();
 const instancesClient = new compute.InstancesClient();
 
-vmInstance.post("/create", async (req, res) => {
+vmInstance.post("/create", authMiddleware, async (req, res) => {
     const userId = req.userId;
     if (!userId) {
         res.status(400).json({
@@ -84,7 +84,7 @@ vmInstance.post("/create", async (req, res) => {
             vmId: transaction.vm.id,
             zone: region,
         }, {
-            delay: Date.now() + Number(endTime),
+            delay: endTime * 60 * 1000,
         });
 
         const AuthToken = jwt.sign({
@@ -92,7 +92,7 @@ vmInstance.post("/create", async (req, res) => {
             allowedVms: [transaction.vm.ipAddress],
             privateKey: transaction.privateKey,
         }, process.env.JWT_SECRET || "my-secret", {
-            expiresIn: Math.floor((Date.now() + Number(endTime) * 60 * 1000) / 1000),
+            expiresIn: Math.floor(Number(endTime) * 60 * 1000),
         });
         
         res.status(200).json({
@@ -185,7 +185,7 @@ vmInstance.get("/pollStatus", authMiddleware, async (req, res) => {
 
 });
 
-vmInstance.delete("/destroy", async (req, res) => {
+vmInstance.delete("/destroy", authMiddleware, async (req, res) => {
     const userId = req.userId;
     if (!userId) {  
         res.status(400).json({

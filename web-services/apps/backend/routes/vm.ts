@@ -1,3 +1,4 @@
+require("dotenv").config();
 import prisma from "@decloud/db";
 import { Router } from "express";
 import axios from "axios";
@@ -20,7 +21,7 @@ vm.get("/calculatePrice", authMiddleware, async (req, res) => {
         const additionalCost = diskSize > 10 ? (diskSize - 10) * 0.12 : 0;
         const totalPrice = basePrice.priceMonthlyUSD + additionalCost;
         const solPrice = await getSolPrice();
-        const price = (totalPrice / (solPrice * 30 * 24));
+        const price = (totalPrice / (solPrice)); // for 30 days
         res.status(200).json({ price: price});
     } catch (error) {
         console.error("Error calculating price:", error);
@@ -34,6 +35,32 @@ vm.get("/getVMTypes", authMiddleware, async (req, res) => {
         res.status(200).json(vmTypes);
     } catch (error) {
         console.error("Error fetching VM types:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+vm.get("/getAll", authMiddleware, async (req, res) => {
+    const adminKey = req.query.adminKey as string;
+    if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(403).json({ error: "Forbidden" });
+    }
+    try {
+        const vms = await prisma.vMInstance.findMany({
+            include: {
+                VMConfig: {
+                    select: {
+                        machineType: true,
+                    },
+                }
+            },
+        });
+        if (!vms || vms.length === 0) {
+            res.status(200).json([]);
+            return;
+        }
+        res.status(200).json(vms);
+    } catch (error) {
+        console.error("Error fetching VMs:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
