@@ -8,7 +8,7 @@ interface NavigationButtonProps {
     canProceedToStep2: string;
     isConfirmOpen: boolean;
     setIsConfirmOpen: (open: boolean) => void;
-    costPerHour: string;
+    costPerMin: Number;
     duration: number;
     handlePayment: () => void;
 }
@@ -19,7 +19,7 @@ export const NavigationButton = ({
     canProceedToStep2,
     isConfirmOpen,
     setIsConfirmOpen,
-    costPerHour,
+    costPerMin,
     duration,
     handlePayment,
 }: NavigationButtonProps) => {
@@ -62,10 +62,10 @@ export const NavigationButton = ({
                   <div className="space-y-4">
                     <div className="text-center">
                       <div className="text-3xl font-bold font-mono mb-2">
-                        {Number(costPerHour) * duration} SOL
+                        {Number(costPerMin) * duration} SOL
                       </div>
                       <div className="text-sm text-muted-foreground mb-4">
-                        For{duration} hour(s) at {costPerHour} SOL/hr
+                        For{duration} hour(s) at {Number(costPerMin) * 60} SOL/hr
                       </div>
                     </div>
                     <Button className="w-full" onClick={handlePayment}>

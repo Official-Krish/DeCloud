@@ -11,6 +11,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 import axios from 'axios';
 import { BACKEND_URL } from '@/config';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export function SignUp() {
     const wallet = useWallet();
@@ -36,12 +37,31 @@ export function SignUp() {
             publicKey: wallet.publicKey?.toString(),
           });
           if (res.status === 200) {
+            toast.success("Account created successfully!", {
+              position: "bottom-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            });
             localStorage.setItem('token', `Bearer ${res.data.token}`);
             localStorage.setItem('email', formData.email);
             setFormData({ name: '', email: '' });
             navigate('/dashboard'); 
           } else {
-            alert("Failed to create account. Please try again.");
+            toast.error("Failed to create account. Please try again.", {
+              position: "bottom-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            });
           }
         } catch (error) {
           console.error("Error creating account:", error);

@@ -4,6 +4,7 @@ import { User, Settings, LogOut, Wallet, Mail, Shield, Copy } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'react-toastify';
 
 interface UserProfileDropdownProps {
   isOpen: boolean;
@@ -87,6 +88,16 @@ const UserProfileDropdown = ({ isOpen, onClose }: UserProfileDropdownProps) => {
                         <Copy className='w-4 h-4 text-muted-foreground cursor-pointer' 
                           onClick={() => {
                             navigator.clipboard.writeText(publicKey.toString());
+                            toast.success("Wallet address copied to clipboard", {
+                              position: "top-right",
+                              autoClose: 3000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                              theme: "dark",
+                            });
                           }}
                         />
                       </div>

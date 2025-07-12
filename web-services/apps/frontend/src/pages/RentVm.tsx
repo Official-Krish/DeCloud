@@ -11,6 +11,7 @@ import { Step2 } from "@/components/RentVm/Step2";
 import { NavigationButton } from "@/components/RentVm/NavigationButton";
 import { CostSummary } from "@/components/RentVm/CostSummary";
 import { CredentialModal } from "@/components/RentVm/CredentialModal";
+import { toast } from "react-toastify";
 
 export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -47,16 +48,16 @@ export const RentVM = () => {
   }, [])
 
   const selectedVMConfig = vms.find(config => config.id === selectedConfig);
-  const [costPerHour, setCostPerHour] = useState(0);
+  const [costPerMin, setCostPerMin] = useState(0);
 
   useEffect(() => {
-    const fetchCostPerHour = async () => {
+    const fetchCostPerMin = async () => {
       if (selectedVMConfig) {
-        const price = await calculatePrice(selectedVMConfig.machineType, diskSize);
-        setCostPerHour(Number(price));
+        const price = await calculatePrice(selectedVMConfig.machineType, diskSize, 1);
+        setCostPerMin(Number(price));
       }
     };
-    fetchCostPerHour();
+    fetchCostPerMin();
   }, [selectedVMConfig, diskSize]);
 
   const canProceedToStep2 = (vmName && selectedConfig && region && os);
@@ -69,7 +70,7 @@ export const RentVM = () => {
     try {
       const res = await axios.post(`${BACKEND_URL}/vmInstance/create`, {
         name: vmName,
-        price: costPerHour * duration,
+        price: costPerMin * duration,
         region,
         os,
         diskSize,
@@ -82,6 +83,16 @@ export const RentVM = () => {
         },
       });
       if (res.status === 200) {
+        toast.success("VM instance created successfully!", {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         setFinalConfig({
           vmId: res.data.vmId,
           instanceId: res.data.instanceId,
@@ -90,6 +101,16 @@ export const RentVM = () => {
         });
         setIsCredentialsOpen(true);
       } else {
+        toast.error("Failed to create VM instance. Please try again.", {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         console.error("Failed to create VM instance:", res.data);
       }
     } catch (error) {
@@ -185,7 +206,7 @@ export const RentVM = () => {
             canProceedToStep2={canProceedToStep2}
             isConfirmOpen={isConfirmOpen}
             setIsConfirmOpen={setIsConfirmOpen}
-            costPerHour={costPerHour.toString()}
+            costPerMin={costPerMin}
             duration={duration}
             handlePayment={() => {
               handlePayment();
@@ -196,7 +217,7 @@ export const RentVM = () => {
         {/* Cost Summary Sidebar */}
         <CostSummary  
           selectedVMConfig={selectedVMConfig || null}
-          costPerHour={costPerHour.toString()}
+          costPerMin={costPerMin}
           duration={duration}
         />
       </div>

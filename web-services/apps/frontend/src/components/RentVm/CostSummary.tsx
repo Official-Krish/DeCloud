@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 
 interface CostSummaryProps {
   selectedVMConfig: { machineType: string } | null;
-  costPerHour: string;
+  costPerMin: Number;
   duration: number;
 }
 
-export const CostSummary = ( { selectedVMConfig, costPerHour, duration }: CostSummaryProps ) => {
+export const CostSummary = ( { selectedVMConfig, costPerMin, duration }: CostSummaryProps ) => {
     return (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -25,7 +25,7 @@ export const CostSummary = ( { selectedVMConfig, costPerHour, duration }: CostSu
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span>Instance ({selectedVMConfig.machineType})</span>
-                      <span className="font-mono">{costPerHour} SOL/hr</span>
+                      <span className="font-mono">{Number(costPerMin) * 60} SOL/hr</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Duration</span>
@@ -37,7 +37,7 @@ export const CostSummary = ( { selectedVMConfig, costPerHour, duration }: CostSu
 
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total Cost</span>
-                    <span className="font-mono">{Number(costPerHour) * duration} SOL</span>
+                    <span className="font-mono">{Number(costPerMin) * duration} SOL</span>
                   </div>
                 </>
               ) : (

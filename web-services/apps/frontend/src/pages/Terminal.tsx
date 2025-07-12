@@ -49,7 +49,7 @@ const SSHTerminal = () => {
         xtermRef.current = terminal;
         fitAddonRef.current = fitAddon;
 
-      // Handle terminal input
+        // Handle terminal input
         terminal.onData((data) => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && isConnected) {
                 wsRef.current.send(JSON.stringify({

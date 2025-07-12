@@ -10,6 +10,26 @@ import { calculatePrice } from "@/lib/vm";
 import { operatingSystems, regions } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
+interface step1Props {
+  selectedVMConfig: VMTypes | null;
+  setSelectedVMConfig: (config: VMTypes | null) => void;
+  setStep: (step: number) => void;
+  vmName: string;
+  setVmName: (name: string) => void;
+  vms: VMTypes[];
+  selectedConfig?: string;
+  setSelectedConfig: (configId: string) => void;
+  diskSize: number;
+  setDiskSize: (size: number) => void;
+  region: string;
+  setRegion: (region: string) => void;
+  os: string;
+  setOs: (os: string) => void;
+  duration: number; 
+  setDuration: (duration: number) => void;
+
+}
+
 export const Step1 = ({
     vmName,
     setVmName,
@@ -24,32 +44,15 @@ export const Step1 = ({
     setOs,
     duration = 1, 
     setDuration
-}: {
-    selectedVMConfig: VMTypes | null;
-    setSelectedVMConfig: (config: VMTypes | null) => void;
-    setStep: (step: number) => void;
-    vmName: string;
-    setVmName: (name: string) => void;
-    vms: VMTypes[];
-    selectedConfig?: string;
-    setSelectedConfig: (configId: string) => void;
-    diskSize: number;
-    setDiskSize: (size: number) => void;
-    region: string;
-    setRegion: (region: string) => void;
-    os: string;
-    setOs: (os: string) => void;
-    duration: number; 
-    setDuration: (duration: number) => void;
-}) => {
-  const [prices, setPrices] = useState<Record<string, string>>({});
+  } : step1Props ) => {
+  const [prices, setPrices] = useState<Record<string, Number>>({});
   useEffect(() => {
     // Calculate prices for all VM configurations
     const calculateAllPrices = async () => {
-      const newPrices: Record<string, string> = {};
+      const newPrices: Record<string, Number> = {};
       for (const config of vms) {
-        const price = await calculatePrice(config.machineType, diskSize);
-        newPrices[config.id] = `${price} SOL/hr`;
+        const price = await calculatePrice(config.machineType, diskSize, 60);
+        newPrices[config.id] = price;
       }
       setPrices(newPrices);
     };
@@ -117,7 +120,7 @@ export const Step1 = ({
                           </div>
                           <div className="text-right">
                             <div className="font-mono font-medium">
-                              {prices[config.id] || "Calculating..."}
+                              {(prices[config.id]).toFixed(2) + "SOL/hr" || "Calculating..."}
                             </div>
                           </div>
                         </div>

@@ -18,6 +18,7 @@ import { type VM } from "../../types/vm";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
+import { toast } from "react-toastify";
 
 export function VMDetails() {
   const { id } = useParams();
@@ -43,6 +44,16 @@ export function VMDetails() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
     
   };
 

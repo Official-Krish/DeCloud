@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { regions } from "@/lib/constants";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface CredentialModalProps {
     isCredentialsOpen: boolean;
@@ -23,6 +24,16 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
     const navigate = useNavigate();
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
+        toast.success("Copied to clipboard!", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        });
     };
     return (
         <div>
@@ -76,7 +87,9 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                             variant="ghost" 
                                             className="cursor-pointer"
                                             size="sm"
-                                            onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem ubuntu@${finalConfig?.ipAddress}`)}
+                                            onClick={() => {
+                                                copyToClipboard(`ssh -i ${vmName}-key.pem ubuntu@${finalConfig?.ipAddress}`)
+                                            }}
                                         >
                                             <Copy className="h-4 w-4" />
                                         </Button>
