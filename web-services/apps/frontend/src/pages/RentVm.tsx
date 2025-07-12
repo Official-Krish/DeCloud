@@ -12,6 +12,9 @@ import { NavigationButton } from "@/components/RentVm/NavigationButton";
 import { CostSummary } from "@/components/RentVm/CostSummary";
 import { CredentialModal } from "@/components/RentVm/CredentialModal";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -25,6 +28,7 @@ export const RentVM = () => {
   const [isCredentialsOpen, setIsCredentialsOpen] = useState(false);
   const [vms, setVms] = useState<VMTypes[]>([]);
   const [finalConfig, setFinalConfig] = useState<FinalConfig>();
+  const wallet = useWallet();
 
   const steps = [
     { number: 1, title: "Instance Configuration", description: "Choose your VM configuration and basic settings" },
@@ -117,6 +121,24 @@ export const RentVM = () => {
       console.error("Error creating VM instance:", error);
     }
   };
+
+  if (!wallet.connected || !localStorage.getItem("token")) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
+          <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+          >
+              <h1 className="text-3xl font-bold mb-4">Please SignIn</h1>
+              <p className="text-muted-foreground mb-6">Please connect your wallet and signInto manage your virtual machines.</p>
+              <Link to="/signin">
+                  <Button className="cursor-pointer">SignIn</Button>
+              </Link>
+          </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

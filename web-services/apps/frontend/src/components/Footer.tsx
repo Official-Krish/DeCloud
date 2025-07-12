@@ -13,37 +13,37 @@ function Footer() {
     {
       title: 'Product',
       links: [
-        { name: 'Dashboard', href: '#dashboard' },
-        { name: 'Rent VM', href: '#rent-vm' },
-        { name: 'DePIN Hosting', href: '#depin-hosting' },
-        { name: 'Pricing', href: '#pricing' },
+        { name: 'Dashboard', href: '/dashboard' },
+        { name: 'Rent VM', href: '/rent' },
+        { name: 'DePIN Hosting', href: '/hosting' },
+        { name: 'Pricing', href: '/pricing' },
       ],
     },
     {
       title: 'Resources',
       links: [
-        { name: 'Documentation', href: '#docs' },
-        { name: 'API Reference', href: '#api' },
-        { name: 'Tutorials', href: '#tutorials' },
-        { name: 'Status', href: '#status' },
+        { name: 'Documentation', href: '/docs' },
+        { name: 'API Reference', href: '/api' },
+        { name: 'Tutorials', href: '/tutorials' },
+        { name: 'Status', href: '/status' },
       ],
     },
     {
       title: 'Company',
       links: [
-        { name: 'About', href: '#about' },
-        { name: 'Blog', href: '#blog' },
-        { name: 'Careers', href: '#careers' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'About', href: '/about' },
+        { name: 'Blog', href: '/blog' },
+        { name: 'Careers', href: '/careers' },
+        { name: 'Contact', href: '/contact' },
       ],
     },
     {
       title: 'Legal',
       links: [
-        { name: 'Privacy Policy', href: '#privacy' },
-        { name: 'Terms of Service', href: '#terms' },
-        { name: 'Cookie Policy', href: '#cookies' },
-        { name: 'GDPR', href: '#gdpr' },
+        { name: 'Privacy Policy', href: '/privacy' },
+        { name: 'Terms of Service', href: '/terms' },
+        { name: 'Cookie Policy', href: '/cookies' },
+        { name: 'GDPR', href: '/gdpr' },
       ],
     },
   ];

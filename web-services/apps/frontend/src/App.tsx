@@ -9,6 +9,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 import { SignIn } from './pages/Signin';
 import SSHTerminal from './pages/Terminal'
 import { AdminPage } from './pages/Admin'
+import { ComingSoon } from './components/ComingSoon'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/signin" element={<SignIn/>} />
           <Route path="/ssh/:id" element={<SSHTerminal/>} />
           <Route path="/admin" element={<AdminPage/>} />
+          <Route path="*" element={<ComingSoon isDepin={false}/>} />
         </Routes>
       </BrowserRouter>
     </>

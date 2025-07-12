@@ -186,7 +186,7 @@ export function AdminPage() {
     }
   };
 
-  if (!wallet || wallet.publicKey.toBase58() !== ADMIN_KEY) {
+  if (!wallet || wallet.publicKey.toBase58() !== ADMIN_KEY || !localStorage.getItem('token')) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Alert className="max-w-md">
