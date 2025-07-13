@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import compute from '@google-cloud/compute';
 import prisma  from "@decloud/db";
+import { endRentalSession } from "./contract";
 
 const projectId = process.env.PROJECT_ID;
 
@@ -13,7 +14,7 @@ const connection = new IORedis({
 
 const worker = new Worker("vm-termination", async job => {
     try {
-        const { vmId, instanceId, zone } = job.data;
+        const { vmId, instanceId, zone, pubKey } = job.data;
         const vmInstance = await prisma.vMInstance.findFirst({
             where: {
                 id: vmId,
@@ -23,9 +24,11 @@ const worker = new Worker("vm-termination", async job => {
         if (!vmInstance) {
             return;
         }
+        await endRentalSession(vmId, pubKey);
         const operationDone = await deleteInstance(zone, instanceId);
         if (!operationDone) {
-            throw new Error(`Failed to delete VM instance with ID: ${instanceId}`);
+            console.error(`Failed to delete VM instance with ID ${instanceId}`);
+            return;
         }
         await prisma.vMInstance.delete({
             where: {
@@ -33,6 +36,7 @@ const worker = new Worker("vm-termination", async job => {
                 instanceId: instanceId,
             },
         });
+        console.log(`VM instance with ID ${instanceId} deleted and rental session ended successfully.`);
     } catch (error) {
         console.error(`Error processing job ${job.data.vmId}:`, error);
     }
