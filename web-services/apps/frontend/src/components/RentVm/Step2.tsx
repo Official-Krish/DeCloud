@@ -50,7 +50,7 @@ export const Step2 = ( { vmName, selectedVMConfig, diskSize, region, os, duratio
                     </div>
                     <div>
                         <div className="text-sm text-muted-foreground mb-1">Duration</div>
-                        <div className="font-medium">{duration} hours</div>
+                        <div className="font-medium">{duration} Minutes</div>
                     </div>
                     </div>
                     

@@ -58,7 +58,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
             });
             return;
         }
-        const response = await createInstance(name, region, machineType, diskSize, os);
+        const response = await createInstance(name, region, machineType, "10", os);
 
         const transaction = await prisma.$transaction(async (tx) => {
 

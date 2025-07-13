@@ -24,7 +24,7 @@ export const RentVM = () => {
   const [selectedConfig, setSelectedConfig] = useState<string>("");
   const [os, setOs] = useState("");
   const [region, setRegion] = useState("");
-  const [duration, setDuration] = useState(24);
+  const [duration, setDuration] = useState(10);
   const [diskSize, setDiskSize] = useState(10);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCredentialsOpen, setIsCredentialsOpen] = useState(false);

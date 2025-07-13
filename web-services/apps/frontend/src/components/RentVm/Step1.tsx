@@ -201,18 +201,18 @@ export const Step1 = ({
                     <Input
                       type="number"
                       min="10"
-                      max="20"
+                      max="10"
                       value={diskSize}
                       onChange={(e) => setDiskSize(parseInt(e.target.value) || 1)}
                       className="mt-2"
                     />
                   </div>
                   <div>
-                    <Label>Duration (hours)</Label>
+                    <Label>Duration (Minutes)</Label>
                     <Input
                       type="number"
-                      min="1"
-                      max="1"
+                      min="10"
+                      max="10"
                       value={duration}
                       onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
                       className="mt-2"

@@ -8,6 +8,7 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { clusterApiUrl } from '@solana/web3.js'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { ToastContainer } from 'react-toastify'
+import LaneText from './components/Lane.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <ThemeProvider defaultTheme='dark'>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <WalletProvider wallets={[]} autoConnect>
             <WalletModalProvider>
                 <ToastContainer/>
+                <LaneText />
                 <Appbar/>
                 <App />
                 <Footer />

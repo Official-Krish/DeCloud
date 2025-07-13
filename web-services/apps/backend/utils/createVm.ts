@@ -9,6 +9,7 @@ const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';
 export async function createInstance(instanceName: string, zone: string, machineType: string, diskSizeGb: string, os: string) {
     const instancesClient = new compute.InstancesClient();
     // const sourceImage = getSourceImage(os);
+    const machine = 'e2-micro';
     const [response] = await instancesClient.insert({
       instanceResource: {
             name: instanceName,
@@ -23,7 +24,7 @@ export async function createInstance(instanceName: string, zone: string, machine
                     type: 'PERSISTENT',
                 },
             ],
-            machineType: `zones/${zone}/machineTypes/${machineType}`,
+            machineType: `zones/${zone}/machineTypes/${machine}`,
             networkInterfaces: [
                 {
                     name: networkName,

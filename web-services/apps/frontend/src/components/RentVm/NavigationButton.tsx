@@ -65,7 +65,7 @@ export const NavigationButton = ({
                         {Number(costPerMin) * duration} SOL
                       </div>
                       <div className="text-sm text-muted-foreground mb-4">
-                        For{duration} hour(s) at {Number(costPerMin) * 60} SOL/hr
+                        For{duration} Min(s) at {Number(costPerMin) * 60} SOL/hr
                       </div>
                     </div>
                     <Button className="w-full" onClick={handlePayment}>
