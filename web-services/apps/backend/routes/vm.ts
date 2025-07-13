@@ -65,6 +65,27 @@ vm.get("/getAll", authMiddleware, async (req, res) => {
     }
 });
 
+vm.get("/checkNameAvailability", authMiddleware, async (req, res) => {
+    const name = req.query.name as string;
+    if (!name) {
+        return res.status(400).json({ error: "Name is required" });
+    }
+    try {
+        const existingVM = await prisma.vMInstance.findFirst({
+            where: {
+                name: name,
+            },
+        });
+        if (existingVM) {
+            return res.status(200).json({ available: false });
+        }
+        res.status(200).json({ available: true });
+    } catch (error) {
+        console.error("Error checking name availability:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export default vm;
 
 async function getSolPrice() {

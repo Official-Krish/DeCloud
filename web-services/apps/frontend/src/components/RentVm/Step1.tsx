@@ -9,6 +9,8 @@ import { Globe } from "lucide-react";
 import { calculatePrice } from "@/lib/vm";
 import { operatingSystems, regions } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { BACKEND_URL } from "@/config";
 
 interface step1Props {
   selectedVMConfig: VMTypes | null;
@@ -46,6 +48,8 @@ export const Step1 = ({
     setDuration
   } : step1Props ) => {
   const [prices, setPrices] = useState<Record<string, Number>>({});
+  const [response, setResponse] = useState<boolean>();
+
   useEffect(() => {
     // Calculate prices for all VM configurations
     const calculateAllPrices = async () => {
@@ -59,6 +63,27 @@ export const Step1 = ({
 
     calculateAllPrices();
   }, [vms, diskSize]);
+
+  useEffect(() => {
+    const checkNameAvailability = async () => {
+      if (!vmName) {
+        return;
+      }
+      try { 
+        const res = await axios.get(`${BACKEND_URL}/vm/checkNameAvailability?name=${vmName}`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+
+        setResponse(res.data.available)
+
+      } catch (error) {
+        console.error("Error", error);
+      }
+    }
+    checkNameAvailability();
+  }, [vmName]);
 
     return (
         <div>
@@ -82,6 +107,12 @@ export const Step1 = ({
                       onChange={(e) => setVmName(e.target.value)}
                       className="mt-2"
                     />
+                    {vmName && !response && (
+                      <p className="text-red-500 text-sm mt-1">Name already taken.</p>
+                    )}
+                    {vmName && response && (
+                      <p className="text-green-500 text-sm mt-1">This name is available.</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
