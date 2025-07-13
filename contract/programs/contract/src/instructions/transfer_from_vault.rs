@@ -1,7 +1,7 @@
 use anchor_lang::{prelude::*};
 use crate::{errors::Errors, state::{RentalSession, VaultAccount}}; 
 
-pub fn transfer_from_vault(ctx: Context<TransferFromVault>, amount: u64, _id: u64, _secret_key: String) -> Result<()> {
+pub fn transfer_from_vault(ctx: Context<TransferFromVault>, amount: u64, _id: String, _secret_key: String) -> Result<()> {
     require!(amount > 0, Errors::InvalidAmount);
 
     let rental_session = &mut ctx.accounts.rental_session;
@@ -21,7 +21,7 @@ pub fn transfer_from_vault(ctx: Context<TransferFromVault>, amount: u64, _id: u6
 }
 
 #[derive(Accounts)]
-#[instruction(amount: u64, _id: u64, _secret_key: String)]
+#[instruction(amount: u64, _id: String, _secret_key: String)]
 pub struct TransferFromVault<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -36,7 +36,7 @@ pub struct TransferFromVault<'info> {
     pub admin: UncheckedAccount<'info>,
     #[account(
         mut,
-        seeds = [b"rental_session", payer.key().as_ref(), _id.to_le_bytes().as_ref()],
+        seeds = [b"rental_session", payer.key().as_ref(), _id.as_bytes()],
         bump = rental_session.bump,
     )]
     pub rental_session: Account<'info, RentalSession>,

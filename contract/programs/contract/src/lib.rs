@@ -21,18 +21,18 @@ pub mod contract {
         ctx: Context<TransferToVaultAndRent>, 
         amount: u64, 
         duration_seconds: i64,
-        id: u64,
+        id: String,
         secret_key: String
     ) -> Result<()> {
         instructions::transfer_to_vault_and_rent(ctx, amount, duration_seconds, id, secret_key)
     }
 
-    pub fn transfer_from_vault(ctx: Context<TransferFromVault>, amount: u64, id: u64, secret_key: String) -> Result<()> {
+    pub fn transfer_from_vault(ctx: Context<TransferFromVault>, amount: u64, id: String, secret_key: String) -> Result<()> {
         instructions::transfer_from_vault(ctx, amount, id, secret_key)
     }
 
-    pub fn end_rental_session(ctx: Context<EndRentalSession>, id: u64) -> Result<()> {
-        instructions::end_rental_session(ctx, id)
+    pub fn end_rental_session(ctx: Context<EndRentalSession>, id: String, _user_pub_key: Pubkey) -> Result<()> {
+        instructions::end_rental_session(ctx, id, _user_pub_key)
     }
 
     pub fn fund_vault(ctx: Context<FundVault>, amount: u64, secret_key: String) -> Result<()> {

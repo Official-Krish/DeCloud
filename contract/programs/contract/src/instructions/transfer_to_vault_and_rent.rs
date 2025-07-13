@@ -9,7 +9,7 @@ pub fn transfer_to_vault_and_rent(
     ctx: Context<TransferToVaultAndRent>, 
     amount: u64, 
     duration_seconds: i64,
-    id: u64,
+    id: String,
     _secret_key: String,
 ) -> Result<()> {
     require!(amount > 0, Errors::InvalidAmount);
@@ -33,8 +33,10 @@ pub fn transfer_to_vault_and_rent(
     rental_session.id = id;
     rental_session.end_time = rental_session.start_time + duration_seconds;
 
+    let borrowdId = rental_session.id.as_bytes();
+
     let (_rental_session_key, bump) = Pubkey::find_program_address(
-        &[b"rental_session", ctx.accounts.payer.key().as_ref(), id.to_le_bytes().as_ref()],
+        &[b"rental_session", ctx.accounts.payer.key().as_ref(), borrowdId],
         ctx.program_id,
     );
     rental_session.bump = bump;
@@ -44,7 +46,7 @@ pub fn transfer_to_vault_and_rent(
 }
 
 #[derive(Accounts)]
-#[instruction(amount: u64, duration_seconds: i64, id: u64, _secret_key: String)]
+#[instruction(amount: u64, duration_seconds: i64, id: String, _secret_key: String)]
 pub struct TransferToVaultAndRent<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -64,7 +66,7 @@ pub struct TransferToVaultAndRent<'info> {
         init_if_needed,
         payer = payer,
         space = 8 + 32 + 8 + 8 + 8 + 8 + 8 + 1 + 1,
-        seeds = [b"rental_session", payer.key().as_ref(), id.to_le_bytes().as_ref()],
+        seeds = [b"rental_session", payer.key().as_ref(), id.as_bytes()],
         bump
     )]
     pub rental_session: Account<'info, RentalSession>,

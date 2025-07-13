@@ -9,7 +9,7 @@ describe("contract", () => {
   const user = anchor.web3.Keypair.generate();
   const admin = anchor.web3.Keypair.generate();
   let vaultAccount: anchor.web3.PublicKey;
-  const id = 1001;
+  const id = "1001";
   const secretKey = "my_secret_key"; 
 
   const program = anchor.workspace.contract as Program<Contract>;
@@ -69,7 +69,7 @@ describe("contract", () => {
     const tx = await program.methods.transferToVaultAndRent(
         new anchor.BN(1000000000),
         new anchor.BN(10),
-        new anchor.BN(id),
+        id,
         secretKey
     )
     .accounts({
@@ -85,7 +85,7 @@ describe("contract", () => {
   });
 
   it("transfers funds from vault account to user account", async () => {
-    const tx = await program.methods.transferFromVault(new anchor.BN(0.5 * anchor.web3.LAMPORTS_PER_SOL), new anchor.BN(id), secretKey)
+    const tx = await program.methods.transferFromVault(new anchor.BN(0.5 * anchor.web3.LAMPORTS_PER_SOL), id, secretKey)
       .accounts({
         admin: admin.publicKey,
         payer: user.publicKey,
@@ -102,7 +102,7 @@ describe("contract", () => {
     const idBuffer = Buffer.alloc(8);
     idBuffer.writeBigUInt64LE(BigInt(id), 0);
 
-    const tx = await program.methods.endRentalSession(new anchor.BN(id)).accounts({
+    const tx = await program.methods.endRentalSession(id).accounts({
       payer: user.publicKey,
     })
     .signers([user])
