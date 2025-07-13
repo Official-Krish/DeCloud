@@ -8,10 +8,10 @@ export const regions = [
 ];
     
 export const operatingSystems = [
-    { value: "ubuntu-2204-lts", label: "Ubuntu 22.04 LTS", icon: "🐧", description: "Most popular choice" },
-    { value: "ubuntu-2004-lts", label: "Ubuntu 20.04 LTS", icon: "🐧", description: "Long-term support" },
+    // { value: "ubuntu-2204-lts", label: "Ubuntu 22.04 LTS", icon: "🐧", description: "Most popular choice" },
+    // { value: "ubuntu-2004-lts", label: "Ubuntu 20.04 LTS", icon: "🐧", description: "Long-term support" },
     { value: "debian-11", label: "Debian 11", icon: "🌀", description: "Previous stable release" },
-    { value: "centos-7", label: "CentOS 7", icon: "🐧", description: "Enterprise-grade" },
-    { value: "ubuntu-1804-lts", label: "Ubuntu 18.04 LTS", icon: "🐧", description: "Older LTS version" },
-    { value: "debian-10", label: "Debian 10", icon: "🌀", description: "Older stable release" },
+    // { value: "centos-7", label: "CentOS 7", icon: "🐧", description: "Enterprise-grade" },
+    // { value: "ubuntu-1804-lts", label: "Ubuntu 18.04 LTS", icon: "🐧", description: "Older LTS version" },
+    // { value: "debian-10", label: "Debian 10", icon: "🌀", description: "Older stable release" },
 ];

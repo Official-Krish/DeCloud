@@ -14,7 +14,9 @@ import { CredentialModal } from "@/components/RentVm/CredentialModal";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { TransferToVaultAndStartRental } from "@/lib/contract";
+import { generateUUID } from "three/src/math/MathUtils.js";
 
 export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -28,7 +30,7 @@ export const RentVM = () => {
   const [isCredentialsOpen, setIsCredentialsOpen] = useState(false);
   const [vms, setVms] = useState<VMTypes[]>([]);
   const [finalConfig, setFinalConfig] = useState<FinalConfig>();
-  const wallet = useWallet();
+  const wallet = useAnchorWallet();
 
   const steps = [
     { number: 1, title: "Instance Configuration", description: "Choose your VM configuration and basic settings" },
@@ -68,8 +70,21 @@ export const RentVM = () => {
 
   const handlePayment = async () => {
     setIsConfirmOpen(false);
-    // Payment logic here
-    // if payment is successful, call the API to create the VM instance
+    const id = generateUUID();
+    const tx = await TransferToVaultAndStartRental(costPerMin * duration, duration, id ,wallet!)
+    if (!tx) {
+      toast.error("Transaction failed. Please try again.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      return;
+    }
 
     try {
       const res = await axios.post(`${BACKEND_URL}/vmInstance/create`, {
@@ -122,7 +137,7 @@ export const RentVM = () => {
     }
   };
 
-  if (!wallet.connected || !localStorage.getItem("token")) {
+  if (!wallet || !localStorage.getItem("token")) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
           <motion.div

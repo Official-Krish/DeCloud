@@ -19,10 +19,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import { toast } from "react-toastify";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { transferFromVault } from "@/lib/contract";
+import { calculatePrice } from "@/lib/vm";
 
 export function VMDetails() {
-  const wallet = useWallet();
+  const wallet = useAnchorWallet();
   const { id } = useParams();
   const [vm, setVm] = useState<VM>();
   const navigate = useNavigate();
@@ -67,9 +69,20 @@ export function VMDetails() {
           },
         });
         if (res.status === 200) {
+          const remainingPrice = await calculatePrice(vm?.machineType!, Number(vm?.diskSize), res.data.remainingTime);
+          await transferFromVault(Number(remainingPrice), vm?.id as string, wallet!);
           navigate("/dashboard");
         } else {
-            alert("Failed to delete VM");
+          toast.error("Failed to delete VM", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
         }
     } catch (error) {
         console.error("Error deleting VM:", error);
@@ -84,7 +97,7 @@ export function VMDetails() {
     );
   }
 
-  if (!wallet.connected || !localStorage.getItem("token")) {
+  if (!wallet || !localStorage.getItem("token")) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
           <motion.div

@@ -75,7 +75,7 @@ export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, sec
     }
 }
 
-export const transferFromVault = async (amount: number, id: number, wallet: AnchorWallet) => {
+export const transferFromVault = async (amount: number, id: String, wallet: AnchorWallet) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -84,7 +84,7 @@ export const transferFromVault = async (amount: number, id: number, wallet: Anch
     }
   
     try {
-        const tx = program.methods.transferFromVault(new BN(amount * LAMPORTS_PER_SOL), new BN(id), SECRET_KEY)
+        const tx = program.methods.transferFromVault(new BN(amount * LAMPORTS_PER_SOL), id, SECRET_KEY)
             .accounts({
                 admin: new PublicKey(ADMIN_KEY),
                 payer: wallet.publicKey,
@@ -101,7 +101,7 @@ export const transferFromVault = async (amount: number, id: number, wallet: Anch
     }
 }
 
-export const EndRentalSession = async (id: number, wallet: AnchorWallet) => {
+export const EndRentalSession = async (id: String, wallet: AnchorWallet) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -110,7 +110,7 @@ export const EndRentalSession = async (id: number, wallet: AnchorWallet) => {
     }
   
     try {
-        const tx = await program.methods.endRentalSession(new BN(id)).accounts({
+        const tx = await program.methods.endRentalSession(id).accounts({
             payer: wallet.publicKey,
         })
         .rpc();
@@ -125,7 +125,7 @@ export const EndRentalSession = async (id: number, wallet: AnchorWallet) => {
     }
 }
 
-export const TransferToVaultAndStartRental = async (amount: number, duration: number, id: number, wallet: AnchorWallet) => {
+export const TransferToVaultAndStartRental = async (amount: number, duration: number, id: String, wallet: AnchorWallet) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
@@ -134,17 +134,15 @@ export const TransferToVaultAndStartRental = async (amount: number, duration: nu
     }
   
     try {
-        const idBuffer = Buffer.alloc(8);
-        idBuffer.writeBigUInt64LE(BigInt(id), 0);
         const [rentalSessionPda] = PublicKey.findProgramAddressSync(
-            [Buffer.from("rental_session"), wallet.publicKey.toBuffer(), idBuffer],
+            [Buffer.from("rental_session"), wallet.publicKey.toBuffer(), Buffer.from(id)],
             program.programId
         );
   
         const tx = await program.methods.transferToVaultAndRent(
             new BN(amount * LAMPORTS_PER_SOL),
             new BN(duration * 60),
-            new BN(id),
+            id,
             SECRET_KEY
         )
         .accounts({
@@ -152,7 +150,15 @@ export const TransferToVaultAndStartRental = async (amount: number, duration: nu
             payer: wallet.publicKey,
         })
         .rpc();
-  
+        
+        const transactionDetails = await program.provider.connection.getTransaction(tx);
+        const logs = transactionDetails?.meta?.logMessages;
+        const hasTransferLog = logs?.some(log => log.includes("Transferred"));
+
+        if (!hasTransferLog) {
+            console.error("Transfer to vault failed, no transfer log found in transaction");
+            return null;
+        }
         return {
             success: true,
             signature: tx,
