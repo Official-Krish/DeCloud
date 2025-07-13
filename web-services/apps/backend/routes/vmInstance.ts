@@ -28,8 +28,20 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
         return;
     }
 
+    const user = await prisma.user.findFirst({
+        where: {
+            id: userId,
+        },
+    });
+    if (!user) {
+        res.status(404).json({
+            error: "User not found",
+        });
+        return;
+    }
+
     try {
-        const { name, region, price, provider, os, machineType, diskSize, endTime } = parsedBody.data;
+        const { name, region, price, provider, os, machineType, diskSize, endTime, id } = parsedBody.data;
         const existingVm = await prisma.vMInstance.findFirst({
             where: {
                 name,
@@ -46,12 +58,13 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
             });
             return;
         }
+        const response = await createInstance(name, region, machineType, diskSize, os);
 
         const transaction = await prisma.$transaction(async (tx) => {
-            const response = await createInstance(name, region, machineType, diskSize, os);
 
             const vm = await prisma.vMInstance.create({
                 data: {
+                    id: id,
                     name,
                     region,
                     ipAddress: response.ipAddress,
@@ -83,6 +96,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
             instanceId: transaction.instanceId, 
             vmId: transaction.vm.id,
             zone: region,
+            pubKey: user.publicKey
         }, {
             delay: endTime * 60 * 1000,
         });
@@ -216,17 +230,22 @@ vmInstance.delete("/destroy", authMiddleware, async (req, res) => {
             });
             return;
         }
+        const remainingTime = new Date(vmInstance.endTime).getTime() - Date.now();
         await deleteInstance(zone, vmId);
 
-        await prisma.vMInstance.delete({
+        await prisma.vMInstance.update({
             where: {
                 id: vmId,
                 instanceId: vmId,
             },
+            data: {
+                status: "DELETED",
+            }
         });
 
         res.status(200).json({
             message: "VM instance deleted successfully",
+            remainingTime: remainingTime > 0 ? remainingTime : 0,
         });
     } catch (error) {
         console.error("Error during VM instance deletion:", error);

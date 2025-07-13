@@ -4,11 +4,11 @@ import { generateKeyPairSync } from 'crypto';
 
 const networkName = 'global/networks/default';
 const projectId = process.env.PROJECT_ID;
-// const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';
+const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';
 
 export async function createInstance(instanceName: string, zone: string, machineType: string, diskSizeGb: string, os: string) {
     const instancesClient = new compute.InstancesClient();
-    const sourceImage = getSourceImage(os);
+    // const sourceImage = getSourceImage(os);
     const [response] = await instancesClient.insert({
       instanceResource: {
             name: instanceName,
