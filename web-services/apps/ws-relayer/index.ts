@@ -1,12 +1,13 @@
 import type { ServerWebSocket } from "bun";
 import { Client as SSHClient } from "ssh2";
-import { verify, type JwtPayload } from "jsonwebtoken";
+import { type JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const connections = new Map();
 
 const userSessions = new Map<string, {
     userId: string;
-    allowedVMs: string[];
+    allowedVM: string;
     privateKey: string;
     expiresAt: number;
 }>();
@@ -66,8 +67,8 @@ Bun.serve({
 
 function authenticateUser(ws: ServerWebSocket<undefined>, token: string) {
     try {
-        const decoded = verify(token, JWT_SECRET) as JwtPayload;
-        if (!decoded || !decoded.userId || !decoded.privateKey || !decoded.exp) {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        if (!decoded || !decoded.userId || !decoded.privateKey || !decoded.exp || !decoded.allowedVms) {
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid token' }));
             return;
         }
@@ -75,10 +76,9 @@ function authenticateUser(ws: ServerWebSocket<undefined>, token: string) {
             ws.send(JSON.stringify({ type: 'error', message: 'Token expired' }));
             return;
         }
-        
         userSessions.set(ws as any, {
             userId: decoded.userId,
-            allowedVMs: decoded.allowedVMs || [],
+            allowedVM: decoded.allowedVms,
             privateKey: decoded.privateKey,
             expiresAt: decoded.exp * 1000
         });
@@ -86,7 +86,7 @@ function authenticateUser(ws: ServerWebSocket<undefined>, token: string) {
         ws.send(JSON.stringify({ 
             type: 'authenticated', 
             message: 'Authentication successful',
-            allowedVMs: decoded.allowedVMs
+            allowedVMs: decoded.allowedVms
         }));
         
     } catch (err) {
@@ -112,7 +112,7 @@ function canAccessVM(ws: ServerWebSocket<undefined>, vmHost: string): boolean {
     if (!session) return false;
     
     // Check if user has access to this VM
-    return session.allowedVMs.includes(vmHost) || session.allowedVMs.includes('*');
+    return session.allowedVM.includes(vmHost) || session.allowedVM.includes('*');
 }
 
 function connectToVM(ws: ServerWebSocket<undefined>, config: {
