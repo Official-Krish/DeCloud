@@ -74,6 +74,9 @@ vm.get("/checkNameAvailability", authMiddleware, async (req, res) => {
         const existingVM = await prisma.vMInstance.findFirst({
             where: {
                 name: name,
+                status: {
+                    not: "DELETED"
+                }
             },
         });
         if (existingVM) {

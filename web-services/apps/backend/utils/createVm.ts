@@ -1,6 +1,7 @@
 require('dotenv').config();
 import compute from '@google-cloud/compute';
 import { generateKeyPairSync } from 'crypto';
+import sshpk from 'sshpk';
 
 const networkName = 'global/networks/default';
 const projectId = process.env.PROJECT_ID;
@@ -10,6 +11,7 @@ export async function createInstance(instanceName: string, zone: string, machine
     const instancesClient = new compute.InstancesClient();
     // const sourceImage = getSourceImage(os);
     const machine = 'e2-micro';
+    const sshPublicKey = sshpk.parseKey(publicKey, 'pem').toString('ssh');
     const [response] = await instancesClient.insert({
       instanceResource: {
             name: instanceName,
@@ -28,13 +30,20 @@ export async function createInstance(instanceName: string, zone: string, machine
             networkInterfaces: [
                 {
                     name: networkName,
+                    accessConfigs: [
+                        {
+                            name: 'External NAT',
+                            type: 'ONE_TO_ONE_NAT',
+                            networkTier: 'PREMIUM'
+                        }
+                    ]
                 },
             ],
             metadata: {
                 items: [
                     {
                         key: 'ssh-keys',
-                        value: `decloud:${publicKey}`,
+                        value: `decloud:${sshPublicKey}`,
                     },
                 ],
             },
@@ -55,10 +64,10 @@ export async function createInstance(instanceName: string, zone: string, machine
         instance: instanceName,
     });
     const networkInterface = instance.networkInterfaces?.[0];
-    const ipAddress = networkInterface?.networkIP;
+    const ipAddress = networkInterface?.accessConfigs?.[0]?.natIP;
     const instanceId = instance.id;
 
-    return { ipAddress, instanceId, privateKey, publicKey };
+    return { ipAddress, instanceId, privateKey, publicKey: sshPublicKey };
 }
 
 

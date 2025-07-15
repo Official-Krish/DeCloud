@@ -75,7 +75,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
                     userId,
                     instanceId: response.instanceId as unknown as string ?? "unknown",
                     publicKey: response.publicKey,
-                    status: "STARTING",
+                    status: "RUNNING",
                 }
             });
             await prisma.vMConfig.create({
@@ -104,20 +104,18 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
 
         const AuthToken = jwt.sign({
             userId,
-            allowedVms: [transaction.vm.ipAddress],
+            allowedVms: transaction.vm.ipAddress,
             privateKey: transaction.privateKey,
         }, process.env.JWT_SECRET || "my-secret", {
             expiresIn: Math.floor(Number(endTime) * 60 * 1000),
         });
         
         res.status(200).json({
-                message: "VM instance created successfully",
-            json: {
-                vmId: transaction.vm.id,
-                instanceId: transaction.instanceId,
-                ip: transaction.ipAddress,
-                privateKey: AuthToken,
-            }
+            message: "VM instance created successfully",
+            vmId: transaction.vm.id,
+            instanceId: transaction.instanceId,
+            ip: transaction.ipAddress,
+            privateKey: AuthToken,
         });
     } catch (error) {
         console.error("Error during VM instance creation:", error);
@@ -231,13 +229,13 @@ vmInstance.delete("/destroy", authMiddleware, async (req, res) => {
             });
             return;
         }
-        const remainingTime = new Date(vmInstance.endTime).getTime() - Date.now();
+        const remainingTime = vmInstance.endTime.getTime() - Date.now();
         await deleteInstance(zone, instanceId);
 
         await prisma.vMInstance.update({
             where: {
                 id: vmId,
-                instanceId: vmId,
+                instanceId: instanceId,
             },
             data: {
                 status: "DELETED",
