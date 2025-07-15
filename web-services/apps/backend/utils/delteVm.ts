@@ -1,3 +1,4 @@
+require('dotenv').config();
 import compute from '@google-cloud/compute';
 
 const projectId = process.env.PROJECT_ID;
@@ -10,7 +11,5 @@ export async function deleteInstance(zone: string, instanceId: string) {
         zone,
         instance: instanceId,
     });
-    
-    await response.promise();
     return true;
 }

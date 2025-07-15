@@ -74,6 +74,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
                     startTime: new Date(),
                     userId,
                     instanceId: response.instanceId as unknown as string ?? "unknown",
+                    publicKey: response.publicKey,
                     status: "STARTING",
                 }
             });
@@ -231,7 +232,7 @@ vmInstance.delete("/destroy", authMiddleware, async (req, res) => {
             return;
         }
         const remainingTime = new Date(vmInstance.endTime).getTime() - Date.now();
-        await deleteInstance(zone, vmId);
+        await deleteInstance(zone, instanceId);
 
         await prisma.vMInstance.update({
             where: {
@@ -277,6 +278,48 @@ vmInstance.get("/getAll", authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching VM instances:", error);
+        res.status(500).json({
+            error: "Internal server error",
+        });
+    }
+});
+
+vmInstance.get("/getDetails", authMiddleware, async (req, res) => {
+    const userId = req.userId;
+    if (!userId) {
+        res.status(400).json({
+            error: "User ID is required",   
+        });
+        return;
+    }
+    const id = req.query.id as string;
+    if (!id) {
+        res.status(400).json({  
+            error: "VM ID is required",
+        });
+        return;
+    }
+
+    try {
+        const vmInstance = await prisma.vMInstance.findFirst({
+            where: {
+                id: id,
+            },
+            include: {
+                VMConfig: true,
+            },
+        });
+        if (!vmInstance) {
+            res.status(404).json({
+                error: "VM instance not found",
+            });
+            return;
+        }
+        res.status(200).json({
+            vmInstance,
+        });
+    } catch (error) {
+        console.error("Error fetching VM instance details:", error);
         res.status(500).json({
             error: "Internal server error",
         });
