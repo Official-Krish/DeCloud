@@ -149,11 +149,11 @@ export const Step1 = ({
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
+                            <div className="text-right">
                             <div className="font-mono font-medium">
-                              {(prices[config.id]).toFixed(2) + "SOL/hr" || "Calculating..."}
+                              {prices[config.id] ? `${prices[config.id].toFixed(6)} SOL/hr` : "Calculating..."}
                             </div>
-                          </div>
+                            </div>
                         </div>
                       </div>
                     ))}

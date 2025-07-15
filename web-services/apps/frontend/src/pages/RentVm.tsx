@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import type { FinalConfig, VMTypes } from "types/vm";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
@@ -30,6 +30,7 @@ export const RentVM = () => {
   const [isCredentialsOpen, setIsCredentialsOpen] = useState(false);
   const [vms, setVms] = useState<VMTypes[]>([]);
   const [finalConfig, setFinalConfig] = useState<FinalConfig>();
+  const [paymentStatus, setPaymentStatus] = useState<"Pending" | "Success" | "Failed" | "not_started">("not_started");
   const wallet = useAnchorWallet();
 
   const steps = [
@@ -70,9 +71,11 @@ export const RentVM = () => {
 
   const handlePayment = async () => {
     setIsConfirmOpen(false);
-    const id = generateUUID();
+    setPaymentStatus("Pending");
+    const id = generateUUID().substring(0, 32);;
+    console.log("Transaction ID:", id);
     const tx = await TransferToVaultAndStartRental(costPerMin * duration, duration, id ,wallet!)
-    if (!tx) {
+    if (!tx?.success) {
       toast.error("Transaction failed. Please try again.", {
         position: "bottom-right",
         autoClose: 3000,
@@ -83,16 +86,18 @@ export const RentVM = () => {
         progress: undefined,
         theme: "dark",
       });
+      setPaymentStatus("Failed");
       return;
     }
 
     try {
       const res = await axios.post(`${BACKEND_URL}/vmInstance/create`, {
-        name: vmName,
+        id,
+        name: vmName.toLowerCase(),
         price: costPerMin * duration,
         region,
         os,
-        diskSize,
+        diskSize: diskSize.toString(),
         endTime: duration,
         machineType: selectedVMConfig?.machineType,
         provider: "GCP", // Assuming GCP for now, can be dynamic based on selectedConfig
@@ -102,6 +107,7 @@ export const RentVM = () => {
         },
       });
       if (res.status === 200) {
+        setPaymentStatus("Success");
         toast.success("VM instance created successfully!", {
           position: "bottom-right",
           autoClose: 3000,
@@ -151,6 +157,22 @@ export const RentVM = () => {
                   <Button className="cursor-pointer">SignIn</Button>
               </Link>
           </motion.div>
+      </div>
+    );
+  }
+
+  if(paymentStatus === "Pending") {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center items-center"
+        >
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-2" />
+          <h1 className="text-3xl font-bold mb-4">Processing Payment</h1>
+          <p className="text-muted-foreground mb-6">Please wait while we process your payment...</p>
+        </motion.div>
       </div>
     );
   }
@@ -245,6 +267,7 @@ export const RentVM = () => {
             setIsConfirmOpen={setIsConfirmOpen}
             costPerMin={costPerMin}
             duration={duration}
+            paymentStatus={paymentStatus}
             handlePayment={() => {
               handlePayment();
             }}

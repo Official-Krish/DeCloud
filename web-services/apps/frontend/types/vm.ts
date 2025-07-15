@@ -1,18 +1,19 @@
 export interface VM {
     id: string;
     name: string;
-    status: "RUNNING" | "TERMINATING" | "STOPPED" | "BOOTING";
+    status: "RUNNING" | "TERMINATING" | "DELETED" | "BOOTING";
     region: string;
-    os: string;
-    cpu: string;
-    diskSize: string;
     price: string;
     createdAt: string;
     instanceId: string;
     ipAddress: string;
     endTime: Date;
     sshEnabled: true;
-    machineType?: string;
+    VMConfig: {
+        os: string;
+        machineType: string;
+        diskSize: string;
+    };
 }
 
 export interface VMTypes {

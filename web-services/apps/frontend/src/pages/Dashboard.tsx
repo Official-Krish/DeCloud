@@ -160,11 +160,11 @@ export function Dashboard() {
                                         <span>Region</span>
                                     </div>
                                     <div>
-                                        <span className="block font-medium text-foreground">{vm.os}</span>
+                                        <span className="block font-medium text-foreground">{vm.VMConfig.os}</span>
                                         <span>Operating System</span>
                                     </div>
                                     <div>
-                                        <span className="block font-medium text-foreground">{vm.cpu} • {vm.diskSize}</span>
+                                        <span className="block font-medium text-foreground">{1} • {vm.VMConfig.diskSize}</span>
                                         <span>Resources</span>
                                     </div>
                                     <div>

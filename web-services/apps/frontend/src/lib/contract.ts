@@ -6,13 +6,13 @@ import { BN } from "bn.js";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { ADMIN_KEY, SECRET_KEY } from "@/config";
 
-const network = clusterApiUrl('devnet');
+// const network = clusterApiUrl('devnet');
 
 function Contarct(wallet: AnchorWallet): Program {
     if (!wallet) {
         throw new Error("Wallet not connected");
     }
-    const connection = new Connection(network);
+    const connection = new Connection("http://127.0.0.1:8899");
     const provider = new AnchorProvider(connection, wallet, {});
 
     const program = new Program(idl as any, provider);
@@ -45,24 +45,24 @@ export const InitiatesVaultAccount = async (wallet: AnchorWallet, secretKey: str
     }
 };
 
-export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, secretKey: string) => {
+export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, secretKey: String) => {
     const program = Contarct(wallet);
   
     if (!wallet) {
       console.error("Wallet not connected");
       return null;
     }
-  
+    const [vaultAccount] = await PublicKey.findProgramAddressSync(
+        [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(secretKey)],
+        program.programId
+    );
+    console.log("Vault account address:", vaultAccount.toBase58());
     try {
         const tx = await program.methods.fundVault(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
             admin: wallet.publicKey,
         })
         .rpc();
-        const vaultAccount = await PublicKey.findProgramAddress(
-            [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(secretKey)],
-            program.programId
-        );
-        const vaultAccountBalance = await program.provider.connection.getBalance(vaultAccount[0]);
+        const vaultAccountBalance = await program.provider.connection.getBalance(vaultAccount);
         return {
             success: true,
             signature: tx,
@@ -180,7 +180,7 @@ export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet, se
     }
   
     try {
-        const tx = await program.methods.withdrawFromVault(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
+        const tx = await program.methods.withdrawFunds(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
             admin: wallet.publicKey,
         })
         .rpc();

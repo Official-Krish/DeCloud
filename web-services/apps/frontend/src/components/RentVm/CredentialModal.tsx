@@ -148,7 +148,7 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                             <Button 
                                 variant="outline" 
                                 className="flex-1 cursor-pointer"
-                                onClick={() => navigate(`/dashboard/vm/${finalConfig?.vmId}`)}
+                                onClick={() => navigate(`/vm/${finalConfig?.vmId}`)}
                             >
                                 View in Dashboard
                             </Button>

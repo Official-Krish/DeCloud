@@ -25,11 +25,11 @@ export const CostSummary = ( { selectedVMConfig, costPerMin, duration }: CostSum
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span>Instance ({selectedVMConfig.machineType})</span>
-                      <span className="font-mono">{Number(costPerMin) * 60} SOL/hr</span>
+                      <span className="font-mono">{(Number(costPerMin) * 60).toFixed(6)} SOL/hr</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Duration</span>
-                      <span>{duration} hours</span>
+                      <span>{duration} Minutes</span>
                     </div>
                   </div>
 
@@ -37,7 +37,7 @@ export const CostSummary = ( { selectedVMConfig, costPerMin, duration }: CostSum
 
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total Cost</span>
-                    <span className="font-mono">{Number(costPerMin) * duration} SOL</span>
+                    <span className="font-mono">{(Number(costPerMin) * duration).toFixed(6)} SOL</span>
                   </div>
                 </>
               ) : (

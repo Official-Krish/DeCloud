@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 
 interface StatusBadgeProps {
-  status: "RUNNING"  | "TERMINATING" | "STOPPED" | "BOOTING";
+  status: "RUNNING"  | "TERMINATING" | "DELETED" | "BOOTING";
   className?: string;
 }
 
@@ -20,7 +20,7 @@ export function StatusBadge({ status, className = "" }: StatusBadgeProps) {
       border: "border-amber-500/20",
       dot: "bg-amber-500"
     },
-    STOPPED: {
+    DELETED: {
       bg: "bg-neutral-500/10 dark:bg-neutral-500/20",
       text: "text-neutral-700 dark:text-neutral-300",
       border: "border-neutral-500/20", 

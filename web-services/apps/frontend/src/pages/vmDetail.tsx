@@ -32,12 +32,12 @@ export function VMDetails() {
   useEffect(()=> {
     const fetchVMDetails = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/vmInstnace/${id}`, {
+        const response = await axios.get(`${BACKEND_URL}/vmInstance/getDetails?id=${id}`, {
           headers: {
             Authorization: `${localStorage.getItem("token")}`,
           },
         });
-        setVm(response.data);
+        setVm(response.data.vmInstance);
       } catch (error) {
         console.error("Error fetching VM details:", error);
       }
@@ -63,13 +63,13 @@ export function VMDetails() {
 
   const handleDelete = async () => {
     try {
-        const res = await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${vm?.instanceId}&zone=${vm?.region}`, {
+        const res = await axios.delete(`${BACKEND_URL}/vmInstance/destroy?vmId=${id}&instanceId=${vm?.instanceId}&zone=${vm?.region}`, {
           headers: {
             Authorization: `${localStorage.getItem("token")}`,
           },
         });
         if (res.status === 200) {
-          const remainingPrice = await calculatePrice(vm?.machineType!, Number(vm?.diskSize), res.data.remainingTime);
+          const remainingPrice = await calculatePrice(vm?.VMConfig?.machineType!, Number(vm?.VMConfig?.diskSize), res.data.remainingTime);
           await transferFromVault(Number(remainingPrice), vm?.id as string, wallet!);
           navigate("/dashboard");
         } else {
@@ -172,7 +172,7 @@ export function VMDetails() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                   <div>
                     <Label className="text-xs text-muted-foreground">Machine Type</Label>
-                    <div className="font-medium">{vm.cpu}</div>
+                    <div className="font-medium">{1}</div>
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Zone</Label>
@@ -180,7 +180,7 @@ export function VMDetails() {
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Operating System</Label>
-                    <div className="font-medium">{vm.os}</div>
+                    <div className="font-medium">{vm.VMConfig.os}</div>
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">IP Address</Label>
@@ -225,7 +225,7 @@ export function VMDetails() {
                     <div className="flex items-center justify-center w-12 h-12 bg-cyan-500/10 rounded-xl mb-3 mx-auto">
                       <Cpu className="h-6 w-6 text-cyan-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{vm.cpu}</div>
+                    <div className="text-2xl font-bold mb-1">{1}</div>
                     <div className="text-sm text-muted-foreground">Processing Power</div>
                   </div>
                   
@@ -233,7 +233,7 @@ export function VMDetails() {
                     <div className="flex items-center justify-center w-12 h-12 bg-emerald-500/10 rounded-xl mb-3 mx-auto">
                       <MemoryStick className="h-6 w-6 text-emerald-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{vm.diskSize}</div>
+                    <div className="text-2xl font-bold mb-1">{2}</div>
                     <div className="text-sm text-muted-foreground">System Memory</div>
                   </div>
                   
@@ -241,8 +241,8 @@ export function VMDetails() {
                     <div className="flex items-center justify-center w-12 h-12 bg-amber-500/10 rounded-xl mb-3 mx-auto">
                       <HardDrive className="h-6 w-6 text-amber-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{vm.diskSize}</div>
-                    <div className="text-sm text-muted-foreground">SSD Storage</div>
+                    <div className="text-2xl font-bold mb-1">{vm.VMConfig.diskSize}</div>
+                    <div className="text-sm text-muted-foreground">Disk Storage</div>
                   </div>
                 </div>
               </CardContent>
@@ -332,7 +332,7 @@ export function VMDetails() {
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => window.open(`/${vm.instanceId}`, '_blank')}
+                onClick={() => window.open(`/ssh/${vm.instanceId}`, '_blank')}
               >
                 <Monitor className="h-4 w-4 mr-2" />
                     Open in Browser

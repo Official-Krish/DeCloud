@@ -37,7 +37,6 @@ interface VaultOperation {
 
 export function AdminPage() {
     const wallet = useAnchorWallet();
-    console.log('AdminPage wallet:', wallet?.publicKey?.toBase58());
     const [activeTab, setActiveTab] = useState('vault');
     const [isLoading, setIsLoading] = useState(false);
     const [vaultBalance, setVaultBalance] = useState<number | null>(null);
@@ -92,7 +91,7 @@ export function AdminPage() {
             switch (operation) {
                 case 'init':
                     const res = await InitiatesVaultAccount(wallet! ,data.secretKey)
-                    if (!res) {
+                    if (!res?.success) {
                         toast.error('Failed to initialize vault account');
                         return;
                     }
@@ -105,7 +104,7 @@ export function AdminPage() {
                         return;
                     }
                     const resp = await FundVaultAccount(wallet!, parseFloat(data.amount), data.secretKey);
-                    if (!resp) {
+                    if (!resp?.success) {
                         toast.error('Failed to fund vault account');
                         return;
                     }
@@ -122,7 +121,7 @@ export function AdminPage() {
                         return;
                     }
                     const respo = await WithdrawFromVault(withdrawAmount, wallet!, data.secretKey);
-                    if (!respo) {
+                    if (!respo?.success) {
                         toast.error('Failed to withdraw from vault');
                         return;
                     }
@@ -136,7 +135,7 @@ export function AdminPage() {
                         return;
                     }
                     setVaultBalance(balance.balance);
-                    toast.success(`Current vault balance: ${balance} SOL`);
+                    toast.success(`Current vault balance: ${balance.balance} SOL`);
                     break;
             }
         } catch (error) {
@@ -412,6 +411,12 @@ export function AdminPage() {
                     >
                       {isLoading ? 'Checking...' : 'Check Balance'}
                     </Button>
+
+                    {vaultBalance !== null && (
+                      <div className="mt-4 text-sm text-muted-foreground">
+                        Current Vault Balance: <strong>{Number(vaultBalance)} SOL</strong>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
