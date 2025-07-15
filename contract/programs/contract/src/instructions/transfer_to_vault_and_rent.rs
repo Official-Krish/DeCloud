@@ -33,10 +33,10 @@ pub fn transfer_to_vault_and_rent(
     rental_session.id = id;
     rental_session.end_time = rental_session.start_time + duration_seconds;
 
-    let borrowdId = rental_session.id.as_bytes();
+    let borrowd_id = rental_session.id.as_bytes();
 
     let (_rental_session_key, bump) = Pubkey::find_program_address(
-        &[b"rental_session", ctx.accounts.payer.key().as_ref(), borrowdId],
+        &[b"rental_session", ctx.accounts.payer.key().as_ref(), borrowd_id],
         ctx.program_id,
     );
     rental_session.bump = bump;
@@ -65,7 +65,7 @@ pub struct TransferToVaultAndRent<'info> {
     #[account(
         init_if_needed,
         payer = payer,
-        space = 8 + 32 + 8 + 8 + 8 + 8 + 8 + 1 + 1,
+        space = 8 + 32 + 40 + 8 + 8 + 8 + 8 + 1 + 1,
         seeds = [b"rental_session", payer.key().as_ref(), id.as_bytes()],
         bump
     )]

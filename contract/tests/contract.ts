@@ -55,14 +55,12 @@ describe("contract", () => {
     console.log("Your transaction signature", tx);
     const vaultAccountBalance = await anchor.getProvider().connection.getBalance(vaultAccount);
     console.log("Vault account balance:", vaultAccountBalance);
-    assert.ok(vaultAccountBalance > 0, "Vault account should have a balance");
+    assert.ok(vaultAccountBalance > 1, "Vault account should have a balance");
   });
 
   it("transfer to vault account and starts rental session", async () => {    
-    const idBuffer = Buffer.alloc(8);
-    idBuffer.writeBigUInt64LE(BigInt(id), 0);
     const [rentalSessionPda] = await anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("rental_session"), user.publicKey.toBuffer(), idBuffer],
+      [Buffer.from("rental_session"), user.publicKey.toBuffer(), Buffer.from(id)],
       program.programId
     );
 
@@ -102,7 +100,7 @@ describe("contract", () => {
     const idBuffer = Buffer.alloc(8);
     idBuffer.writeBigUInt64LE(BigInt(id), 0);
 
-    const tx = await program.methods.endRentalSession(id).accounts({
+    const tx = await program.methods.endRentalSession(id, user.publicKey).accounts({
       payer: user.publicKey,
     })
     .signers([user])

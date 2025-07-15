@@ -7,7 +7,7 @@ pub fn initialize_vault(ctx: Context<InitializeVault>, _secret_key: String) -> R
     let vault_account = &mut ctx.accounts.vault_account;
     vault_account.owner = ctx.accounts.admin.key();
     let (_vault_account_key, bump) = Pubkey::find_program_address(
-        &[b"vault_account", ctx.accounts.admin.key().as_ref(), b"vault"],
+        &[b"vault_account", ctx.accounts.admin.key().as_ref(), _secret_key.as_bytes()],
         ctx.program_id,
     );
     vault_account.bump = bump;
