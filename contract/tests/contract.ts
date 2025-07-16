@@ -54,7 +54,6 @@ describe("contract", () => {
       .rpc();
     console.log("Your transaction signature", tx);
     const vaultAccountBalance = await anchor.getProvider().connection.getBalance(vaultAccount);
-    console.log("Vault account balance:", vaultAccountBalance);
     assert.ok(vaultAccountBalance > 1, "Vault account should have a balance");
   });
 
@@ -128,5 +127,79 @@ describe("contract", () => {
     const vaultAccountBalance = await anchor.getProvider().connection.getBalance(vaultAccount);
     console.log("Vault account balance after withdrawal:", vaultAccountBalance);
     assert.ok(vaultAccountBalance < 1000000000, "Vault account should have a balance after withdrawal");
+  });
+
+  it("starts a new rental session with escrow", async () => {
+    const [escrowVault, escrowBump] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("escrow_vault"), user.publicKey.toBuffer(), admin.publicKey.toBuffer() ,Buffer.from(id)],
+      program.programId
+    );
+    const tx = await program.methods.startRentalWithEscrow(
+      new anchor.BN(1 * anchor.web3.LAMPORTS_PER_SOL),
+      id,
+    )
+    .accounts({
+      payer: user.publicKey,
+      admin: admin.publicKey,
+      // @ts-ignore
+      escrowVault: escrowVault,
+    })
+    .signers([user])
+    .rpc();
+    const rentalSessionPda = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("rental_session"), user.publicKey.toBuffer(), Buffer.from(id)],
+      program.programId
+    );
+    const rentalSession = await program.account.rentalSession.fetch(rentalSessionPda[0]);
+    assert.ok(rentalSession.isActive, "Rental session should be active after starting with escrow");
+  });
+
+  it("top up escrow session", async () => {
+    const escrowSessionPda = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("escrow_session"), user.publicKey.toBuffer(), Buffer.from(id)],
+      program.programId
+    );
+
+    const tx = await program.methods.topUpEscrow(id, new anchor.BN(0.5 * anchor.web3.LAMPORTS_PER_SOL))
+      .accounts({
+        user: user.publicKey,
+        admin: admin.publicKey,
+      })
+      .signers([user])
+      .rpc();
+
+    const escrowSession = await program.account.escrowSession.fetch(escrowSessionPda[0]);
+    assert.ok(escrowSession.amount.toNumber() > 0, "Escrow session should have a positive amount after top-up");
+  });
+
+  it("finalizes rental escrow", async () => {
+    const escrowSessionPda = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("escrow_session"), user.publicKey.toBuffer(), Buffer.from(id)],
+      program.programId
+    );
+
+    const escrowVault = await anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("escrow_vault"), user.publicKey.toBuffer(), admin.publicKey.toBuffer(), Buffer.from(id)],
+      program.programId
+    );
+
+    const escrow_vault = await anchor.getProvider().connection.getBalance(escrowVault[0]);
+    console.log("Escrow account balance before finalization:", escrow_vault / anchor.web3.LAMPORTS_PER_SOL);
+
+    const tx = await program.methods.finaliseRentalWithEscrow(id, new anchor.BN(0.25 * anchor.web3.LAMPORTS_PER_SOL), secretKey)
+      .accounts({
+        user: user.publicKey,
+        admin: admin.publicKey,
+      })
+      .signers([user])
+      .rpc();
+
+    const escrowSession = await program.account.escrowSession.fetch(escrowSessionPda[0]);
+    const vaultAccountBalance = await anchor.getProvider().connection.getBalance(vaultAccount);
+    console.log("Vault account balance after finalization:", vaultAccountBalance / anchor.web3.LAMPORTS_PER_SOL);
+    const escrowVaultBalance = await anchor.getProvider().connection.getBalance(escrowVault[0]);
+    console.log("Escrow vault balance after finalization:", escrowVaultBalance / anchor.web3.LAMPORTS_PER_SOL);
+    assert.ok(vaultAccountBalance > 2, "Vault account should have a balance after finalization");
+    assert.ok(!escrowSession.isActive, "Escrow session should be inactive after finalization");
   });
 });
