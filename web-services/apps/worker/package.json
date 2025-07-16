@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google-cloud/compute": "^5.2.0",
+    "bs58": "^6.0.0",
     "bullmq": "^5.56.2",
     "ioredis": "^5.6.1"
   }

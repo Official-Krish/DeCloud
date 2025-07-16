@@ -30,11 +30,14 @@ const worker = new Worker("vm-termination", async job => {
             console.error(`Failed to delete VM instance with ID ${instanceId}`);
             return;
         }
-        await prisma.vMInstance.delete({
+        await prisma.vMInstance.update({
             where: {
                 id: vmId,
                 instanceId: instanceId,
             },
+            data: {
+                status: "DELETED",
+            }
         });
         console.log(`VM instance with ID ${instanceId} deleted and rental session ended successfully.`);
     } catch (error) {
