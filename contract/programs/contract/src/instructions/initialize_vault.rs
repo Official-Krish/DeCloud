@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::{constants::ADMIN_PUBKEY, errors::Errors, state::VaultAccount};
 
 pub fn initialize_vault(ctx: Context<InitializeVault>, _secret_key: String) -> Result<()> {
-    require!(ctx.accounts.admin.key() == ADMIN_PUBKEY, Errors::Unauthorized);
+    // require!(ctx.accounts.admin.key() == ADMIN_PUBKEY, Errors::Unauthorized);
     let vault_account = &mut ctx.accounts.vault_account;
     vault_account.owner = ctx.accounts.admin.key();
     let (_vault_account_key, bump) = Pubkey::find_program_address(

@@ -11,3 +11,7 @@ pub struct RentalSession {
     pub is_active: bool,
     pub bump: u8,
 }
+
+impl RentalSession {
+    pub const SIZE: usize = 32 + 40 + 8 + 8 + 8 + 8 + 1 + 1;
+}

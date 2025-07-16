@@ -42,4 +42,25 @@ pub mod contract {
     pub fn withdraw_funds(ctx: Context<WithdrawFunds>, amount: u64, secret_key: String) -> Result<()> {
         instructions::withdraw_funds(ctx, amount, secret_key)
     }
+
+    pub fn start_rental_with_escrow(
+        ctx: Context<StartRentalWithEscrow>, 
+        amount: u64, 
+        id: String
+    ) -> Result<()> {
+        instructions::start_rental_with_escrow(ctx, amount, id)
+    }
+
+    pub fn finalise_rental_with_escrow(
+        ctx: Context<FinalizeRentalEscrow>, 
+        id: String, 
+        amount: u64,
+        secret_key: String
+    ) -> Result<()> {
+        instructions::finalize_rental_escrow(ctx, id, amount, secret_key)
+    }
+
+    pub fn top_up_escrow(ctx: Context<TopUpEscrow>, id: String, amount: u64) -> Result<()> {
+        instructions::top_up_escrow(ctx, id, amount)
+    }
 }
