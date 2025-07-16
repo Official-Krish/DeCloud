@@ -115,7 +115,8 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
             vmId: transaction.vm.id,
             instanceId: transaction.instanceId,
             ip: transaction.ipAddress,
-            privateKey: AuthToken,
+            AuthToken: AuthToken,
+            PrivateKey: transaction.privateKey,
         });
     } catch (error) {
         console.error("Error during VM instance creation:", error);
@@ -269,6 +270,9 @@ vmInstance.get("/getAll", authMiddleware, async (req, res) => {
             },
             include: {
                 VMConfig: true,
+            },
+            orderBy: {
+                createdAt: "desc",
             },
         });
         res.status(200).json({

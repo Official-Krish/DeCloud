@@ -47,11 +47,7 @@ vm.get("/getAll", authMiddleware, async (req, res) => {
     try {
         const vms = await prisma.vMInstance.findMany({
             include: {
-                VMConfig: {
-                    select: {
-                        machineType: true,
-                    },
-                }
+                VMConfig: true
             },
         });
         if (!vms || vms.length === 0) {
