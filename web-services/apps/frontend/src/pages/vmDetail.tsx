@@ -285,23 +285,6 @@ export function VMDetails() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <Label>SSH Command</Label>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="cursor-pointer"
-                        onClick={() => copyToClipboard(`ssh decloud@${vm.ipAddress}`)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                      ssh decloud@{vm.ipAddress}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>With Private Key</Label>
                       <div className="flex space-x-2">
                         <Button 
                         className="cursor-pointer"

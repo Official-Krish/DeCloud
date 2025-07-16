@@ -119,11 +119,6 @@ export const Step1 = ({
                                 <span className="font-medium">{config.machineType}</span>
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
-                              <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-2">
-                                <span>{Number(config.cpu)} vCPU{Number(config.cpu) > 1 ? 's' : ''}</span>
-                                <span>{Number(config.ram)} GB RAM</span>
-                                <span>10 GB Disk Size</span>
-                              </div>
                             </div>
                           </div>
                             <div className="text-right">

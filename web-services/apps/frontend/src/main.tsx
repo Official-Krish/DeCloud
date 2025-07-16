@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <WalletProvider wallets={[]} autoConnect>
             <WalletModalProvider>
                 <ToastContainer/>
-                <LaneText />
+                {window.location.pathname.startsWith("/ssh/") ? null : <LaneText />}
                 <Appbar/>
                 <App />
                 <Footer />

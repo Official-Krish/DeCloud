@@ -28,6 +28,7 @@ import { FundVaultAccount, GetVaultBalance, InitiatesVaultAccount, WithdrawFromV
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 import { ADMIN_KEY, BACKEND_URL } from '@/config';
+import { formatter } from '@/lib/FormatTime';
 
 interface VaultOperation {
   secretKey: string;
@@ -65,8 +66,9 @@ export function AdminPage() {
                         Authorization: `${localStorage.getItem('token')}`
                     }
                 })
+                console.log('Fetched VMs:', res.data);
                 if (res.status === 200) {
-                    setVMs(res.data.vms || []);
+                    setVMs(res.data || []);
                 } else {
                     toast.error('Failed to fetch virtual machines');
                 }
@@ -150,7 +152,7 @@ export function AdminPage() {
             RUNNING: { variant: 'default' as const, icon: CheckCircle, color: 'text-green-500' },
             BOOTING: { variant: 'secondary' as const, icon: Clock, color: 'text-gray-500' },
             TERMINATING: { variant: 'outline' as const, icon: Clock, color: 'text-yellow-500' },
-            STOPPED: { variant: 'destructive' as const, icon: AlertCircle, color: 'text-red-500' }
+            DELETED: { variant: 'destructive' as const, icon: AlertCircle, color: 'text-red-500' }
         };
         
         const config = variants[status];
@@ -442,34 +444,6 @@ export function AdminPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
-                          <div className="text-2xl font-bold text-green-600">
-                            {vms.filter(vm => vm.status === 'RUNNING').length}
-                          </div>
-                          <div className="text-sm text-green-600">Running</div>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-950/20 p-4 rounded-lg">
-                          <div className="text-2xl font-bold text-gray-600">
-                            {vms.filter(vm => vm.status === 'STOPPED').length}
-                          </div>
-                          <div className="text-sm text-gray-600">Stopped</div>
-                        </div>
-                        <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg">
-                          <div className="text-2xl font-bold text-yellow-600">
-                            {vms.filter(vm => vm.status === 'TERMINATING').length}
-                          </div>
-                          <div className="text-sm text-yellow-600">Terminating</div>
-                        </div>
-                        <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg">
-                          <div className="text-2xl font-bold text-red-600">
-                            {vms.filter(vm => vm.status === 'STOPPED').length}
-                          </div>
-                          <div className="text-sm text-red-600">Stopped</div>
-                        </div>
-                      </div>
-
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
@@ -480,26 +454,36 @@ export function AdminPage() {
                               <TableHead>Type</TableHead>
                               <TableHead>Region</TableHead>
                               <TableHead>Resources</TableHead>
-                              <TableHead>Owner</TableHead>
-                              <TableHead>Cost/Month</TableHead>
-                              <TableHead>Created</TableHead>
+                              <TableHead>IP Address</TableHead>
+                              <TableHead>Cost</TableHead>
+                              <TableHead>Duration</TableHead>
+                              <TableHead>Created At</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {paginatedVMs.map((vm) => (
                               <TableRow key={vm.id}>
-                                <TableCell className="font-mono text-sm">{vm.id}</TableCell>
+                                <TableCell className="font-mono text-sm">{vm.instanceId}</TableCell>
                                 <TableCell className="font-medium">{vm.name}</TableCell>
                                 <TableCell>{getStatusBadge(vm.status)}</TableCell>
-                                <TableCell>{vm.machineType}</TableCell>
+                                <TableCell>{vm.VMConfig.machineType}</TableCell>
                                 <TableCell>{vm.region}</TableCell>
                                 <TableCell className="text-sm">
-                                  <div>{vm.cpu}</div>
-                                  <div className="text-muted-foreground">{vm.diskSize} GB</div>
+                                  <div>{vm.VMConfig.os}</div>
+                                  <div className="text-muted-foreground">{vm.VMConfig.diskSize} GB</div>
                                 </TableCell>
                                 <TableCell className="text-sm">{vm.ipAddress}</TableCell>
-                                <TableCell className="font-medium">${vm.price}</TableCell>
-                                <TableCell className="text-sm">{vm.createdAt}</TableCell>
+                                <TableCell className="font-medium">{(Number(vm.price)).toFixed(6)} SOL</TableCell>
+                                <TableCell className="text-sm">
+                                    {
+                                    vm.endTime ? 
+                                      `${Math.floor((new Date(vm.endTime).getTime() - new Date(vm.createdAt).getTime()) / (1000 * 60))} minutes`
+                                    : 
+                                      'N/A'
+                                    }
+
+                                </TableCell>
+                                <TableCell className="text-sm">{formatter.format(new Date(vm.createdAt))}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -562,7 +546,6 @@ export function AdminPage() {
                           </div>
                         </div>
                       )}
-                    </div>
                   </CardContent>
                 </Card>
               )}

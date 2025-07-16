@@ -12,6 +12,7 @@ import { type VM } from "../../types/vm";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { formatter } from "@/lib/FormatTime";
 import { getVmDetails } from "@/lib/vm";
+import { toast } from "react-toastify";
 
 export function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -124,23 +125,37 @@ export function Dashboard() {
                         className="group p-6 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 transition-all duration-300 cursor-poiner"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate(`/vm/${vm.id}`)}
+                        onClick={() => { 
+                            if (vm.status === "RUNNING") {
+                                navigate(`/vm/${vm.id}`);
+                            } else {
+                                toast.info("This VM is not running.", {
+                                    position: "top-right",
+                                    autoClose: 3000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: "dark",
+                                });
+                            }
+                        }}
                     >
                         <div className="flex items-center justify-between cursor-pointer">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-4 mb-3">
-                                    <Link 
-                                        to={`/vm/${vm.id}`}
+                                    <div 
                                         className="text-lg font-semibold truncate hover:text-primary transition-colors"
                                     >
                                         {vm.name}
-                                    </Link>
+                                    </div>
                                     <StatusBadge status={vm.status} />
-                                    <Link to={`/vm/${vm.id}`}>
+                                    <div>
                                         <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                             <ExternalLink className="h-4 w-4" />
                                         </Button>
-                                    </Link>
+                                    </div>
                                 </div>
                                 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
@@ -157,7 +172,7 @@ export function Dashboard() {
                                         <span>Resources</span>
                                     </div>
                                     <div>
-                                        <span className="block font-medium text-foreground font-mono">{vm.price}</span>
+                                        <span className="block font-medium text-foreground font-mono">{(Number(vm.price)).toFixed(6)} SOL</span>
                                         <span>Rented for</span>
                                     </div>
                                 </div>
@@ -165,8 +180,8 @@ export function Dashboard() {
                         </div>
                         
                         <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-sm text-muted-foreground">
-                            <span>Created {formatter.format(new Date(vm.createdAt))}</span>
-                            <span className="font-mono">ID: {vm.id}</span>
+                            <span>Created On: {formatter.format(new Date(vm.createdAt))}</span>
+                            <span className="font-mono">Instance Id: {vm.instanceId}</span>
                         </div>
                     </motion.div>
                 ))}

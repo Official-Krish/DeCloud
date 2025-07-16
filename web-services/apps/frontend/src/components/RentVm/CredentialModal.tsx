@@ -37,9 +37,9 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
         });
     };
     return (
-        <div>
+        <div className="scroll-auto">
             <Dialog open={isCredentialsOpen} onOpenChange={setIsCredentialsOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl scroll-auto">
                     <DialogHeader>
                         <DialogTitle className="flex items-center space-x-2">
                             <Terminal className="h-5 w-5 text-emerald-500" />
@@ -126,27 +126,29 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
 
                                     <div className="mt-4">
                                         <Label>Download Instructions</Label>
-                                        <div className="text-xs text-muted-foreground mt-1">
+                                        <div className="text-xs text-muted-foreground mt-2">
                                             Click the download button to save your private key file.
                                         </div>
                                         <div className="text-xs text-muted-foreground mt-1">
                                             After downloading, set the correct permissions and connect via SSH:
                                         </div>
-                                        <div className="text-xs text-muted-foreground mt-1 flex justify-between">
+                                        <div className="bg-muted p-1 rounded font-mono text-xs mt-1 flex justify-between items-center">
                                             <span className="font-mono">chmod 600 {vmName}-key.pem</span>
                                             <Button 
                                                 variant="ghost" 
                                                 size="sm"
+                                                className="cursor-pointer"
                                                 onClick={() => copyToClipboard(`chmod 600 ${vmName}-key.pem`)}
                                             >
                                                 <Copy className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        <div className="text-xs text-muted-foreground mt-1 flex justify-between">
+                                        <div className="bg-muted p-1 rounded font-mono text-xs mt-1 flex justify-between items-center">
                                             <span className="font-mono">ssh -i {vmName}-key.pem decloud@{finalConfig?.ipAddress}</span>
                                             <Button 
                                                 variant="ghost" 
                                                 size="sm"
+                                                className="cursor-pointer"
                                                 onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}`)}
                                             >
                                                 <Copy className="h-4 w-4" />
