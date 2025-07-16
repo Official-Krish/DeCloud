@@ -17,6 +17,7 @@ interface CredentialModalProps {
         instanceId: string;
         ipAddress: string;
         privateKey: string;
+        AuthToken: string;
     };
 }
 
@@ -88,14 +89,14 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                             className="cursor-pointer"
                                             size="sm"
                                             onClick={() => {
-                                                copyToClipboard(`ssh -i ${vmName}-key.pem ubuntu@${finalConfig?.ipAddress}`)
+                                                copyToClipboard(`ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}`)
                                             }}
                                         >
                                             <Copy className="h-4 w-4" />
                                         </Button>
                                     </div>
                                     <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                                        ssh -i ${vmName}-key.pem ubuntu@${finalConfig?.ipAddress}
+                                        ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}
                                     </div>
                                 </div>
 
@@ -103,14 +104,6 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                     <div className="flex items-center justify-between mb-2">
                                         <Label>Private Key</Label>
                                         <div className="flex space-x-2">
-                                            <Button 
-                                                className="cursor-pointer"
-                                                variant="ghost" 
-                                                size="sm"
-                                                onClick={() => copyToClipboard(finalConfig?.privateKey || '')}
-                                            >
-                                                <Copy className="h-4 w-4" />
-                                            </Button>
                                             <Button variant="ghost" size="sm" className="cursor-pointer" onClick={() => {
                                                 const element = document.createElement("a");
                                                 const file = new Blob([finalConfig?.privateKey || ""], { type: "text/plain" });
@@ -126,10 +119,56 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         </div>
                                     </div>
                                     <div className="bg-muted p-3 rounded font-mono text-xs">
-                                        -----BEGIN RSA PRIVATE KEY-----<br/>
-                                        {finalConfig?.privateKey?.slice(0, 8)}<br/>
+                                        {finalConfig?.privateKey?.slice(0, 30)}<br/>
                                         <span className="text-muted-foreground">[Key truncated for security]</span><br/>
-                                        -----END RSA PRIVATE KEY-----
+                                        -----END PRIVATE KEY-----
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <Label>Download Instructions</Label>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            Click the download button to save your private key file.
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            After downloading, set the correct permissions and connect via SSH:
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1 flex justify-between">
+                                            <span className="font-mono">chmod 600 {vmName}-key.pem</span>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={() => copyToClipboard(`chmod 600 ${vmName}-key.pem`)}
+                                            >
+                                                <Copy className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1 flex justify-between">
+                                            <span className="font-mono">ssh -i {vmName}-key.pem decloud@{finalConfig?.ipAddress}</span>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}`)}
+                                            >
+                                                <Copy className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-4">
+                                        <Label>Auth Token (Required for Browser SSH)</Label>
+                                        <Button 
+                                            className="cursor-pointer"
+                                            variant="ghost" 
+                                            size="sm"
+                                            onClick={() => copyToClipboard(finalConfig?.AuthToken || '')}
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    <div className="bg-muted p-3 rounded font-mono text-xs">
+                                        {finalConfig?.AuthToken.slice(0, 8)} ....... <br/>
+                                        {finalConfig?.AuthToken.slice(-8)}<br/>
+                                        <span className="text-muted-foreground">[Token truncated for security]</span>
                                     </div>
                                 </div>
 
@@ -138,7 +177,7 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         Security Notice
                                     </div>
                                     <div className="text-xs text-amber-600 dark:text-amber-400">
-                                        Save your private key securely. This is the only time it will be displayed.
+                                        Save your private key and auth token securely. This is the only time it will be displayed.
                                     </div>
                                 </div>
                             </CardContent>

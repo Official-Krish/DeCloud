@@ -37,6 +37,7 @@ export const RentVM = () => {
     { number: 1, title: "Instance Configuration", description: "Choose your VM configuration and basic settings" },
     { number: 2, title: "Review & Deploy", description: "Review configuration and deploy your VM" }
   ];
+  const [isNameAvailable, setIsNameAvailable] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchVMConfigs = async () => {
@@ -53,6 +54,27 @@ export const RentVM = () => {
     }
     fetchVMConfigs();
   }, [])
+
+  useEffect(() => {
+    const checkNameAvailability = async () => {
+      if (!vmName) {
+        return;
+      }
+      try { 
+        const res = await axios.get(`${BACKEND_URL}/vm/checkNameAvailability?name=${vmName}`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+
+        setIsNameAvailable(res.data.available)
+
+      } catch (error) {
+        console.error("Error", error);
+      }
+    }
+    checkNameAvailability();
+  }, [vmName]);
 
   const selectedVMConfig = vms.find(config => config.id === selectedConfig);
   const [costPerMin, setCostPerMin] = useState(0);
@@ -73,7 +95,6 @@ export const RentVM = () => {
     setIsConfirmOpen(false);
     setPaymentStatus("Pending");
     const id = generateUUID().substring(0, 32);;
-    console.log("Transaction ID:", id);
     const tx = await TransferToVaultAndStartRental(costPerMin * duration, duration, id ,wallet!)
     if (!tx?.success) {
       toast.error("Transaction failed. Please try again.", {
@@ -122,7 +143,8 @@ export const RentVM = () => {
           vmId: res.data.vmId,
           instanceId: res.data.instanceId,
           ipAddress: res.data.ip,
-          privateKey: res.data.privateKey,
+          privateKey: res.data.PrivateKey,
+          AuthToken: res.data.AuthToken,
         });
         setIsCredentialsOpen(true);
       } else {
@@ -169,9 +191,11 @@ export const RentVM = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center items-center"
         >
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-2" />
-          <h1 className="text-3xl font-bold mb-4">Processing Payment</h1>
-          <p className="text-muted-foreground mb-6">Please wait while we process your payment...</p>
+          <div className="flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-2" />
+            <h1 className="text-3xl font-bold mb-4">Processing Payment</h1>
+            <p className="text-muted-foreground mb-6">Please wait while we process your payment...</p>
+          </div>
         </motion.div>
       </div>
     );
@@ -236,6 +260,7 @@ export const RentVM = () => {
               setRegion={setRegion}
               os={os}
               setOs={setOs}
+              isNameAvailable={isNameAvailable}
               duration={duration}
               setDuration={setDuration}
               selectedVMConfig={selectedVMConfig || null}

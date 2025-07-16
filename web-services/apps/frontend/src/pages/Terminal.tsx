@@ -130,9 +130,9 @@ const SSHTerminal = () => {
                         }));
                         if (commandBuffer.trim()) {
                             setCommandHistory((prevHistory) => [...prevHistory, commandBuffer.trim()]);
-                        if (commandBuffer.trim()) {
-                            setCommandHistory((prevHistory) => [...prevHistory, commandBuffer.trim()]);
-                        }
+                            if (commandBuffer.trim()) {
+                                setCommandHistory((prevHistory) => [...prevHistory, commandBuffer.trim()]);
+                            }
                         }
                         setHistoryIndex(-1);
                         console.log('Command sent:', commandHistory);
@@ -222,6 +222,7 @@ const SSHTerminal = () => {
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
+                console.log('WebSocket message received:', data);
                 
                 switch (data.type) {
                     case 'authenticated':
@@ -231,7 +232,7 @@ const SSHTerminal = () => {
                             type: 'connect',
                             config: {
                                 host: data.allowedVMs,
-                                username: `decloud`,
+                                username: "decloud",
                                 port: 22
                             }
                         }));
@@ -293,6 +294,7 @@ const SSHTerminal = () => {
             xtermRef.current = null;
             fitAddonRef.current = null;
         }
+        window.close();
     }, []);
 
     if (!wallet.connected || !localStorage.getItem("token")) {
@@ -347,7 +349,7 @@ const SSHTerminal = () => {
                         <Button
                             onClick={connect}
                             disabled={!token.trim()}
-                            className="w-full"
+                            className="w-full cursor-pointer"
                         >
                             Connect
                         </Button>
@@ -389,6 +391,8 @@ const SSHTerminal = () => {
                             onClick={disconnect}
                             variant="destructive"
                             size="sm"
+                            className='cursor-pointer'
+                            disabled={!isConnected}
                         >
                             Disconnect
                         </Button>
@@ -399,7 +403,7 @@ const SSHTerminal = () => {
                 <div className="flex-1 p-4">
                     <div 
                         ref={terminalRef}
-                        className="w-full h-[600px] bg-card rounded-lg border shadow-sm"
+                        className="w-full h-[600px] bg-card rounded-lg shadow-sm"
                         style={{ minHeight: '600px' }}
                     />
                 </div>
@@ -413,7 +417,7 @@ const SSHTerminal = () => {
         <div className="min-h-screen bg-background flex items-center justify-center">
             <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Connecting to SSH...</p>
+                <p className="text-muted-foreground">Connecting to VM...</p>
             </div>
         </div>
     );

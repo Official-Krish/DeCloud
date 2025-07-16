@@ -22,58 +22,58 @@ export const Step2 = ( { vmName, selectedVMConfig, diskSize, region, os, duratio
                 className="space-y-8"
             >
                 <Card>
-                <CardHeader>
-                    <CardTitle>Configuration Summary</CardTitle>
-                    <CardDescription>Review your VM configuration before deployment</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                    <div>
-                        <div className="text-sm text-muted-foreground mb-1">Instance Name</div>
-                        <div className="font-medium">{vmName}</div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-muted-foreground mb-1">Machine Type</div>
-                        <div className="font-medium">{selectedVMConfig?.machineType}</div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-muted-foreground mb-1">Region</div>
-                        <div className="font-medium">
-                        {regions.find(r => r.value === region)?.label}
+                    <CardHeader>
+                        <CardTitle>Configuration Summary</CardTitle>
+                        <CardDescription>Review your VM configuration before deployment</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <div className="text-sm text-muted-foreground mb-1">Instance Name</div>
+                                <div className="font-medium">{vmName}</div>
+                            </div>
+                            <div>
+                                <div className="text-sm text-muted-foreground mb-1">Machine Type</div>
+                                <div className="font-medium">{selectedVMConfig?.machineType}</div>
+                            </div>
+                            <div>
+                                <div className="text-sm text-muted-foreground mb-1">Region</div>
+                                <div className="font-medium">
+                                {regions.find(r => r.value === region)?.label}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-sm text-muted-foreground mb-1">OS</div>
+                                <div className="font-medium">
+                                {operatingSystems.find(os_item => os_item.value === os)?.label}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-sm text-muted-foreground mb-1">Duration</div>
+                                <div className="font-medium">{duration} Minutes</div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-muted-foreground mb-1">OS</div>
-                        <div className="font-medium">
-                        {operatingSystems.find(os_item => os_item.value === os)?.label}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-muted-foreground mb-1">Duration</div>
-                        <div className="font-medium">{duration} Minutes</div>
-                    </div>
-                    </div>
-                    
-                    {selectedVMConfig && (
-                    <>
-                        <Separator />
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                            <div className="text-2xl font-bold">{Number(selectedVMConfig.cpu)}</div>
-                            <div className="text-sm text-muted-foreground">vCPUs</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold">{Number(selectedVMConfig.ram)}</div>
-                            <div className="text-sm text-muted-foreground">GB RAM</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold">{diskSize}</div>
-                            <div className="text-sm text-muted-foreground">GB Disk Size</div>
-                        </div>
-                        </div>
-                    </>
-                    )}
-                </CardContent>
+                        
+                        {selectedVMConfig && (
+                            <>
+                                <Separator />
+                                <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <div className="text-2xl font-bold">{Number(selectedVMConfig.cpu)}</div>
+                                        <div className="text-sm text-muted-foreground">vCPUs</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold">{Number(selectedVMConfig.ram)}</div>
+                                        <div className="text-sm text-muted-foreground">GB RAM</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold">{diskSize}</div>
+                                        <div className="text-sm text-muted-foreground">GB Disk Size</div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </CardContent>
                 </Card>
             </motion.div>
         </div>

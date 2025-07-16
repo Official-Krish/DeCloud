@@ -21,13 +21,15 @@ import { BACKEND_URL } from "@/config";
 import { toast } from "react-toastify";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { transferFromVault } from "@/lib/contract";
-import { calculatePrice } from "@/lib/vm";
+import { calculatePrice, getVmDetails } from "@/lib/vm";
+import { formatter } from "@/lib/FormatTime";
 
 export function VMDetails() {
   const wallet = useAnchorWallet();
   const { id } = useParams();
   const [vm, setVm] = useState<VM>();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(()=> {
     const fetchVMDetails = async () => {
@@ -62,6 +64,7 @@ export function VMDetails() {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
         const res = await axios.delete(`${BACKEND_URL}/vmInstance/destroy?vmId=${id}&instanceId=${vm?.instanceId}&zone=${vm?.region}`, {
           headers: {
@@ -69,10 +72,24 @@ export function VMDetails() {
           },
         });
         if (res.status === 200) {
-          const remainingPrice = await calculatePrice(vm?.VMConfig?.machineType!, Number(vm?.VMConfig?.diskSize), res.data.remainingTime);
-          await transferFromVault(Number(remainingPrice), vm?.id as string, wallet!);
+          if(res.data.remainingTime > 0) {
+            const remainingPrice = await calculatePrice(vm?.VMConfig?.machineType!, Number(vm?.VMConfig?.diskSize), res.data.remainingTime);
+            await transferFromVault(Number(remainingPrice), vm?.id as string, wallet!);
+          }
+          setLoading(false);
+          toast.success("VM deleted successfully!", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
           navigate("/dashboard");
         } else {
+          setLoading(false);
           toast.error("Failed to delete VM", {
             position: "bottom-right",
             autoClose: 3000,
@@ -140,15 +157,18 @@ export function VMDetails() {
           
           <div className="flex items-center space-x-2">
             
-            <Button variant="destructive" size="sm" className="cursor-pointer" onClick={() => handleDelete()}>
+            <Button variant="destructive" size="sm" className={`cursor-pointer ${loading ? "opacity-50" : ""}`} 
+              onClick={() => handleDelete()}
+              disabled={loading}
+            >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              {loading ? "Deleting" : "Delete"}
             </Button>
           </div>
         </div>
         
         <p className="text-muted-foreground mt-2">
-          Instance ID: {vm.id} • Created {vm.createdAt}
+          Instance ID: {vm.instanceId} • Created at: {formatter.format(new Date(vm.createdAt))}
         </p>
       </motion.div>
 
@@ -197,12 +217,8 @@ export function VMDetails() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Time Left</Label>
-                    <div className="font-mono text-sm">{Number(Date.now()) - Number(vm.endTime)}</div>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Uptime</Label>
-                    <div className="font-medium">{Number(Date.now()) - Number(vm.createdAt)}</div>
+                    <Label className="text-xs text-muted-foreground">End Time</Label>
+                    <div className="font-mono text-sm">{(formatter.format(new Date(vm.endTime)))}</div>
                   </div>
                 </div>
               </CardContent>
@@ -225,23 +241,23 @@ export function VMDetails() {
                     <div className="flex items-center justify-center w-12 h-12 bg-cyan-500/10 rounded-xl mb-3 mx-auto">
                       <Cpu className="h-6 w-6 text-cyan-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{1}</div>
-                    <div className="text-sm text-muted-foreground">Processing Power</div>
+                    <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).cpu}</div>
+                    <div className="text-sm text-muted-foreground">vCPUs</div>
                   </div>
                   
                   <div className="text-center">
                     <div className="flex items-center justify-center w-12 h-12 bg-emerald-500/10 rounded-xl mb-3 mx-auto">
                       <MemoryStick className="h-6 w-6 text-emerald-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{2}</div>
-                    <div className="text-sm text-muted-foreground">System Memory</div>
+                    <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).ram} GB</div>
+                    <div className="text-sm text-muted-foreground">Ram</div>
                   </div>
                   
                   <div className="text-center">
                     <div className="flex items-center justify-center w-12 h-12 bg-amber-500/10 rounded-xl mb-3 mx-auto">
                       <HardDrive className="h-6 w-6 text-amber-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{vm.VMConfig.diskSize}</div>
+                    <div className="text-2xl font-bold mb-1">{vm.VMConfig.diskSize} GB</div>
                     <div className="text-sm text-muted-foreground">Disk Storage</div>
                   </div>
                 </div>
@@ -250,7 +266,6 @@ export function VMDetails() {
           </motion.div>
 
           {/* SSH Access */}
-          {vm.sshEnabled && (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -274,13 +289,13 @@ export function VMDetails() {
                         variant="ghost" 
                         size="sm"
                         className="cursor-pointer"
-                        onClick={() => copyToClipboard(`ssh ubuntu@${vm.ipAddress}`)}
+                        onClick={() => copyToClipboard(`ssh decloud@${vm.ipAddress}`)}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                      ssh ubuntu@{vm.ipAddress}
+                      ssh decloud@{vm.ipAddress}
                     </div>
                   </div>
 
@@ -292,20 +307,19 @@ export function VMDetails() {
                         className="cursor-pointer"
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard(`ssh -i ${vm.name}-key.pem ubuntu@${vm.ipAddress}`)}
+                          onClick={() => copyToClipboard(`ssh -i ${vm.name}-key.pem decloud@${vm.ipAddress}`)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                      ssh -i {vm.name}-key.pem ubuntu@{vm.ipAddress}
+                      ssh -i {vm.name}-key.pem decloud@{vm.ipAddress}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
-          )}
         </div>
 
         {/* Sidebar */}
@@ -323,7 +337,7 @@ export function VMDetails() {
             <CardContent className="space-y-3">
               <Button 
                 variant="outline" 
-                className="w-full justify-start"
+                className="w-full justify-start cursor-pointer"
                 onClick={() => copyToClipboard(vm.ipAddress)}
               >
                 <Copy className="h-4 w-4 mr-2" />
@@ -331,7 +345,7 @@ export function VMDetails() {
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start"
+                className="w-full justify-start cursor-pointer"
                 onClick={() => window.open(`/ssh/${vm.instanceId}`, '_blank')}
               >
                 <Monitor className="h-4 w-4 mr-2" />

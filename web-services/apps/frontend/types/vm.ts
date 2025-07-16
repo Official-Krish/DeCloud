@@ -29,4 +29,5 @@ export interface FinalConfig {
     instanceId: string;
     ipAddress: string;
     privateKey: string;
+    AuthToken: string;
 }

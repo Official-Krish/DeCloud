@@ -85,7 +85,7 @@ export const NavigationButton = ({
                 </div>
               ) : (
                 <Button
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   onClick={handlePayment}
                   disabled={paymentStatus === "Failed"}
                 >

@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Plus, Search, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Search, ExternalLink } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import { type VM } from "../../types/vm";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { formatter } from "@/lib/FormatTime";
+import { getVmDetails } from "@/lib/vm";
 
 export function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -33,19 +35,6 @@ export function Dashboard() {
         }
         getVMs();
     }, []);
-
-    const deleteVM = async (id: string, instanceId: string, zone: string) => {
-        try {
-            await axios.delete(`${BACKEND_URL}/vmInstnace/destroy/vmId=${id}&instanceId=${instanceId}&zone=${zone}`, {
-                headers: {
-                    Authorization: `${localStorage.getItem("token")}`,
-                },
-            });
-            setVMs(vms.filter(vm => vm.id !== id));
-        } catch (error) {
-            console.error("Error deleting VM:", error);
-        }
-    };
 
     const filteredVMs = vms.filter(vm => {
         const matchesSearch = vm.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -137,7 +126,7 @@ export function Dashboard() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate(`/vm/${vm.id}`)}
                     >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between cursor-pointer">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-4 mb-3">
                                     <Link 
@@ -164,7 +153,7 @@ export function Dashboard() {
                                         <span>Operating System</span>
                                     </div>
                                     <div>
-                                        <span className="block font-medium text-foreground">{1} • {vm.VMConfig.diskSize}</span>
+                                        <span className="block font-medium text-foreground">{`${getVmDetails(vm.VMConfig.machineType).cpu}vCPUs • ${getVmDetails(vm.VMConfig.machineType).ram}Gb Ram`}</span>
                                         <span>Resources</span>
                                     </div>
                                     <div>
@@ -173,18 +162,10 @@ export function Dashboard() {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="outline" size="sm"  className="cursor-pointer"
-                                    onClick={() => deleteVM(vm.id, vm.instanceId, vm.region)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
                         </div>
                         
                         <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-sm text-muted-foreground">
-                            <span>Created {vm.createdAt}</span>
+                            <span>Created {formatter.format(new Date(vm.createdAt))}</span>
                             <span className="font-mono">ID: {vm.id}</span>
                         </div>
                     </motion.div>
