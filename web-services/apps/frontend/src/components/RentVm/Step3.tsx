@@ -11,9 +11,11 @@ interface Step2Props {
     region: string;
     os: string;
     duration: number;
+    paymentType: "duration" | "escrow";
+    escrowAmount?: number;
 }
 
-export const Step3 = ( { vmName, selectedVMConfig, diskSize, region, os, duration}: Step2Props) => {
+export const Step3 = ( { vmName, selectedVMConfig, diskSize, region, os, duration, paymentType, escrowAmount}: Step2Props) => {
     return (
         <div>
             <motion.div
@@ -49,9 +51,21 @@ export const Step3 = ( { vmName, selectedVMConfig, diskSize, region, os, duratio
                                 </div>
                             </div>
                             <div>
-                                <div className="text-sm text-muted-foreground mb-1">Duration</div>
-                                <div className="font-medium">{duration} Minutes</div>
+                                <div className="text-sm text-muted-foreground mb-1">Payment Type</div>
+                                <div className="font-medium">{paymentType.charAt(0).toUpperCase() + paymentType.slice(1)}</div>
                             </div>
+                            {paymentType === "duration" && (
+                                <div>
+                                    <div className="text-sm text-muted-foreground mb-1">Duration</div>
+                                    <div className="font-medium">{duration} Minutes</div>
+                                </div>
+                            )}
+                            {paymentType === "escrow" && (
+                                <div>
+                                    <div className="text-sm text-muted-foreground mb-1">Escrow Amount</div>
+                                    <div className="font-medium">{escrowAmount} SOL</div>
+                                </div>
+                            )}
                         </div>
                         
                         {selectedVMConfig && (

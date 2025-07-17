@@ -301,6 +301,8 @@ export const RentVM = () => {
               region={region}
               os={os}
               duration={duration}
+              paymentType={paymentType}
+              escrowAmount={escrowAmount}
             />
           )}
 
@@ -327,6 +329,9 @@ export const RentVM = () => {
           selectedVMConfig={selectedVMConfig || null}
           costPerMin={costPerMin}
           duration={duration}
+          paymentType={paymentType}
+          escrowAmount={escrowAmount}
+          diskSize={diskSize}
         />
       </div>
 
