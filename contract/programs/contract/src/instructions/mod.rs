@@ -7,6 +7,7 @@ pub mod withdraw_funds;
 pub mod start_rental_with_escrow;
 pub mod finalize_rental_escrow;
 pub mod top_up_escrow;
+pub mod force_terminate_rental;
 
 pub use initialize_vault::*;
 pub use transfer_to_vault_and_rent::*;
@@ -17,3 +18,4 @@ pub use withdraw_funds::*;
 pub use start_rental_with_escrow::*;
 pub use finalize_rental_escrow::*;
 pub use top_up_escrow::*;
+pub use force_terminate_rental::*;

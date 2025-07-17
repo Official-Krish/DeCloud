@@ -63,4 +63,12 @@ pub mod contract {
     pub fn top_up_escrow(ctx: Context<TopUpEscrow>, id: String, amount: u64) -> Result<()> {
         instructions::top_up_escrow(ctx, id, amount)
     }
+
+    pub fn force_terminate_rental(
+        ctx: Context<ForceTerminateRental>, 
+        id: String, 
+        secret_key: String
+    ) -> Result<()> {
+        instructions::force_terminate_rental(ctx, id, secret_key)
+    }
 }

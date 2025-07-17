@@ -2,7 +2,7 @@ use anchor_lang::{prelude::*, system_program};
 
 use crate::{errors::Errors, state::{EscrowSession, RentalSession, VaultAccount}};
 
-pub fn finalize_rental_escrow(ctx: Context<FinalizeRentalEscrow>, _id: String, amount: u64, secret_key: String) -> Result<()> {
+pub fn finalize_rental_escrow(ctx: Context<FinalizeRentalEscrow>, _id: String, amount: u64, _secret_key: String) -> Result<()> {
     let rental = &mut ctx.accounts.rental_session;
     let escrow_session = &mut ctx.accounts.escrow_session;
     let escrow_vault = &ctx.accounts.escrow_vault;
@@ -60,6 +60,9 @@ pub fn finalize_rental_escrow(ctx: Context<FinalizeRentalEscrow>, _id: String, a
     // Update escrow session
     escrow_session.is_active = false;
     escrow_session.amount = 0;
+    escrow_session.user = Pubkey::default();
+    escrow_session.id = String::new();
+    escrow_session.bump = 0; 
 
     // Update rental session
     rental.is_active = false;

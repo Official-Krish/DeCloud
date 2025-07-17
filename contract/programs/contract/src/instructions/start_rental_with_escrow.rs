@@ -24,10 +24,11 @@ pub fn start_rental_with_escrow(
         ctx.program_id,
     );
     let payer_key = payer.key();
+    let admin_key = admin.key();
     let escrow_vault_seeds = &[
         b"escrow_vault",
         payer_key.as_ref(),
-        admin.key.as_ref(),
+        admin_key.as_ref(),
         _id.as_bytes(),
         &[escrow_vault_bump],
     ];
@@ -118,7 +119,7 @@ pub struct StartRentalWithEscrow<'info> {
     /// CHECK: PDA that holds SOL
     #[account(
         mut,
-        seeds = [b"escrow_vault", payer.key().as_ref(), admin.key.as_ref(), _id.as_bytes()],
+        seeds = [b"escrow_vault", payer.key().as_ref(), admin.key().as_ref(), _id.as_bytes()],
         bump
     )]
     pub escrow_vault: UncheckedAccount<'info>,
