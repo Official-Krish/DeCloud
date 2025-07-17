@@ -25,8 +25,6 @@ interface step1Props {
   setRegion: (region: string) => void;
   os: string;
   setOs: (os: string) => void;
-  duration: number; 
-  setDuration: (duration: number) => void;
   isNameAvailable: boolean; 
 }
 
@@ -42,8 +40,6 @@ export const Step1 = ({
     setRegion,
     os,
     setOs,
-    duration = 1, 
-    setDuration,
     isNameAvailable
   } : step1Props ) => {
   const [prices, setPrices] = useState<Record<string, Number>>({});
@@ -207,17 +203,6 @@ export const Step1 = ({
                       max="10"
                       value={diskSize}
                       onChange={(e) => setDiskSize(parseInt(e.target.value) || 1)}
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label>Duration (Minutes)</Label>
-                    <Input
-                      type="number"
-                      min="10"
-                      max="10"
-                      value={duration}
-                      onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
                       className="mt-2"
                     />
                   </div>

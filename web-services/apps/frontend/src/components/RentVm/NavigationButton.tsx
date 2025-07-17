@@ -1,6 +1,7 @@
 import { Button } from "../ui/button";
-import { ChevronLeft, ChevronRight, Loader2, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../ui/dialog";
+import { motion } from "framer-motion";
 
 interface NavigationButtonProps {
     currentStep: number;
@@ -11,7 +12,9 @@ interface NavigationButtonProps {
     costPerMin: Number;
     duration: number;
     handlePayment: () => void;
-    paymentStatus: "Failed" | "Success" | "Pending" | "not_started";
+    canProceedToStep3: boolean;
+    paymentType: "duration" | "escrow";
+    escrowAmount?: number;
 }
 
 export const NavigationButton = ({
@@ -20,13 +23,21 @@ export const NavigationButton = ({
   canProceedToStep2,
   isConfirmOpen,
   setIsConfirmOpen,
-  costPerMin,
   duration,
   handlePayment,
-  paymentStatus
+  canProceedToStep3,
+  paymentType,
+  escrowAmount = 0,
+  costPerMin = 0
+
 }: NavigationButtonProps) => {
   return (
-    <div className="flex justify-between pt-6">
+    <motion.div 
+      className="flex justify-between pt-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
       <Button
         variant="outline"
         onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
@@ -37,23 +48,17 @@ export const NavigationButton = ({
         <span>Back</span>
       </Button>
 
-      {currentStep < 2 ? (
+      {currentStep < 3 ? (
         <Button
           onClick={() => setCurrentStep(currentStep + 1)}
-          disabled={!canProceedToStep2}
+          disabled={currentStep === 1 ? !canProceedToStep2 : !canProceedToStep3}
           className="flex items-center space-x-2 cursor-pointer"
         >
           <span>Continue</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
       ) : (
-        <Dialog open={isConfirmOpen} 
-          onOpenChange={(open) => {
-            if (paymentStatus !== "Pending") {
-              setIsConfirmOpen(open);
-            }
-          }}
-        >
+        <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center space-x-2 cursor-pointer">
               <Zap className="h-4 w-4" />
@@ -64,38 +69,26 @@ export const NavigationButton = ({
             <DialogHeader>
               <DialogTitle>Confirm Deployment</DialogTitle>
               <DialogDescription>
-                You're about to deploy your VM instance with the following cost.
+                You're about to deploy your VM instance with the following {paymentType === "duration" ? "cost" : "escrow deposit"}.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="text-center">
                 <div className="text-3xl font-bold font-mono mb-2">
-                  {(Number(costPerMin) * duration).toFixed(6)} SOL
-                </div>
-                <div className="text-sm text-muted-foreground mb-4">
-                  For {duration} Min(s) at {(Number(costPerMin) * 60).toFixed(6)} SOL/hr
+                  {paymentType === "duration" ?
+                    `≈ ${(Number(costPerMin) * duration).toFixed(3)} SOL`
+                     :
+                    `Escrow Deposit: ${escrowAmount} SOL`
+                  }
                 </div>
               </div>
-              {paymentStatus === "Pending" ? (
-                <div className="text-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-                  <div className="text-sm text-muted-foreground">
-                    Checking payment status...
-                  </div>
-                </div>
-              ) : (
-                <Button
-                  className="w-full cursor-pointer"
-                  onClick={handlePayment}
-                  disabled={paymentStatus === "Failed"}
-                >
-                  {paymentStatus === "Failed" ? "Retry Deployment" : "Confirm Deployment"}
-                </Button>
-              )}
+              <Button className="w-full cursor-pointer" onClick={handlePayment}>
+                {paymentType === "duration" ? "Confirm & Pay with Solana" : "Create Escrow Contract"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </motion.div>
   );
 }

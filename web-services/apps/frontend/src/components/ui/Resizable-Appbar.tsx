@@ -236,7 +236,7 @@ export const NavbarLogo = () => {
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <img
-        src="./Logo.png"
+        src="https://storage.googleapis.com/deployment-main/DeCloud/Logo.png"
         className="rounded-full"
         alt="logo"
         width={30}

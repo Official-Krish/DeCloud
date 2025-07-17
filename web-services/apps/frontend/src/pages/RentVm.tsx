@@ -7,7 +7,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import { calculatePrice } from "@/lib/vm";
 import { Step1 } from "@/components/RentVm/Step1";
-import { Step2 } from "@/components/RentVm/Step2";
+import { Step3 } from "@/components/RentVm/Step3";
 import { NavigationButton } from "@/components/RentVm/NavigationButton";
 import { CostSummary } from "@/components/RentVm/CostSummary";
 import { CredentialModal } from "@/components/RentVm/CredentialModal";
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { TransferToVaultAndStartRental } from "@/lib/contract";
 import { generateUUID } from "three/src/math/MathUtils.js";
+import { Step2 } from "@/components/RentVm/Step2";
 
 export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,11 +32,15 @@ export const RentVM = () => {
   const [vms, setVms] = useState<VMTypes[]>([]);
   const [finalConfig, setFinalConfig] = useState<FinalConfig>();
   const [paymentStatus, setPaymentStatus] = useState<"Pending" | "Success" | "Failed" | "not_started">("not_started");
+  const [paymentType, setPaymentType] = useState<"duration" | "escrow">("duration");
+  const [escrowAmount, setEscrowAmount] = useState(0);
+
   const wallet = useAnchorWallet();
 
   const steps = [
     { number: 1, title: "Instance Configuration", description: "Choose your VM configuration and basic settings" },
-    { number: 2, title: "Review & Deploy", description: "Review configuration and deploy your VM" }
+    { number: 2, title: "Payment Method", description: "Select payment type and configure billing" },
+    { number: 3, title: "Review & Deploy", description: "Review configuration and deploy your VM" }
   ];
   const [isNameAvailable, setIsNameAvailable] = useState<boolean>(false);
 
@@ -90,6 +95,7 @@ export const RentVM = () => {
   }, [selectedVMConfig, diskSize]);
 
   const canProceedToStep2 = (vmName && selectedConfig && region && os);
+  const canProceedToStep3 = !!(selectedVMConfig && (paymentType === "duration" ? duration > 0 : escrowAmount > 0));
 
   const handlePayment = async () => {
     setIsConfirmOpen(false);
@@ -261,8 +267,6 @@ export const RentVM = () => {
               os={os}
               setOs={setOs}
               isNameAvailable={isNameAvailable}
-              duration={duration}
-              setDuration={setDuration}
               selectedVMConfig={selectedVMConfig || null}
               setSelectedVMConfig={(config) => setSelectedConfig(config?.id || "")}
               setStep={setCurrentStep}
@@ -271,9 +275,23 @@ export const RentVM = () => {
             />
           )}
 
-          {/* Step 2: Review */}
+          {/* Step 2: Payment Method */}
           {currentStep === 2 && (
             <Step2
+              selectedVMConfig={selectedVMConfig || null}
+              duration={duration}
+              paymentType={paymentType}
+              setDuration={setDuration}
+              setPaymentType={setPaymentType}
+              setEscrowAmount={setEscrowAmount}
+              escrowAmount={escrowAmount}
+              diskSize={diskSize}
+            />
+          )}
+
+          {/* Step 2: Review */}
+          {currentStep === 3 && (
+            <Step3
               vmName={vmName}
               selectedVMConfig={selectedVMConfig || null}
               diskSize={diskSize}
@@ -292,7 +310,9 @@ export const RentVM = () => {
             setIsConfirmOpen={setIsConfirmOpen}
             costPerMin={costPerMin}
             duration={duration}
-            paymentStatus={paymentStatus}
+            escrowAmount={escrowAmount}
+            canProceedToStep3={canProceedToStep3}
+            paymentType={paymentType}
             handlePayment={() => {
               handlePayment();
             }}

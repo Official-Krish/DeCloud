@@ -114,6 +114,24 @@ export function VMDetails() {
     );
   }
 
+  if (vm.status === "DELETED") {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-3xl font-bold mb-4">VM Deleted</h1>
+          <p className="text-muted-foreground mb-6">This virtual machine has been deleted.</p>
+          <Link to="/dashboard">
+            <Button className="cursor-pointer">Back to Dashboard</Button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (!wallet || !localStorage.getItem("token")) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
@@ -283,8 +301,48 @@ export function VMDetails() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>SSH Command</Label>
+                    <div className="flex items-center justify-between mb-4">
+                      <Label>SSH Commands</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2 justify-between bg-black rounded-lg mb-2">
+                      <div className="text-green-400 p-3 rounded font-mono text-sm">
+                        ssh-keygen -R {vm.ipAddress}
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <Button 
+                        className="cursor-pointer"
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => copyToClipboard(`ssh-keygen -R ${vm.ipAddress}`)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 justify-between bg-black rounded-lg mb-2">
+                      <div className="text-green-400 p-3 rounded font-mono text-sm">
+                        chmod 600 {vm.name}-key.pem
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <Button 
+                        className="cursor-pointer"
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => copyToClipboard(`chmod 600 ${vm.name}-key.pem`)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 justify-between bg-black rounded-lg">
+                      <div className="text-green-400 p-3 rounded font-mono text-sm">
+                        ssh -i {vm.name}-key.pem decloud@{vm.ipAddress}
+                      </div>
                       <div className="flex space-x-2">
                         <Button 
                         className="cursor-pointer"
@@ -296,9 +354,8 @@ export function VMDetails() {
                         </Button>
                       </div>
                     </div>
-                    <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                      ssh -i {vm.name}-key.pem decloud@{vm.ipAddress}
-                    </div>
+
+
                   </div>
                 </CardContent>
               </Card>
