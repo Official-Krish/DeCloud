@@ -5,7 +5,7 @@ import { ChevronRight, Loader2 } from "lucide-react";
 import type { FinalConfig, VMTypes } from "types/vm";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
-import { calculatePrice } from "@/lib/vm";
+import { calculateEscrowEndTime, calculatePrice } from "@/lib/vm";
 import { Step1 } from "@/components/RentVm/Step1";
 import { Step3 } from "@/components/RentVm/Step3";
 import { NavigationButton } from "@/components/RentVm/NavigationButton";
@@ -18,6 +18,7 @@ import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { TransferToVaultAndStartRental } from "@/lib/contract";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import { Step2 } from "@/components/RentVm/Step2";
+import { StartRentalSessionWithEscrow } from "@/lib/Escrow";
 
 export const RentVM = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -100,8 +101,9 @@ export const RentVM = () => {
   const handlePayment = async () => {
     setIsConfirmOpen(false);
     setPaymentStatus("Pending");
-    const id = generateUUID().substring(0, 32);;
-    const tx = await TransferToVaultAndStartRental(costPerMin * duration, duration, id ,wallet!)
+    const id = generateUUID().substring(0, 32);
+    const tx = paymentType === "duration" ?  await TransferToVaultAndStartRental(costPerMin * duration, duration, id ,wallet!) : await StartRentalSessionWithEscrow(wallet!, escrowAmount, id);
+
     if (!tx?.success) {
       toast.error("Transaction failed. Please try again.", {
         position: "bottom-right",
@@ -121,11 +123,12 @@ export const RentVM = () => {
       const res = await axios.post(`${BACKEND_URL}/vmInstance/create`, {
         id,
         name: vmName.toLowerCase(),
-        price: costPerMin * duration,
+        paymentType: paymentType.toUpperCase(),
+        price: paymentType === "duration" ? costPerMin * duration : escrowAmount,
         region,
         os,
         diskSize: diskSize.toString(),
-        endTime: duration,
+        endTime: paymentType === "duration" ? duration : calculateEscrowEndTime(escrowAmount, selectedVMConfig?.machineType!, diskSize),
         machineType: selectedVMConfig?.machineType,
         provider: "GCP", // Assuming GCP for now, can be dynamic based on selectedConfig
       }, {

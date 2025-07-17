@@ -41,3 +41,8 @@ export function getVmDetails(machineType: string){
       return { cpu: 0, ram: 0 }; 
   }
 }
+
+export async function calculateEscrowEndTime(escrowAmount: number, machineType: string, diskSize: number): Promise<Number> {
+  const minCost = (await calculatePrice(machineType, diskSize, 1)).toFixed(6);
+  return (escrowAmount / Number(minCost));
+}

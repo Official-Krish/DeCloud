@@ -18,7 +18,7 @@ async function main() {
     },
     {
         machineType: 'e2-medium',
-        cpu: 1,
+        cpu: 2,
         ram: 4, 
         priceMonthlyUSD: 30.58,
         description: '1 vCPU, 4 GB RAM - Good for moderate workloads and small databases.',

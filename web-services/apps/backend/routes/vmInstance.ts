@@ -41,7 +41,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
     }
 
     try {
-        const { name, region, price, provider, os, machineType, diskSize, endTime, id } = parsedBody.data;
+        const { name, region, price, provider, os, machineType, diskSize, endTime, id, paymentType } = parsedBody.data;
         const existingVm = await prisma.vMInstance.findFirst({
             where: {
                 name,
@@ -66,6 +66,7 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
                 data: {
                     id: id,
                     name,
+                    PaymnentType: paymentType,
                     region,
                     ipAddress: response.ipAddress,
                     endTime: new Date(Date.now() + Number(endTime) * 60 * 1000),

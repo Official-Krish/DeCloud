@@ -5,7 +5,7 @@ import { Clock, FileText, Shield, Wallet } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { calculatePrice } from "@/lib/vm";
+import { calculateEscrowEndTime } from "@/lib/vm";
 import { useEffect, useState } from "react";
 
 interface Step2Props {
@@ -24,13 +24,10 @@ export const Step2 = ({ selectedVMConfig, paymentType, duration, escrowAmount, d
 
     useEffect(() => {
         const calculateEscrowDuration = async () => {
-            if (paymentType === "escrow" && selectedVMConfig) {
-                const minCost = (await calculatePrice(selectedVMConfig.machineType, diskSize, 1)).toFixed(6);
-                console.log("Min cost:", minCost);
-                const duration = escrowAmount / Number(minCost);
-                console.log("Escrow duration in minutes:", duration);
-                setEscrowDuration(duration);
-            }
+          if (paymentType === "escrow"){
+            const endTime = await calculateEscrowEndTime(escrowAmount, selectedVMConfig?.machineType!, diskSize)
+            setEscrowDuration(Number(endTime));
+          }
         };
         calculateEscrowDuration();
     }, [paymentType, selectedVMConfig, escrowAmount, diskSize]);
@@ -128,7 +125,7 @@ export const Step2 = ({ selectedVMConfig, paymentType, duration, escrowAmount, d
                             <div className="bg-muted/50 p-3 rounded-lg">
                               <div className="flex items-center space-x-2 text-sm">
                                 <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">Smart Contract Benefits:</span>
+                                <span className="font-medium">Escrow Contract Benefits:</span>
                               </div>
                               <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-6">
                                 <li>• Automatic usage deduction</li>

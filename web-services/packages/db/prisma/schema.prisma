@@ -9,32 +9,33 @@ datasource db {
 }
 
 model User {
-  id         String       @id @default(cuid())
-  email      String       
-  name       String?
-  publicKey  String       @unique
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  email       String       
+  name        String?
+  publicKey   String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   VMInstances VMInstance[]
 }
 
 model VMInstance {
-  id          String     @id @default(cuid())
-  userId      String
-  name        String
-  status      String      @default("BOOTING")
-  publicKey   String?
-  ipAddress   String?
-  startTime   DateTime
-  endTime     DateTime
-  price       Float
-  region      String  @default("asia-south-2c")
-  provider    VMProvider      
-  instanceId  String?   
-  createdAt   DateTime    @default(now())
+  id            String     @id @default(cuid())
+  userId        String
+  name          String
+  PaymnentType  PaymnentType @default(DURATION)
+  status        String      @default("BOOTING")
+  publicKey     String?
+  ipAddress     String?
+  startTime     DateTime
+  endTime       DateTime
+  price         Float
+  region        String  @default("asia-south-2c")
+  provider      VMProvider      
+  instanceId    String?   
+  createdAt     DateTime    @default(now())
 
-  user        User        @relation(fields: [userId], references: [id])
-  VMConfig    VMConfig?
+  user          User        @relation(fields: [userId], references: [id])
+  VMConfig      VMConfig?
 }
 
 model VMConfig {
@@ -66,4 +67,9 @@ enum VMProvider {
   DIGITALOCEAN
   VULTR
   LOCAL
+}
+
+enum PaymnentType {
+  DURATION
+  ESCROW
 }

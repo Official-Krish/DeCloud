@@ -8,7 +8,7 @@ import { ADMIN_KEY, SECRET_KEY } from "@/config";
 
 // const network = clusterApiUrl('devnet');
 
-function Contarct(wallet: AnchorWallet): Program {
+export function Contarct(wallet: AnchorWallet): Program {
     if (!wallet) {
         throw new Error("Wallet not connected");
     }

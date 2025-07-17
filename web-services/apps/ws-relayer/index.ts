@@ -47,6 +47,7 @@ Bun.serve({
                     disconnectFromVM(ws as ServerWebSocket<undefined>);
                 }
             } catch (err) {
+                console.error("Error processing WebSocket message:", err);
                 ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON' }));
             }
         },
@@ -134,12 +135,12 @@ function connectToVM(ws: ServerWebSocket<undefined>, config: {
     const ssh = new SSHClient();
     
     ssh.on('ready', () => {
-        console.log(`SSH connection established for user ${session.userId} to ${config.host}`);
         ws.send(JSON.stringify({ type: 'status', message: 'SSH connected' }));
         
         // Create a shell session
         ssh.shell((err, stream) => {
             if (err) {
+                console.error('Error creating SSH shell:', err);
                 ws.send(JSON.stringify({ type: 'error', message: err.message }));
                 return;
             }
