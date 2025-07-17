@@ -62,10 +62,20 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
 
         const transaction = await prisma.$transaction(async (tx) => {
 
+            const job = await vmQueue.add("terminate-vm", { 
+                instanceId: transaction.instanceId, 
+                vmId: transaction.vm.id,
+                zone: region,
+                pubKey: user.publicKey
+            }, {
+                delay: endTime * 60 * 1000,
+            });
+
             const vm = await prisma.vMInstance.create({
                 data: {
                     id: id,
                     name,
+                    jobId: job.id || id,
                     PaymnentType: paymentType,
                     region,
                     ipAddress: response.ipAddress,
@@ -93,14 +103,6 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
                 ipAddress: response.ipAddress,
                 privateKey: response.privateKey,
             };
-        });
-        await vmQueue.add("terminate-vm", { 
-            instanceId: transaction.instanceId, 
-            vmId: transaction.vm.id,
-            zone: region,
-            pubKey: user.publicKey
-        }, {
-            delay: endTime * 60 * 1000,
         });
 
         const AuthToken = jwt.sign({

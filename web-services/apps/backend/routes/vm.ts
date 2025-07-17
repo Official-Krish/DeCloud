@@ -3,6 +3,8 @@ import prisma from "@decloud/db";
 import { Router } from "express";
 import axios from "axios";
 import { authMiddleware } from "../utils/middleware";
+import { EscrowTopUpSchema } from "@decloud/types";
+import { vmQueue } from "../redis";
 
 const vm = Router();
 
@@ -81,6 +83,70 @@ vm.get("/checkNameAvailability", authMiddleware, async (req, res) => {
         res.status(200).json({ available: true });
     } catch (error) {
         console.error("Error checking name availability:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+vm.post("/topup", authMiddleware, async (req, res) => {
+    const parsedData = EscrowTopUpSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        res.status(400).json({ error: "Invalid request data" });
+        return;
+    }
+    const userId = req.userId;
+    const user = await prisma.user.findFirst({
+        where: { id: userId },
+        select: { publicKey: true },
+    });
+    if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+    }
+
+    try {
+        const { id, amount, additionalEscrowDuration, instanceId } = parsedData.data;
+        const vmInstance = await prisma.vMInstance.findFirst({
+            where: { 
+                id: id, 
+                instanceId: instanceId,
+            },
+        });
+        if (!vmInstance) {
+            res.status(404).json({ error: "VM instance not found" });
+            return;
+        }
+        if (vmInstance.status !== "ESCROW") {
+            res.status(400).json({ error: "VM instance is not in ESCROW status" });
+            return;
+        }
+
+        const remainingTime = vmInstance.endTime.getTime() - Date.now();
+
+        const oldJob = await vmQueue.getJob(vmInstance.jobId);
+        if (oldJob) await oldJob.remove();
+        const newJob = await vmQueue.add("terminate-vm", {
+            instanceId: vmInstance.instanceId, 
+            vmId: vmInstance.id,
+            zone: vmInstance.region,
+            pubKey: user.publicKey
+        }, {
+            delay: remainingTime + (additionalEscrowDuration * 60 * 1000),
+        });
+
+        const updatedVM = await prisma.vMInstance.update({
+            where: { id: id },
+            data: {
+                price: {
+                    increment: amount,
+                },
+                endTime: new Date(vmInstance.endTime.getTime() + additionalEscrowDuration * 60 * 1000),
+                jobId: newJob.id,
+            },
+        });
+        
+        res.status(200).json({msg: "Top up successful", vm: updatedVM});
+    } catch (error) {
+        console.error("Error during top up:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
