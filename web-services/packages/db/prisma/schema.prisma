@@ -22,7 +22,8 @@ model VMInstance {
   id            String     @id @default(cuid())
   userId        String
   name          String
-  PaymnentType  PaymnentType @default(DURATION)
+  jobId         String    @unique
+  PaymentType  PaymnentType @default(DURATION)
   status        String      @default("BOOTING")
   publicKey     String?
   ipAddress     String?

@@ -23,3 +23,10 @@ export const VmInstanceSchema = z.object({
     diskSize: z.string().default("20"),
     endTime: z.number(),
 })
+
+export const EscrowTopUpSchema = z.object({
+    id: z.string(),
+    instanceId: z.string(),
+    amount: z.number().positive(),
+    additionalEscrowDuration: z.number(),
+})
