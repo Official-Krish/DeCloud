@@ -9,6 +9,7 @@ export interface VM {
     ipAddress: string;
     endTime: Date;
     sshEnabled: true;
+    PaymentType: "DURATION" | "ESCROW";
     VMConfig: {
         os: string;
         machineType: string;

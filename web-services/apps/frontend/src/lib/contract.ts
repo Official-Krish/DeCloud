@@ -12,7 +12,7 @@ export function Contarct(wallet: AnchorWallet): Program {
     if (!wallet) {
         throw new Error("Wallet not connected");
     }
-    const connection = new Connection("http://127.0.0.1:8899");
+    const connection = new Connection(clusterApiUrl('devnet'));
     const provider = new AnchorProvider(connection, wallet, {});
 
     const program = new Program(idl as any, provider);
@@ -56,7 +56,6 @@ export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, sec
         [Buffer.from("vault_account"), wallet.publicKey.toBuffer(), Buffer.from(secretKey)],
         program.programId
     );
-    console.log("Vault account address:", vaultAccount.toBase58());
     try {
         const tx = await program.methods.fundVault(new BN(amount * LAMPORTS_PER_SOL), secretKey).accounts({
             admin: wallet.publicKey,
@@ -103,6 +102,14 @@ export const transferFromVault = async (amount: number, id: String, wallet: Anch
 
 export const EndRentalSession = async (id: String, wallet: AnchorWallet) => {
     const program = Contarct(wallet);
+    const [rentalSessionPDA] = PublicKey.findProgramAddressSync(
+        [
+            Buffer.from("rental_session"),
+            wallet.publicKey.toBuffer(),
+            Buffer.from(id)
+        ],
+        program.programId
+    );
   
     if (!wallet) {
       console.error("Wallet not connected");
@@ -110,8 +117,9 @@ export const EndRentalSession = async (id: String, wallet: AnchorWallet) => {
     }
   
     try {
-        const tx = await program.methods.endRentalSession(id).accounts({
+        const tx = await program.methods.endRentalSession(id, wallet.publicKey).accounts({
             payer: wallet.publicKey,
+            rentalSession: rentalSessionPDA,
         })
         .rpc();
         return {
@@ -151,14 +159,6 @@ export const TransferToVaultAndStartRental = async (amount: number, duration: nu
         })
         .rpc();
         
-        const transactionDetails = await program.provider.connection.getTransaction(tx);
-        const logs = transactionDetails?.meta?.logMessages;
-        const hasTransferLog = logs?.some(log => log.includes("Transferred"));
-
-        if (!hasTransferLog) {
-            console.error("Transfer to vault failed, no transfer log found in transaction");
-            return null;
-        }
         return {
             success: true,
             signature: tx,

@@ -22,6 +22,9 @@ export function Dashboard() {
     const wallet = useWallet();
 
     useEffect(() => {
+        if (!wallet || !localStorage.getItem("token")) {
+            return;
+        }
         const getVMs = async () => {
             try {
                 const res = await axios.get(`${BACKEND_URL}/vmInstance/getAll`, {
