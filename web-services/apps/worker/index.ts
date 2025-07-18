@@ -13,18 +13,19 @@ const connection = new IORedis({
 });
 
 const worker = new Worker("vm-termination", async job => {
+    console.log(`Processing job ${job.id} for VM instance with ID ${job.data.vmId}`);
     try {
-        const { vmId, instanceId, zone, pubKey } = job.data;
+        const { instanceId, zone, pubKey, isEscrow, id } = job.data;
         const vmInstance = await prisma.vMInstance.findFirst({
             where: {
-                id: vmId,
+                id: id,
                 instanceId: instanceId,
             },
         });
         if (!vmInstance) {
             return;
         }
-        await endRentalSession(vmId, pubKey);
+        await endRentalSession(vmInstance.id, pubKey, isEscrow);
         const operationDone = await deleteInstance(zone, instanceId);
         if (!operationDone) {
             console.error(`Failed to delete VM instance with ID ${instanceId}`);
@@ -32,7 +33,7 @@ const worker = new Worker("vm-termination", async job => {
         }
         await prisma.vMInstance.update({
             where: {
-                id: vmId,
+                id: id,
                 instanceId: instanceId,
             },
             data: {
@@ -61,7 +62,7 @@ async function deleteInstance(zone: string, instanceId: string) {
 }
 
 worker.on("completed", (job) => {
-    console.log(`Job completed successfully: ${job.data.vmId}`);
+    console.log(`Job completed successfully: ${job.data.instanceId}`);
 });
 
 worker.on("failed", (job, err) => {

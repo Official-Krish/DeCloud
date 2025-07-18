@@ -6,7 +6,8 @@ import bs58 from 'bs58';
 
 const connection = new Connection(clusterApiUrl("devnet"));
 
-const secretKey = process.env.SECRET_KEY; 
+const secretKey = process.env.PRIVATE_KEY;
+const vaultSecretKey = process.env.SECRET_KEY; 
 
 if (!secretKey) {
   throw new Error("SECRET_KEY environment variable is not set.");
@@ -32,30 +33,66 @@ const provider = new AnchorProvider(connection, wallet, AnchorProvider.defaultOp
 const program = new Program(idl as any, provider);
 
 export async function endRentalSession(
-  id: string,
-  userPubKey: string
+    id: string,
+    userPubKey: string,
+    isEscrow: boolean
 ) {
+    console.log("=== DEBUG INFO ===");
+    console.log("Input userPubKey string:", userPubKey);
+    console.log("Input id:", id);
+    console.log("Server wallet (payer):", wallet.publicKey.toString());
+    
     const userPublicKey = new PublicKey(userPubKey);
-    const [rentalSessionPda, _rentalSessionBump] = PublicKey.findProgramAddressSync(
+    console.log("Actual user public key:", userPublicKey.toString());
+    
+    const [rentalSessionPDA, bump] = PublicKey.findProgramAddressSync(
         [
             Buffer.from("rental_session"),
             userPublicKey.toBuffer(), 
-            Buffer.from(id), 
+            Buffer.from(id)
         ],
-        program.programId 
+        program.programId
     );
-
+    
+    console.log("Generated PDA:", rentalSessionPDA.toString());
+    console.log("PDA Bump:", bump);
+    
     try {
-        const tx = await program.methods.endRentalSession(id, userPublicKey)
-          .accounts({
-            payer: wallet.publicKey,
-            rentalSession: rentalSessionPda, 
-          })
-          .signers([payerKeypair]) 
-          .rpc();
+        if (!isEscrow) {
+            const accountInfo = await connection.getAccountInfo(rentalSessionPDA);
+            console.log("Account exists:", accountInfo !== null);
+            
+            if (!accountInfo) {
+                throw new Error(`Rental session account not found at PDA: ${rentalSessionPDA.toString()}`);
+            }
+            
+            const tx = await program.methods
+                .endRentalSession(id, userPublicKey)  
+                .accounts({
+                    payer: wallet.publicKey,          
+                    rentalSession: rentalSessionPDA,  
+                })
+                .signers([payerKeypair]) 
+                .rpc();
 
-        console.log("Transaction signature:", tx);
-        return tx; 
+            console.log("Transaction signature:", tx);
+            return tx;
+        } else {
+            if (!vaultSecretKey) {
+                throw new Error("SECRET_KEY environment variable is not set for escrow termination.");
+            }
+            
+            const txn = await program.methods
+                .forceTerminateRental(id, vaultSecretKey)
+                .accounts({
+                    admin: wallet.publicKey,   
+                    user: userPublicKey,       
+                })
+                .signers([payerKeypair])
+                .rpc();
+            console.log("Force terminate transaction signature:", txn);
+            return txn;
+        }
     } catch (error) {
         console.error("Error ending rental session:", error);
         throw error; 
