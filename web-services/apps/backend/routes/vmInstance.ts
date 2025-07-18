@@ -61,22 +61,21 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
         const response = await createInstance(name, region, machineType, "10", os);
 
         const transaction = await prisma.$transaction(async (tx) => {
-
             const job = await vmQueue.add("terminate-vm", { 
-                instanceId: transaction.instanceId, 
-                vmId: transaction.vm.id,
+                instanceId: response.instanceId, 
                 zone: region,
-                pubKey: user.publicKey
+                pubKey: user.publicKey,
+                isEscrow: paymentType === "ESCROW",
+                id: id,
             }, {
                 delay: endTime * 60 * 1000,
             });
-
             const vm = await prisma.vMInstance.create({
                 data: {
                     id: id,
                     name,
                     jobId: job.id || id,
-                    PaymnentType: paymentType,
+                    PaymentType: paymentType,
                     region,
                     ipAddress: response.ipAddress,
                     endTime: new Date(Date.now() + Number(endTime) * 60 * 1000),
