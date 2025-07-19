@@ -66,7 +66,6 @@ const SSHTerminal = () => {
             let commandBuffer = '';
             terminal.onData((data) => {
                 if (data === '\x1b[A') { // Up arrow - previous command
-                    console.log('Up arrow pressed', commandHistory, historyIndex);
                     if (commandHistory.length > 0) {
                         const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
                         setHistoryIndex(newIndex);
@@ -77,7 +76,6 @@ const SSHTerminal = () => {
                         terminal.write('decloud@test2:~$ ');
                         
                         // Write historical command
-                        console.log(`Historical command: ${historicalCommand}`);
                         terminal.write(historicalCommand);
                         
                         // Update state
@@ -101,7 +99,6 @@ const SSHTerminal = () => {
                             setHistoryIndex(-1);
                         } else {
                             const historicalCommand = commandHistory[newIndex];
-                            console.log(`Next command: ${historicalCommand}`);
                             terminal.write(historicalCommand);
                             commandBuffer = historicalCommand;
                             setCursorPosition(historicalCommand.length);
@@ -135,7 +132,6 @@ const SSHTerminal = () => {
                             }
                         }
                         setHistoryIndex(-1);
-                        console.log('Command sent:', commandHistory);
                         commandBuffer = '';
                         terminal.write('\r\n');
                     }
@@ -222,7 +218,6 @@ const SSHTerminal = () => {
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log('WebSocket message received:', data);
                 
                 switch (data.type) {
                     case 'authenticated':

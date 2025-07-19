@@ -37,13 +37,8 @@ export async function endRentalSession(
     userPubKey: string,
     isEscrow: boolean
 ) {
-    console.log("=== DEBUG INFO ===");
-    console.log("Input userPubKey string:", userPubKey);
-    console.log("Input id:", id);
-    console.log("Server wallet (payer):", wallet.publicKey.toString());
     
     const userPublicKey = new PublicKey(userPubKey);
-    console.log("Actual user public key:", userPublicKey.toString());
     
     const [rentalSessionPDA, bump] = PublicKey.findProgramAddressSync(
         [
@@ -54,14 +49,10 @@ export async function endRentalSession(
         program.programId
     );
     
-    console.log("Generated PDA:", rentalSessionPDA.toString());
-    console.log("PDA Bump:", bump);
-    
     try {
         if (!isEscrow) {
             const accountInfo = await connection.getAccountInfo(rentalSessionPDA);
-            console.log("Account exists:", accountInfo !== null);
-            
+    
             if (!accountInfo) {
                 throw new Error(`Rental session account not found at PDA: ${rentalSessionPDA.toString()}`);
             }
@@ -75,7 +66,6 @@ export async function endRentalSession(
                 .signers([payerKeypair]) 
                 .rpc();
 
-            console.log("Transaction signature:", tx);
             return tx;
         } else {
             if (!vaultSecretKey) {
@@ -90,7 +80,6 @@ export async function endRentalSession(
                 })
                 .signers([payerKeypair])
                 .rpc();
-            console.log("Force terminate transaction signature:", txn);
             return txn;
         }
     } catch (error) {

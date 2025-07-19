@@ -1,6 +1,7 @@
 import { VanishInput } from "../ui/vanish-input";
 import { useState } from "react";
 import { Spotlight } from "../ui/spotLight";
+import { toast } from "react-toastify";
 
 export default function WaitList() {
   const [email, setEmail] = useState("");
@@ -15,12 +16,11 @@ export default function WaitList() {
     e.preventDefault();
     if (!email) return;
     try {
-      console.log("Submitting email:", email);
       setEmail("");
-      alert("Successfully added to waitlist!");
+      toast.success("Successfully added to the waitlist!");
     } catch (error) {
       console.error("Error adding to waitlist:", error);
-      alert("Failed to add to waitlist. Please try again later.");
+      toast.error("Failed to add to the waitlist. Please try again.");
     }
   };
   return (

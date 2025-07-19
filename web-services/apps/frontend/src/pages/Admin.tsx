@@ -66,7 +66,6 @@ export function AdminPage() {
                         Authorization: `${localStorage.getItem('token')}`
                     }
                 })
-                console.log('Fetched VMs:', res.data);
                 if (res.status === 200) {
                     setVMs(res.data || []);
                 } else {

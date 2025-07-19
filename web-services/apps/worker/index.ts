@@ -51,13 +51,12 @@ const worker = new Worker("vm-termination", async job => {
 async function deleteInstance(zone: string, instanceId: string) {
     const instancesClient = new compute.InstancesClient();
   
-    const [response] = await instancesClient.delete({
+    await instancesClient.delete({
         project: projectId,
         zone,
         instance: instanceId,
     });
     
-    await response.promise();
     return true;
 }
 

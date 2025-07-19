@@ -20,7 +20,7 @@ export const VmInstanceSchema = z.object({
     provider: z.enum(["AWS", "AZURE", "GCP", "DIGITALOCEAN", "VULTR"]),
     os: z.enum(["ubuntu-20.04", "ubuntu-22.04", "debian-11", "ubuntu-18.04", "debian-10", "centos-7"]).default("ubuntu-22.04"),
     machineType: z.enum(["e2-medium", "e2-small", "e2-micro", "e2-standard"]).default("e2-micro"),
-    diskSize: z.string().default("20"),
+    diskSize: z.string().default("10"),
     endTime: z.number(),
 })
 
