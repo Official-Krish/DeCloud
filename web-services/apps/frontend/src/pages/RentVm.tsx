@@ -120,6 +120,7 @@ export const RentVM = () => {
     }
 
     try {
+      const endTime = paymentType === "duration" ? duration : await calculateEscrowEndTime(escrowAmount, selectedVMConfig?.machineType!, diskSize);
       const res = await axios.post(`${BACKEND_URL}/vmInstance/create`, {
         id,
         name: vmName.toLowerCase(),
@@ -128,7 +129,7 @@ export const RentVM = () => {
         region,
         os,
         diskSize: diskSize.toString(),
-        endTime: paymentType === "duration" ? duration : calculateEscrowEndTime(escrowAmount, selectedVMConfig?.machineType!, diskSize),
+        endTime: endTime,
         machineType: selectedVMConfig?.machineType,
         provider: "GCP", // Assuming GCP for now, can be dynamic based on selectedConfig
       }, {
@@ -157,7 +158,7 @@ export const RentVM = () => {
         });
         setIsCredentialsOpen(true);
       } else {
-        toast.error("Failed to create VM instance. Please try again.", {
+        toast.error(`Failed to create VM instance.`, {
           position: "bottom-right",
           autoClose: 3000,
           hideProgressBar: false,

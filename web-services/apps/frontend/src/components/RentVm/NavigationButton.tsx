@@ -2,6 +2,9 @@ import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../ui/dialog";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { BACKEND_URL } from "@/config";
 
 interface NavigationButtonProps {
     currentStep: number;
@@ -82,7 +85,30 @@ export const NavigationButton = ({
                   }
                 </div>
               </div>
-              <Button className="w-full cursor-pointer" onClick={handlePayment}>
+              <Button className="w-full cursor-pointer" 
+                onClick={async () => {
+                  const res = await axios.get(`${BACKEND_URL}/user/checkTimeout`, {
+                    headers: {
+                      Authorization: `${localStorage.getItem("token")}`,
+                    },
+                  });
+                  if (res.data.error) {
+                    toast.error("You can only create a VM once every 12 hours", {
+                      position: "bottom-right",
+                      autoClose: 3000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: "dark",
+                    });
+                    setIsConfirmOpen(false);
+                    return;
+                  }
+                  handlePayment();
+                }}
+              >
                 {paymentType === "duration" ? "Confirm & Pay with Solana" : "Create Escrow Contract"}
               </Button>
             </div>

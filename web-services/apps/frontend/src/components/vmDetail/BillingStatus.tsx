@@ -5,7 +5,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Zap, Wallet, Clock } from "lucide-react";
+import { Plus, Zap, Wallet } from "lucide-react";
 import type { VM } from "types/vm";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -17,15 +17,12 @@ import { BACKEND_URL } from "@/config";
 
 export const BillingStatus = ({ vm }: { vm: VM }) => {
     const wallet = useAnchorWallet();
-    const isEscrow = vm.paymentType === "ESCROW";
     const [isTopUpOpen, setIsTopUpOpen] = useState(false);
     const [topUpAmount, setTopUpAmount] = useState(0.1);
     const [additionalEscrowDuration, setAdditionalEscrowDuration] = useState(0);
     const [timeUsed, setTimeUsed] = useState(0);
-    let timeRemaining = 0;
-    const timeProgress = isEscrow ? 
-    ((timeUsed / Number(vm.endTime)) * 100) : 
-    ((timeUsed / Number(vm.endTime)) * 100);
+    const [timeRemaining, setTimeRemaining] = useState(0);
+    const timeProgress = ((timeUsed / Number(vm.endTime)) * 100);
 
     const handleTopUp = async () => {
         if (topUpAmount < 0.1) {
@@ -60,6 +57,11 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
                 instanceId: vm.instanceId,
                 amount: topUpAmount,
                 additionalEscrowDuration: additionalEscrowDuration,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${localStorage.getItem("token")}`,
+                },
             })
             if (res.status === 200) {
                 toast.success("Escrow balance topped up successfully", {
@@ -92,14 +94,12 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
 
     useEffect(() => {
         const calculateEscrowDuration = async () => {
-            if (isEscrow){
-                const endTime = await calculateEscrowEndTime(topUpAmount, vm.VMConfig.machineType, Number(vm.VMConfig.diskSize))
-                setAdditionalEscrowDuration(Number(endTime));
-                const timePassed = vm.createdAt ? ((Date.now() - new Date(vm.createdAt).getTime()) / 1000 * 60) : 0;
-                const used = await calculatePrice(vm.VMConfig.machineType, Number(vm.VMConfig.diskSize), timePassed);
-                setTimeUsed(Number(used));
-                timeRemaining = new Date(vm.endTime).getTime() - Number(used);
-            }
+            const endTime = await calculateEscrowEndTime(topUpAmount, vm.VMConfig.machineType, Number(vm.VMConfig.diskSize))
+            setAdditionalEscrowDuration(Number(endTime));
+            const timePassed = vm.createdAt ? Math.floor((Date.now() - new Date(vm.createdAt).getTime()) / 1000 / 60) : 0;
+            const used = await calculatePrice(vm.VMConfig.machineType, Number(vm.VMConfig.diskSize), timePassed);
+            setTimeUsed(Number(used));
+            setTimeRemaining(new Date(vm.endTime).getTime() - Date.now());
         };
         calculateEscrowDuration();
     }, [topUpAmount]);
@@ -112,8 +112,8 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                        {isEscrow ? <Wallet className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
-                        <span>{isEscrow ? "Escrow Balance" : "Runtime Status"}</span>
+                        {<Wallet className="h-5 w-5" />}
+                        <span>Escrow Balance</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -125,7 +125,7 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
                             </div>
                             <Dialog open={isTopUpOpen} onOpenChange={setIsTopUpOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="flex items-center space-x-2">
+                                    <Button className="flex items-center space-x-2 cursor-pointer">
                                         <Plus className="h-4 w-4" />
                                         <span>Top Up</span>
                                     </Button>
@@ -149,18 +149,15 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
                                                 className="mt-2"
                                             />
                                             <p className="text-xs text-muted-foreground mt-1">
-                                                ≈ {additionalEscrowDuration / 60} additional hours of runtime
+                                                ≈ {(additionalEscrowDuration / 1440).toFixed(3)} additional days of runtime
                                             </p>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-lg font-bold font-mono mb-2">
                                                 {topUpAmount.toFixed(3)} SOL
                                             </div>
-                                            <div className="text-sm text-muted-foreground">
-                                                ≈ ${(topUpAmount * 145.2).toFixed(2)} USD
-                                            </div>
                                         </div>
-                                        <Button className="w-full" onClick={handleTopUp}>
+                                        <Button className="w-full cursor-pointer" onClick={handleTopUp}>
                                             <Zap className="h-4 w-4 mr-2" />
                                             Confirm Top Up
                                         </Button>
@@ -171,12 +168,12 @@ export const BillingStatus = ({ vm }: { vm: VM }) => {
                         
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span>Used: {timeUsed} SOL</span>
+                                <span>Used: {timeUsed.toFixed(6)} SOL</span>
                                 <span>Total: {vm.price} SOL</span>
                             </div>
                             <Progress value={timeProgress} className="h-2" />
                             <div className="text-xs text-muted-foreground">
-                                ≈ {Math.floor(timeRemaining)} hours remaining at current rate
+                                ≈ {Math.floor(timeRemaining / 1000 / 60 / 1440)} days remaining at current rate
                             </div>
                         </div>
                     </>

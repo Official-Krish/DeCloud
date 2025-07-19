@@ -74,11 +74,12 @@ export const Step2 = ({ selectedVMConfig, paymentType, duration, escrowAmount, d
                     <Label>Duration (minutes)</Label>
                     <Input
                       type="number"
-                      min="1"
-                      max="168"
+                      min={0}
+                      max={10} 
                       value={duration}
-                      onChange={(e) => setDuration && setDuration(parseInt(e.target.value) || 1)}
-                      className="mt-2 w-32"
+                      placeholder="Enter duration in minutes"
+                      onChange={(e) => setDuration && setDuration(parseInt(e.target.value))}
+                      className="mt-2 w-33"
                     />
                   </motion.div>
                 )}

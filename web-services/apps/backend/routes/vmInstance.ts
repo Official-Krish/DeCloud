@@ -40,6 +40,18 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
         return;
     }
 
+    if (user.timeoutAt) {
+        const userTimeout = new Date().getTime() - new Date(user.timeoutAt).getTime();
+        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+
+        if (userTimeout < twelveHoursInMilliseconds) {
+            res.status(403).json({
+                error: "You can only create a VM once every 12 hours",
+            });
+            return;
+        }
+    }
+
     try {
         const { name, region, price, provider, os, machineType, diskSize, endTime, id, paymentType } = parsedBody.data;
         const existingVm = await prisma.vMInstance.findFirst({
@@ -94,6 +106,14 @@ vmInstance.post("/create", authMiddleware, async (req, res) => {
                     machineType,
                     diskSize: diskSize,
                     vmId: vm.id,
+                }
+            });
+            await prisma.user.update({
+                where: {
+                    id: userId,
+                },
+                data: {
+                    timeoutAt: new Date(),
                 }
             });
             return {

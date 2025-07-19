@@ -8,7 +8,7 @@ export const StartRentalSessionWithEscrow = async (wallet: AnchorWallet, amount:
     const program = Contarct(wallet);
 
     try {
-        const tx = await program.methods.startRentalWithEscrow((new BN(amount / LAMPORTS_PER_SOL)), id)
+        const tx = await program.methods.startRentalWithEscrow((new BN(amount * LAMPORTS_PER_SOL)), id)
         .accounts({
             payer: wallet.publicKey,
             admin: new PublicKey(ADMIN_KEY),

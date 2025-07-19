@@ -111,4 +111,40 @@ UserRouter.get("/me", async (req, res) => {
     }
 });
 
+UserRouter.get("/checkTimeout", async (req, res) => {
+    const userId = req.userId;
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+        });
+        if (!user) {
+            res.status(404).json({
+                error: "User not found",
+            });
+            return;
+        }
+        if (user.timeoutAt) {
+            const userTimeout = new Date().getTime() - new Date(user.timeoutAt).getTime();
+            const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+
+            if (userTimeout < twelveHoursInMilliseconds) {
+                res.status(200).json({
+                    error: "You can only create a VM once every 12 hours",
+                });
+                return;
+            }
+        } 
+        res.status(200).json({
+            message: "User can create a VM",
+        });
+    } catch (error) {
+        console.error("Error checking user timeout:", error);
+        res.status(500).json({
+            error: "Internal server error",
+        });
+    }
+});
+
 export default UserRouter;

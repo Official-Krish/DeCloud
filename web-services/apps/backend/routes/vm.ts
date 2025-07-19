@@ -115,7 +115,7 @@ vm.post("/topup", authMiddleware, async (req, res) => {
             res.status(404).json({ error: "VM instance not found" });
             return;
         }
-        if (vmInstance.status !== "ESCROW") {
+        if (vmInstance.PaymentType !== "ESCROW") {
             res.status(400).json({ error: "VM instance is not in ESCROW status" });
             return;
         }
