@@ -5,7 +5,7 @@
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "@decloud/db": "workspace:^",
+    "@decloud/db": "workspace:*",
     "@decloud/types": "workspace:^"
   },
   "peerDependencies": {
@@ -15,11 +15,13 @@
     "@google-cloud/compute": "^5.2.0",
     "@google-cloud/deploy": "^5.1.0",
     "@google-cloud/resource-manager": "^6.1.0",
+    "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/sshpk": "^1.17.4",
     "axios": "^1.10.0",
     "bullmq": "^5.56.2",
     "dotenv": "^17.0.1",
+    "express": "^5.1.0",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "sshpk": "^1.18.0"

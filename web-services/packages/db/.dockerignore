@@ -1,5 +1,3 @@
 dist 
 node_modules
 vm-manager.json
-generated
-.env
