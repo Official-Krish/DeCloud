@@ -7,7 +7,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "prisma:generate": "cd ./packages/db && bunx prisma migrate dev && cd ../..",
+    "prisma:generate": "cd ./packages/db && bunx prisma generate && cd ../..",
     "backend": "cd ./apps/backend && bun run index.ts",
     "worker": "cd ./apps/worker && bun run index.ts",
     "ws-relayer": "cd ./apps/ws-relayer && bun run index.ts"
