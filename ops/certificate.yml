@@ -1,0 +1,41 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: decloud-frontend-cert
+  namespace: decloud
+spec:
+  secretName: decloud-frontend-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: decloud.krishdev.xyz
+  dnsNames:
+  - decloud.krishdev.xyz
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: decloud-backend-cert
+  namespace: decloud
+spec:
+  secretName: decloud-backend-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: api.decloud.krishdev.xyz
+  dnsNames:
+  - api.decloud.krishdev.xyz
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: decloud-ws-relayer-cert
+  namespace: decloud
+spec:
+  secretName: decloud-ws-relayer-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: wss.decloud.krishdev.xyz
+  dnsNames:
+  - wss.decloud.krishdev.xyz

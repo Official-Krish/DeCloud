@@ -1,0 +1,57 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+  namespace: decloud
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/connection-proxy-header: "upgrade"
+    nginx.ingress.kubernetes.io/upgrade: "websocket"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - decloud.krishdev.xyz
+      secretName: decloud-frontend-tls
+    - hosts:
+        - api.decloud.krishdev.xyz
+      secretName: decloud-backend-tls
+    - hosts:
+        - wss.decloud.krishdev.xyz
+      secretName: decloud-ws-relayer-tls
+
+  rules:
+    - host: decloud.krishdev.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: decloud-frontend
+                port:
+                  number: 80
+
+    - host: api.decloud.krishdev.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: decloud-backend
+                port:
+                  number: 80
+    - host: wss.decloud.krishdev.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: decloud-ws-relayer
+                port:
+                  number: 80
+---

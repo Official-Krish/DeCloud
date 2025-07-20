@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: decloud-frontend
+  namespace: decloud
+spec:
+  selector:
+    app: decloud-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5173
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: decloud-backend
+  namespace: decloud
+spec:
+  selector:
+    app: decloud-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: decloud-ws-relayer
+  namespace: decloud
+spec:
+  selector:
+    app: decloud-ws-relayer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9093
+  type: ClusterIP
+---
