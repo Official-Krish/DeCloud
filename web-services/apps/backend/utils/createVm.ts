@@ -47,6 +47,9 @@ export async function createInstance(instanceName: string, zone: string, machine
                     },
                 ],
             },
+            tags: {
+                items: ['http-server', 'https-server'],
+            },
         },
       project: projectId,
       zone,

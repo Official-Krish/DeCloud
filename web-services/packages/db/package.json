@@ -7,7 +7,7 @@
     "@types/bun": "latest"
   },
   "scripts": {
-    "db:seed": "tsx prisma/seed.ts" 
+    "db:seed": "tsx prisma/seed.ts"
   },
   "exports": {
     ".": "./index.ts"
@@ -16,7 +16,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@prisma/client": "6.11.1",
-    "prisma": "^6.11.1"
+    "@prisma/client": "^6.12.0",
+    "prisma": "^6.12.0"
   }
 }
