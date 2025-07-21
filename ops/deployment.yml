@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: decloud-frontend
-          image: krishanand01/decloud-frontend:v1
+          image: krishanand01/decloud-frontend:v1.2
           ports:
             - containerPort: 5173
           volumeMounts:
             - name: env-file
               mountPath: /app/.env
-              subPath: .env
+              subPath: env
       volumes:
         - name: env-file
           secret:
@@ -57,7 +57,7 @@ spec:
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/backend/.env
-              subPath: .env
+              subPath: env
             - name: gcp-key-volume
               mountPath: /secrets/gcp
               readOnly: true
@@ -70,7 +70,7 @@ spec:
             secretName: gcp-key-secret
 
 ---
-apiVersion: apps/v1
+apiVersion: apps/v11
 kind: Deployment
 metadata:
   name: decloud-worker
@@ -96,7 +96,7 @@ spec:
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/worker/.env
-              subPath: .env
+              subPath: env
             - name: gcp-key-volume
               mountPath: /secrets/gcp
               readOnly: true
@@ -127,13 +127,13 @@ spec:
     spec:
       containers:
         - name: decloud-ws-relayer
-          image: krishanand01/decloud-ws-relayer:v1
+          image: krishanand01/decloud-ws-relayer:v1.1
           ports:
             - containerPort: 9093
           volumeMounts:
             - name: env-file
               mountPath: /app/.env
-              subPath: .env
+              subPath: env
       volumes:
         - name: env-file
           secret:
