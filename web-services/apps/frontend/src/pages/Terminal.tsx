@@ -13,6 +13,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'xterm/css/xterm.css';
+import { WS_RELAYER_URL } from '@/config';
 
 const SSHTerminal = () => {
     const wallet = useWallet(); 
@@ -205,7 +206,7 @@ const SSHTerminal = () => {
 
         setError('');
         
-        const ws = new WebSocket('ws://localhost:9093');
+        const ws = new WebSocket(WS_RELAYER_URL);
         wsRef.current = ws;
 
         ws.onopen = () => {

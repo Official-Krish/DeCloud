@@ -62,7 +62,7 @@ pub fn force_terminate_rental(
 }
 
 #[derive(Accounts)]
-#[instruction(id: String, secret_key: String)]
+#[instruction(id: String, _secret_key: String)]
 pub struct ForceTerminateRental<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
@@ -94,7 +94,7 @@ pub struct ForceTerminateRental<'info> {
 
     #[account(
         mut,
-        seeds = [b"vault_account", admin.key().as_ref(), secret_key.as_bytes()],
+        seeds = [b"vault_account", admin.key().as_ref(), _secret_key.as_bytes()],
         bump = vault_account.bump,
         constraint = vault_account.owner == admin.key() @ Errors::Unauthorized,
     )]

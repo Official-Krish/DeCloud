@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: decloud-frontend
-          image: krishanand01/decloud-frontend:v1.2
+          image: krishanand01/decloud-frontend:v1.3
           ports:
             - containerPort: 5173
           volumeMounts:
@@ -51,15 +51,13 @@ spec:
           image: krishanand01/decloud-backend:v1
           ports:
             - containerPort: 3000
-          env:
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /secrets/gcp/vm-manager-key.json
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/backend/.env
               subPath: env
             - name: gcp-key-volume
-              mountPath: /secrets/gcp
+              mountPath: /app/apps/backend/vm-manager.json
+              subPath: vm-manager.json
               readOnly: true
       volumes:
         - name: env-file
@@ -70,7 +68,7 @@ spec:
             secretName: gcp-key-secret
 
 ---
-apiVersion: apps/v11
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: decloud-worker
@@ -90,16 +88,13 @@ spec:
       containers:
         - name: decloud-worker
           image: krishanand01/decloud-worker:v1
-          env:
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /secrets/gcp/vm-manager.json
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/worker/.env
               subPath: env
             - name: gcp-key-volume
-              mountPath: /secrets/gcp
-              readOnly: true
+              mountPath: /app/apps/worker/vm-manager.json
+              subPath: vm-manager.json
       volumes:
         - name: env-file
           secret:

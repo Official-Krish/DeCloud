@@ -74,7 +74,7 @@ pub fn finalize_rental_escrow(ctx: Context<FinalizeRentalEscrow>, _id: String, a
 }
 
 #[derive(Accounts)]
-#[instruction(_id: String, amount: u64, secret_key: String)]
+#[instruction(_id: String, amount: u64, _secret_key: String)]
 pub struct FinalizeRentalEscrow<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
@@ -106,7 +106,7 @@ pub struct FinalizeRentalEscrow<'info> {
 
     #[account(
         mut,
-        seeds = [b"vault_account", admin.key().as_ref(), secret_key.as_bytes()],
+        seeds = [b"vault_account", admin.key().as_ref(), _secret_key.as_bytes()],
         bump = vault_account.bump,
         constraint = vault_account.owner == admin.key() @ Errors::Unauthorized,
     )]

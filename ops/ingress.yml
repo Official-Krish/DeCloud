@@ -3,12 +3,14 @@ kind: Ingress
 metadata:
   name: ingress-nginx
   namespace: decloud
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"  
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"  
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"   
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP" 
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - decloud.krishdev.xyz
-      secretName: decloud-frontend-tls
     - hosts:
         - api.decloud.krishdev.xyz
       secretName: decloud-backend-tls

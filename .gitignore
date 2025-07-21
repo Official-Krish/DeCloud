@@ -1,0 +1,14 @@
+.env
+secrets.yml
+*.log
+*.tmp
+.DS_Store
+node_modules/
+dist/
+coverage/
+.vscode/
+.idea/
+*.swp
+*.bak
+*.orig  
+vm-manager.json
