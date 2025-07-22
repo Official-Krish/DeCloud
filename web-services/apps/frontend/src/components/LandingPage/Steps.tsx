@@ -21,7 +21,7 @@ export default function Steps() {
         <div className="flex justify-center items-center">
             <CardSpotlight className="h-120 w-100">
             <span className="text-xs font-medium bg-neutral-800 text-white rounded px-2 py-2">Coming Soon</span>
-            <p className="text-2xl font-bold relative z-20 mt-4 text-white">
+            <p className="text-2xl font-bold relative z-20 m</CardSpotlight>t-4 text-white">
                 Contribute your machine to the decentralized cloud and earn SOL for every VM you host.        
             </p>
             <div className="text-neutral-200 mt-4 relative z-20">

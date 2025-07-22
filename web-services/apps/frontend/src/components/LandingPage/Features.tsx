@@ -42,7 +42,15 @@ export function FeaturesSection() {
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  relative z-10 py-10 max-w-7xl mx-auto">
             {features.map((feature, index) => (
-                <Feature key={feature.title} {...feature} index={index} icon={<feature.icon/>}/>
+                <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                >
+                    <Feature {...feature} index={index} icon={<feature.icon />} />
+                </motion.div>
             ))}
         </div>
     </div>
