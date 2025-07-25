@@ -1,13 +1,14 @@
-FROM oven/bun:latest
+FROM node:20
 
 # Set the working directory
 WORKDIR /app
 
-COPY bun.lock .
-COPY apps/frontend .
+# Copy the rest of the application
+COPY apps/frontend/package.json ./
+COPY apps/frontend/ ./
 
-RUN bun install --verbose
+RUN npm install --verbose
 
 EXPOSE 5173
 
-CMD ["bun", "run", "dev"]
+CMD ["npm", "run", "dev"]

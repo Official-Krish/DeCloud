@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: decloud-frontend
-          image: krishanand01/decloud-frontend:v1.3
+          image: krishanand01/decloud-frontend:v1.4
           ports:
             - containerPort: 5173
           volumeMounts:
@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
         - name: decloud-backend
-          image: krishanand01/decloud-backend:v1
+          image: krishanand01/decloud-backend:v1.1
           ports:
             - containerPort: 3000
           volumeMounts:
