@@ -29,3 +29,41 @@ pub enum Errors {
     #[msg("Arithmetic overflow occurred during operation")]
     ArithmeticOverflow,
 }
+
+#[error_code]
+pub enum DepinErrors {
+    #[msg("Host machine registration not found")]
+    HostMachineRegistrationNotFound,
+    #[msg("Host machine registration already exists")]
+    HostMachineRegistrationAlreadyExists,
+    #[msg("Invalid host machine registration data")]
+    InvalidHostMachineRegistrationData,
+    #[msg("Unauthorized access to host machine registration")]
+    UnauthorizedHostMachineAccess,
+    #[msg("Host machine registration is not active")]
+    HostMachineRegistrationNotActive,
+    #[msg("Host machine registration ID is invalid")]
+    InvalidHostMachineRegistrationId,
+    #[msg("Host machine registration OS is invalid")]
+    InvalidHostMachineRegistrationOS,
+    #[msg("Host machine registration disk size is invalid")]
+    InvalidHostMachineRegistrationDiskSize,
+    #[msg("Host machine registration name is invalid")]
+    InvalidHostMachineRegistrationName,
+    #[msg("key does not match with pda")]
+    KeyDoesNotMatchPDA,
+    #[msg("Unauthorized admin access")]
+    UnauthorizedAdmin,
+    #[msg("Host key mismatch")]
+    HostKeyMismatch,
+    #[msg("Host machine registration not active long enough")]
+    HostMachineRegistrationNotActiveLongEnough,
+    #[msg("Host machine already started")]
+    HostMachineAlreadyStarted,
+    #[msg("Host machine registration not found for the given ID")]
+    HostMachineRegistrationNotFoundForId,
+    #[msg("Host machine penalized")]
+    HostMachinePenalized,
+    #[msg("Host machine should not be active for claiming earned rewards")]
+    HostMachineShouldNotBeActiveForClaiming,
+}

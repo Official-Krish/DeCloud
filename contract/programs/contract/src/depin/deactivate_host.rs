@@ -1,0 +1,52 @@
+use::anchor_lang::prelude::*;
+use crate::{errors::DepinErrors, state::HostMachineRegistration};
+
+pub fn deactivate_host(
+    ctx: Context<DeactivateHost>,
+    id: String,
+) -> Result<()> {
+    let host = &mut ctx.accounts.host;
+    let host_machine = &mut ctx.accounts.host_machine;
+    require!(
+        host.key() == host_machine.host_key,
+        DepinErrors::HostKeyMismatch
+    );
+    require!(
+        host_machine.is_active == true,
+        DepinErrors::HostMachineRegistrationNotActive
+    );
+    require!(
+        host_machine.id == id,
+        DepinErrors::InvalidHostMachineRegistrationId
+    );
+    require!(
+        host_machine.started_at > 0,
+        DepinErrors::HostMachineRegistrationNotActiveLongEnough
+    );
+    host_machine.is_active = false;
+    let timestamp = Clock::get()?.unix_timestamp;
+    require!(
+        timestamp - host_machine.started_at >= 0,
+        DepinErrors::HostMachineRegistrationNotActiveLongEnough
+    );
+    let time = (timestamp - host_machine.started_at) as u64;
+    let reward = (time / 3600) * host_machine.sol_per_hour;
+    host_machine.earned += reward as u64;
+    host_machine.started_at = 0; 
+    msg!("Host machine {} deactivated. Earned: {}", id, host_machine.earned);
+    Ok(())
+}
+
+#[derive(Accounts)]
+#[instruction(id: String)]
+pub struct DeactivateHost<'info> {
+    #[account(mut)]
+    pub host: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [b"host_machine", host.key().as_ref(), id.as_bytes()],
+        bump
+    )]
+    pub host_machine: Account<'info, HostMachineRegistration>,
+    pub system_program: Program<'info, System>
+}

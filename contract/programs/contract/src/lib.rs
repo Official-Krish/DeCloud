@@ -4,8 +4,10 @@ pub mod instructions;
 pub mod state;
 pub mod errors;
 pub mod constants;
+pub mod depin;
 
 use instructions::*;
+use depin::*;
 
 declare_id!("423HDGsdSEMLnuPXsggRY2d3YHLGw9ijtAczh3pkCkAs");
 
@@ -70,5 +72,46 @@ pub mod contract {
         secret_key: String
     ) -> Result<()> {
         instructions::force_terminate_rental(ctx, id, secret_key)
+    }
+
+    pub fn initialise_host_registration(
+        ctx: Context<InitialiseHostRegistration>, 
+        id: String,
+        host_name: String,
+        machine_type: String,
+        os: String,
+        disk_size: u64,
+        sol_per_hour: u64
+    ) -> Result<()> {
+        depin::initialise_host_registration(ctx, id, host_name, machine_type, os, disk_size, sol_per_hour)
+    }
+
+    pub fn activate_host(
+        ctx: Context<ActivateHost>, 
+        id: String, 
+    ) -> Result<()> {
+        depin::activate_host(ctx, id)
+    }
+
+    pub fn deactivate_host(
+        ctx: Context<DeactivateHost>, 
+        id: String, 
+    ) -> Result<()> {
+        depin::deactivate_host(ctx, id)
+    }
+
+    pub fn claim_rewards(
+        ctx: Context<ClaimRewards>, 
+        id: String, 
+        secret_key: String
+    ) -> Result<()> {
+        depin::claim_rewards(ctx, id, secret_key)
+    }
+
+    pub fn penalize_host(
+        ctx: Context<PenalizeHost>, 
+        id: String, 
+    ) -> Result<()> {
+        depin::penalize_host(ctx, id)
     }
 }
