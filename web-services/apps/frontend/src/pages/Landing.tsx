@@ -1,5 +1,5 @@
 import { FeaturesSection } from "@/components/LandingPage/Features";
-import { Hero } from "@/components/LandingPage/Hero";
+import Hero from "@/components/LandingPage/Hero";
 import { PricingCalculator } from "@/components/LandingPage/PricingCalculator";
 import Steps from "@/components/LandingPage/Steps";
 import WaitList from "@/components/LandingPage/waitlist";
@@ -12,7 +12,7 @@ const Landing = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 2 }}
         >
-            <Hero />
+            <Hero/>
             <FeaturesSection />
             <PricingCalculator />
             <Steps />
