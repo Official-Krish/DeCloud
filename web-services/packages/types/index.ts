@@ -40,16 +40,29 @@ export const RegisterVMSchema = z.object({
     diskSize: z.number().int().positive(),
     region: z.string(),
     userPublicKey: z.string(),
+    Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
 })
 
 export const ChangeVMStatusSchema = z.object({
     id: z.string(),
     pubKey: z.string(),
     status: z.boolean(),
+    Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
 });
 
 export const ClaimSOLSchema = z.object({
     id: z.string(),
     pubKey: z.string(),
     amount: z.number().positive(),
+    Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
+});
+
+export const DepinVerificationSchema = z.object({
+    os: z.string(),
+    cpu_cores: z.number().int().positive(),
+    ram_gb: z.number().int().positive(),
+    disk_gb: z.number().int().positive(),
+    ip_address: z.string(),
+    wallet: z.string(),
+    Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
 });

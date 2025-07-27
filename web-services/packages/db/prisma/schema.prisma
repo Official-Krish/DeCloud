@@ -73,6 +73,7 @@ model VMTypes {
 
 model DepinHostMachine {
   id            String      @id @default(cuid())
+  Key           String
   machineType   String
   ipAddress     String
   cpu           Int
