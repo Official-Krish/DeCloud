@@ -8,3 +8,7 @@ const connection = new IORedis({
 export const vmQueue = new Queue("vm-termination", {
     connection
 })
+
+export const DepinVerificationQueue = new Queue("vm-verification", {
+    connection
+});

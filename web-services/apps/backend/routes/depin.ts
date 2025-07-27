@@ -1,0 +1,166 @@
+import prisma from "@decloud/db";
+import { ChangeVMStatusSchema, ClaimSOLSchema, RegisterVMSchema } from "@decloud/types";
+import { Router } from "express";
+import { authMiddleware } from "../utils/middleware";
+import { DepinVerificationQueue } from "../redis";
+
+const depinRouter = Router();
+
+depinRouter.post("/register", authMiddleware, async (req, res) => {
+    const ParseData = RegisterVMSchema.safeParse(req.body);
+    if (!ParseData.success) {
+        res.status(400).json({ error: ParseData.error.errors });
+        return;
+    }
+    try {
+        const { machineType, ipAddress, cpu, ram, diskSize, region, userPublicKey, os } = ParseData.data;
+
+        const vm = await prisma.depinHostMachine.create({
+            data: {
+                machineType,
+                ipAddress,
+                cpu,
+                ram,
+                diskSize,
+                region,
+                os,
+                userPublicKey,
+            },
+        });
+        DepinVerificationQueue.add("vm-verification",{
+            id: vm.id,
+            userPublicKey,
+            machineType,
+            os,
+            ipAddress,
+            diskSize,
+            region,
+            cpu,
+            ram
+        });
+        res.status(200).json({ message: "VM registered successfully", vm });
+    } catch (error) {
+        console.error("Error registering VM:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+});
+
+depinRouter.post("/changeVisibility", authMiddleware, async (req, res) => {
+    const parseData = ChangeVMStatusSchema.safeParse(req.body);
+    if (!parseData.success) {
+        res.status(400).json({ error: parseData.error.errors });
+        return;
+    }
+    const { id, pubKey, status } = parseData.data;
+    try {
+        const vm = await prisma.depinHostMachine.findFirst({
+            where: { 
+                id,
+                userPublicKey: pubKey 
+            },
+        });
+        if (!vm) {
+            res.status(404).json({ error: "VM not found" });
+            return;
+        }
+        await prisma.depinHostMachine.update({
+            where: { 
+                id, 
+                userPublicKey: pubKey
+            },
+            data: { isActive: status },
+        });
+        res.status(200).json({ message: "VM visibility updated successfully" });
+    } catch (error) {
+        console.error("Error fetching VM:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+});
+
+depinRouter.get("/getAll", authMiddleware, async (req, res) => {
+    const userPublicKey = req.query.userPublicKey as string;
+    if (!userPublicKey) {
+        res.status(400).json({ error: "User public key is required" });
+        return;
+    }
+    try {
+        const vms = await prisma.depinHostMachine.findMany({
+            where: { 
+                userPublicKey: userPublicKey 
+            },
+        });
+        res.status(200).json(vms);
+    } catch (error) {
+        console.error("Error fetching VMs:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+});
+
+depinRouter.get("/getById", authMiddleware, async (req, res) => {
+    const id = req.query.id as string;
+    if (!id) {
+        res.status(400).json({ error: "VM ID is required" });
+        return;
+    }
+    try {
+        const vm = await prisma.depinHostMachine.findFirst({
+            where: { id },
+        });
+        if (!vm) {
+            res.status(404).json({ error: "VM not found" });
+            return;
+        }
+        res.status(200).json(vm);
+    } catch (error) {
+        console.error("Error fetching VM:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+});
+
+depinRouter.post("/claimSOL", authMiddleware, async (req, res) => {
+    const parseData = ClaimSOLSchema.safeParse(req.body);
+    if (!parseData.success) {
+        res.status(400).json({ error: parseData.error.errors });
+        return;
+    }
+    try {
+        const { id, pubKey, amount } = parseData.data;
+
+        const vm = await prisma.depinHostMachine.findFirst({
+            where: { 
+                id,
+                userPublicKey: pubKey 
+            },
+        });
+        if (!vm) {
+            res.status(404).json({ error: "VM not found" });
+            return;
+        }
+        if (vm.isActive){
+            res.status(400).json({ error: "Cannot claim SOL while VM is active" });
+            return;
+        }
+
+        await prisma.depinHostMachine.update({
+            where: { 
+                id, 
+                userPublicKey: pubKey 
+            },
+            data: {
+                claimedSOL: { increment: amount }
+            },
+        });
+
+        res.status(200).json({ message: "SOL claimed successfully" });
+    } catch (error) {
+        console.error("Error claiming SOL:", error);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+});
+
+export default depinRouter;
