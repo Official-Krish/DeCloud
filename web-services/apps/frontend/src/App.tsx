@@ -10,6 +10,8 @@ import { SignIn } from './pages/Signin';
 import SSHTerminal from './pages/Terminal'
 import { AdminPage } from './pages/Admin'
 import { ComingSoon } from './components/ComingSoon'
+import { HostRegister } from './pages/HostMachine'
+import { HostDashboard } from './pages/HostDashboard'
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route path="/signin" element={<SignIn/>} />
           <Route path="/ssh/:id" element={<SSHTerminal/>} />
           <Route path="/admin" element={<AdminPage/>} />
+          <Route path="/depin/register" element={<HostRegister/>} />
+          <Route path="/depin/host/dashboard" element={<HostDashboard/>} />
           <Route path="*" element={<ComingSoon isDepin={false}/>} />
         </Routes>
       </BrowserRouter>
