@@ -30,3 +30,26 @@ export const EscrowTopUpSchema = z.object({
     amount: z.number().positive(),
     additionalEscrowDuration: z.number(),
 })
+
+export const RegisterVMSchema = z.object({
+    machineType: z.enum(["e2-medium", "e2-small", "e2-micro", "e2-standard"]).default("e2-micro"),
+    ipAddress: z.string(),
+    cpu: z.number().int().positive(),
+    ram: z.number().int().positive(),
+    os:  z.enum(["ubuntu-20.04", "ubuntu-22.04", "debian-11", "ubuntu-18.04", "debian-10", "centos-7"]).default("ubuntu-22.04"),
+    diskSize: z.number().int().positive(),
+    region: z.string(),
+    userPublicKey: z.string(),
+})
+
+export const ChangeVMStatusSchema = z.object({
+    id: z.string(),
+    pubKey: z.string(),
+    status: z.boolean(),
+});
+
+export const ClaimSOLSchema = z.object({
+    id: z.string(),
+    pubKey: z.string(),
+    amount: z.number().positive(),
+});

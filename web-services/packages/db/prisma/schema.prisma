@@ -17,6 +17,10 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   VMInstances VMInstance[]
+  DepinHostMachines DepinHostMachine[]
+
+  @@index([email])
+  @@index([publicKey])
 }
 
 model VMInstance {
@@ -24,7 +28,7 @@ model VMInstance {
   userId        String
   name          String
   jobId         String    @unique
-  PaymentType  PaymnentType @default(DURATION)
+  PaymentType  PaymentType @default(DURATION)
   status        String      @default("BOOTING")
   publicKey     String?
   ipAddress     String?
@@ -36,8 +40,14 @@ model VMInstance {
   instanceId    String?   
   createdAt     DateTime    @default(now())
 
-  user          User        @relation(fields: [userId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   VMConfig      VMConfig?
+
+  @@index([userId])
+  @@index([status])
+  @@index([provider])
+  @@index([region])
+  @@index([startTime, endTime])
 }
 
 model VMConfig {
@@ -61,6 +71,30 @@ model VMTypes {
   description    String?
 }
 
+model DepinHostMachine {
+  id            String      @id @default(cuid())
+  machineType   String
+  ipAddress     String
+  cpu           Int
+  ram           Int
+  diskSize      Int
+  os            String
+  isActive      Boolean     @default(false)
+  isOccupied    Boolean     @default(false)
+  verified      Boolean     @default(false)
+  region        String
+  userPublicKey String      @unique
+  pdaAddress    String?
+  claimedSOL    Float?      @default(0)
+  createdAt     DateTime    @default(now())
+  user          User?       @relation(fields: [userPublicKey], references: [publicKey])
+
+  @@index([machineType])
+  @@index([region])
+  @@index([isActive])
+  @@index([verified])
+  @@index([userPublicKey])
+}
 
 enum VMProvider {
   AWS
@@ -71,7 +105,7 @@ enum VMProvider {
   LOCAL
 }
 
-enum PaymnentType {
+enum PaymentType {
   DURATION
   ESCROW
 }
