@@ -2,7 +2,7 @@ import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import compute from '@google-cloud/compute';
 import prisma  from "@decloud/db";
-import { endRentalSession } from "./contract";
+import { activateHost, deActivateHost, endRentalSession, InitialiseHostPDA } from "./contract";
 
 const projectId = process.env.PROJECT_ID;
 
@@ -48,6 +48,50 @@ const worker = new Worker("vm-termination", async job => {
   connection,
 });
 
+worker.on("completed", (job) => {
+    console.log(`Job completed successfully: ${job.data.instanceId}`);
+});
+
+worker.on("failed", (job, err) => {
+    console.error(`Job ${job?.id} failed: ${err.message}`);
+});
+
+
+const DepinWorker = new Worker ("initialise-host-pda", async job => {
+    try {
+        const { id, hostName, machineType, os, diskSize, pricePerHour, userPubKey } = job.data;
+        const tx = await InitialiseHostPDA(id, hostName, machineType, os, diskSize, pricePerHour, userPubKey);
+        console.log(`Host PDA initialised successfully for job ${job.id}:`, tx);
+    } catch (error) {
+        console.error(`Error processing job ${job.id}:`, error);
+    }
+})
+
+DepinWorker.on("completed", (job) => {
+    console.log(`Depin job completed successfully: ${job.id}`);
+});
+DepinWorker.on("failed", (job, err) => {
+    console.error(`Depin job ${job?.id} failed: ${err.message}`);
+});
+
+const deActivateWorker = new Worker("changeVMSatus", async job => {
+    const { id, userPubKey, status } = job.data;
+    try {
+        status === false && await deActivateHost(id, userPubKey);
+        status === true && await  activateHost(id, userPubKey);
+    } catch (error) {
+        console.error(`Error processing deactivation job ${job.id}:`, error);
+    }
+});
+
+deActivateWorker.on("completed", (job) => {
+    console.log(`Deactivation job completed successfully: ${job.id}`);
+});
+deActivateWorker.on("failed", (job, err) => {
+    console.error(`Deactivation job ${job?.id} failed: ${err.message}`);
+});
+
+
 async function deleteInstance(zone: string, instanceId: string) {
     const instancesClient = new compute.InstancesClient();
   
@@ -59,11 +103,3 @@ async function deleteInstance(zone: string, instanceId: string) {
     
     return true;
 }
-
-worker.on("completed", (job) => {
-    console.log(`Job completed successfully: ${job.data.instanceId}`);
-});
-
-worker.on("failed", (job, err) => {
-    console.error(`Job ${job?.id} failed: ${err.message}`);
-});
