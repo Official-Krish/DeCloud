@@ -2,7 +2,7 @@ import prisma from "@decloud/db";
 import { ChangeVMStatusSchema, ClaimSOLSchema, RegisterVMSchema } from "@decloud/types";
 import { Router } from "express";
 import { authMiddleware } from "../utils/middleware";
-import { DepinVerificationQueue } from "../redis";
+import bcrypt from "bcrypt";
 
 const depinRouter = Router();
 
@@ -13,7 +13,7 @@ depinRouter.post("/register", authMiddleware, async (req, res) => {
         return;
     }
     try {
-        const { machineType, ipAddress, cpu, ram, diskSize, region, userPublicKey, os } = ParseData.data;
+        const { machineType, ipAddress, cpu, ram, diskSize, region, userPublicKey, os, Key } = ParseData.data;
 
         const vm = await prisma.depinHostMachine.create({
             data: {
@@ -25,18 +25,8 @@ depinRouter.post("/register", authMiddleware, async (req, res) => {
                 region,
                 os,
                 userPublicKey,
+                Key: bcrypt.hashSync(Key, 10),
             },
-        });
-        DepinVerificationQueue.add("vm-verification",{
-            id: vm.id,
-            userPublicKey,
-            machineType,
-            os,
-            ipAddress,
-            diskSize,
-            region,
-            cpu,
-            ram
         });
         res.status(200).json({ message: "VM registered successfully", vm });
     } catch (error) {
@@ -52,7 +42,7 @@ depinRouter.post("/changeVisibility", authMiddleware, async (req, res) => {
         res.status(400).json({ error: parseData.error.errors });
         return;
     }
-    const { id, pubKey, status } = parseData.data;
+    const { id, pubKey, status, Key } = parseData.data;
     try {
         const vm = await prisma.depinHostMachine.findFirst({
             where: { 
@@ -62,6 +52,11 @@ depinRouter.post("/changeVisibility", authMiddleware, async (req, res) => {
         });
         if (!vm) {
             res.status(404).json({ error: "VM not found" });
+            return;
+        }
+        const isKeyValid = await bcrypt.compare(Key, vm.Key);
+        if (!isKeyValid) {
+            res.status(400).json({ error: "Invalid Key" });
             return;
         }
         await prisma.depinHostMachine.update({
@@ -128,7 +123,7 @@ depinRouter.post("/claimSOL", authMiddleware, async (req, res) => {
         return;
     }
     try {
-        const { id, pubKey, amount } = parseData.data;
+        const { id, pubKey, amount, Key } = parseData.data;
 
         const vm = await prisma.depinHostMachine.findFirst({
             where: { 
@@ -138,6 +133,11 @@ depinRouter.post("/claimSOL", authMiddleware, async (req, res) => {
         });
         if (!vm) {
             res.status(404).json({ error: "VM not found" });
+            return;
+        }
+        const isKeyValid = await bcrypt.compare(Key, vm.Key);
+        if (!isKeyValid) {
+            res.status(400).json({ error: "Invalid Key" });
             return;
         }
         if (vm.isActive){
