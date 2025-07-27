@@ -1,0 +1,14 @@
+import { Queue } from 'bullmq';
+import IORedis from 'ioredis';
+
+const connection = new IORedis({
+    host: process.env.REDIS_HOST || 'localhost',
+});
+
+export const initialiseAccount = new Queue("initialise-host-pda", {
+    connection
+})
+
+export const deActivateHost = new Queue("changeVMSatus", {
+    connection
+})

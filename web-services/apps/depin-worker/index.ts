@@ -1,0 +1,13 @@
+import express from 'express';
+import cors from 'cors';
+import depinRouter from './routes/depin';
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+app.use("/v2", depinRouter);
+
+app.listen(6000, () => {
+  console.log('Depin Worker server is running on http://localhost:6000');
+});
