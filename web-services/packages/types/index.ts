@@ -66,3 +66,14 @@ export const DepinVerificationSchema = z.object({
     wallet: z.string(),
     Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
 });
+
+export const DepinDeployImageSchema = z.object({
+    appName: z.string().min(1).max(50),
+    dockerImage: z.string().url(),
+    cpu: z.string().min(1).max(10),
+    ram: z.string().min(1).max(10),
+    diskSize: z.string().min(1).max(10),
+    ports: z.string().min(1).max(2),
+    envVars: z.string().max(10).optional(),
+    endTime: z.number(),
+});

@@ -25,7 +25,7 @@ model User {
 
 model VMInstance {
   id            String     @id @default(cuid())
-  userId        String
+  userId        String     @unique
   name          String
   jobId         String    @unique
   PaymentType  PaymentType @default(DURATION)
@@ -42,6 +42,7 @@ model VMInstance {
 
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   VMConfig      VMConfig?
+  VMImage       VMImage?
 
   @@index([userId])
   @@index([status])
@@ -59,6 +60,23 @@ model VMConfig {
   createdAt   DateTime    @default(now())
 
   VmInstance VMInstance  @relation(fields: [vmId], references: [id])
+}
+
+model VMImage {
+  id                  String      @id @default(cuid())
+  name                String      @unique
+  description         String?
+  dockerImage         String
+  cpu                 Int
+  ram                 Int
+  diskSize            Int
+  createdAt           DateTime    @default(now())
+  depinHostMachineId  String      @unique
+
+  DepinHostMachine    DepinHostMachine @relation(fields: [depinHostMachineId], references: [id])
+  VmInstance VMInstance  @relation(fields: [id], references: [id])
+
+  @@index([name])
 }
 
 
@@ -89,6 +107,7 @@ model DepinHostMachine {
   claimedSOL    Float?      @default(0)
   createdAt     DateTime    @default(now())
   user          User?       @relation(fields: [userPublicKey], references: [publicKey])
+  VMImage       VMImage?
 
   @@index([machineType])
   @@index([region])
