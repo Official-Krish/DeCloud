@@ -4,16 +4,16 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 interface CostEstimationProps {
     formData: {
         cpu: string;
-        memory: string;     
-        storage: string;
+        ram: string;     
+        diskSize: string;
     };  
 }
 
 export const CostEstimation = ({ formData }: CostEstimationProps) => {
     const estimatedCost = (
         parseFloat(formData.cpu) * 0.02 + 
-        parseFloat(formData.memory) * 0.01 + 
-        parseFloat(formData.storage) * 0.001
+        parseFloat(formData.ram) * 0.01 + 
+        parseFloat(formData.diskSize) * 0.001
     ) * 24;
     return (
         <div>
@@ -31,12 +31,12 @@ export const CostEstimation = ({ formData }: CostEstimationProps) => {
                             <span className="text-sm">{(parseFloat(formData.cpu) * 0.02 * 24).toFixed(2)} SOL/day</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm">Memory ({formData.memory} GB)</span>
-                            <span className="text-sm">{(parseFloat(formData.memory) * 0.01 * 24).toFixed(2)} SOL/day</span>
+                            <span className="text-sm">Memory ({formData.ram} GB)</span>
+                            <span className="text-sm">{(parseFloat(formData.ram) * 0.01 * 24).toFixed(2)} SOL/day</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm">Storage ({formData.storage} GB)</span>
-                            <span className="text-sm">{(parseFloat(formData.storage) * 0.001 * 24).toFixed(2)} SOL/day</span>
+                            <span className="text-sm">Storage ({formData.diskSize} GB)</span>
+                            <span className="text-sm">{(parseFloat(formData.diskSize) * 0.001 * 24).toFixed(2)} SOL/day</span>
                         </div>
                         <hr className="my-2" />
                         <div className="flex justify-between font-semibold">

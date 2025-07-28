@@ -14,11 +14,11 @@ export const Step3 = () => {
                     <div className="mx-auto w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4">
                         <CheckCircle className="h-8 w-8 text-emerald-500" />
                     </div>
-                    <CardTitle>
+                    <CardTitle className='mb-2'>
                         Verification Successful!
                     </CardTitle>
                     <CardDescription>
-                        Your machine is verified. Run this final script to install the DeCloud agent, connect it to the network, and start earning SOL.
+                        Your machine is verified. Run this final script to install the DeCloud agent, and start earning SOL.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

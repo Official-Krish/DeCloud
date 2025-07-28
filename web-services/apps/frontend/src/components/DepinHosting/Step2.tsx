@@ -14,7 +14,7 @@ export const Step2 = ({ handleStep2Verify, isLoading }: Step2Props) => {
         <div>
             <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                 <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
+                    <CardTitle className="flex items-center space-x-2 mb-2">
                         <Shield className="h-5 w-5 text-cyan-500" />
                         <span>Run Verification Script</span>
                     </CardTitle>

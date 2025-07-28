@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Server, Plus, Settings, Eye, Power, PowerOff } from "lucide-react";
 import { type Machine } from "../../types/depinMachines";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Link } from "react-router-dom";
+import { DashboardTable } from "@/components/DepinHostDashboard/Table";
+import { Plus } from "lucide-react";
 
 export function HostDashboard() {
     const wallet = useWallet();
@@ -18,37 +16,23 @@ export function HostDashboard() {
     useEffect(() => {
         const fetchMachines = async () => {
             try {
-                const res = await axios.get(`${BACKEND_URL}/depin/getAll?userPublicKey=${wallet.publicKey}`, {
+                if (!wallet || !wallet.publicKey) return;
+                const res = await axios.get(`${BACKEND_URL}/depin/getAll?userPublicKey=${wallet.publicKey.toBase58()}`, {
                     headers: {
                         "Authorization": `${localStorage.getItem("token")}`
                     },
                 });
                 if (res.status === 200) {
-                    setMachines(res.data.machines);
+                    setMachines(res.data);
                 }
             } catch (error) {
                 console.error("Error fetching machines:", error);
             }
         }   
         fetchMachines();
-    }, []);
+    }, [wallet]);
 
-    const getStatusColor = (status: boolean) => {
-        switch (status) {
-            case true: return 'bg-emerald-500';
-            case false: return 'bg-red-500';
-            default: return 'bg-gray-500';
-        }
-    };
-
-    const getStatusBadge = (status: boolean) => {
-        switch (status) {
-            case true: return <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20">Running</Badge>;
-        
-            case false: return <Badge className="bg-red-500/10 text-red-700 border-red-500/20">Maintenance</Badge>;
-            default: return <Badge variant="secondary">Unknown</Badge>;
-        }
-    };
+    
 
     if (!wallet || !localStorage.getItem("token")) {
         return (
@@ -69,7 +53,7 @@ export function HostDashboard() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-screen">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -86,8 +70,8 @@ export function HostDashboard() {
                         </p>
                     </div>
                     <Button 
-                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700"
-                        onClick={() => window.location.href = '/depin/hostVm'}
+                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:shadow-xl text-white cursor-pointer"
+                        onClick={() => window.location.href = '/depin/register'}
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Machine
@@ -102,80 +86,8 @@ export function HostDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
             >
-                <Card className="border-border/50 bg-card/50">
-                    <CardHeader>
-                        <CardTitle className="flex items-center space-x-2">
-                            <Server className="h-5 w-5" />
-                            <span>Your Machines</span>
-                        </CardTitle>
-                        <CardDescription>
-                            Monitor and manage all your registered compute nodes
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>Machine</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Specs</TableHead>
-                                <TableHead>Earnings</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {machines.map((machine, index) => (
-                                    <motion.tr
-                                        key={machine.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + index * 0.1 }}
-                                        className="group hover:bg-muted/50 transition-colors"
-                                    >
-                                        <TableCell>
-                                            <div className="flex items-center space-x-2">
-                                                <div className={`w-2 h-2 rounded-full ${getStatusColor(machine.isActive)}`} />
-                                                {getStatusBadge(machine.isActive)}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-sm space-y-1">
-                                                <div>{machine.cpu} CPU • {machine.ram}GB RAM</div>
-                                                <div className="text-muted-foreground">{machine.storage}GB Storage • {machine.region}</div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium text-emerald-600">
-                                                {machine.earnings.toFixed(1)} SOL
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => window.location.href = `/machine/${machine.id}`}
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="sm">
-                                                    <Settings className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="sm">
-                                                    {machine.isActive ? 
-                                                        <PowerOff className="h-4 w-4 text-red-500" />
-                                                    : 
-                                                        <Power className="h-4 w-4 text-green-500" />
-                                                    }
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </motion.tr>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                <DashboardTable machines={machines} setMachines={setMachines}/>
+                
             </motion.div>
         </div>
     );

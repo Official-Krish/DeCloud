@@ -13,22 +13,20 @@ interface FormProps {
         dockerImage: string;
         description: string;
         cpu: string;
-        memory: string;
-        storage: string;
+        ram: string;
+        diskSize: string;
         ports: string;
         envVars: string;
-        regions: string[];
     };
     setFormData: React.Dispatch<React.SetStateAction<{
         appName: string;
         dockerImage: string;
         description: string;        
         cpu: string;
-        memory: string;
-        storage: string;
+        ram: string;
+        diskSize: string;
         ports: string;
         envVars: string;
-        regions: string[];
     }>>;
 }
 
@@ -115,7 +113,7 @@ export const Form = ({ handleSubmit, formData, setFormData }: FormProps) => {
                                         <HardDrive className="h-4 w-4" />
                                         <span>Memory (GB)</span>
                                     </Label>
-                                    <Select value={formData.memory} onValueChange={(value) => setFormData({...formData, memory: value})}>
+                                    <Select value={formData.ram} onValueChange={(value) => setFormData({...formData, ram: value})}>
                                         <SelectTrigger>
                                         <SelectValue />
                                         </SelectTrigger>
@@ -138,8 +136,8 @@ export const Form = ({ handleSubmit, formData, setFormData }: FormProps) => {
                                     <Input
                                         id="storage"
                                         type="number"
-                                        value={formData.storage}
-                                        onChange={(e) => setFormData({...formData, storage: e.target.value})}
+                                        value={formData.diskSize}
+                                        onChange={(e) => setFormData({...formData, diskSize: e.target.value})}
                                         min="1"
                                         max="1000"
                                     />

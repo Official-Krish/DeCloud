@@ -11,9 +11,9 @@ interface Step1Props {
     formData: {
         machineType: string;
         ipAddress: string;
-        cpu: string;
-        ram: string;
-        diskSize: string;
+        cpu: number;
+        ram: number;
+        diskSize: number;
         region: string;
         os: string;
         Key: string;
@@ -21,9 +21,9 @@ interface Step1Props {
     setFormData: React.Dispatch<React.SetStateAction<{
         machineType: string;
         ipAddress: string;
-        cpu: string;
-        ram: string;
-        diskSize: string;
+        cpu: number;
+        ram: number;
+        diskSize: number;
         region: string;
         os: string;
         Key: string;
@@ -46,7 +46,7 @@ export const Step1 = ({ handleStep1Submit, formData, setFormData, isLoading }: S
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleStep1Submit} className="space-y-6">
+                    <form className="space-y-6">
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="machineType">
@@ -98,7 +98,7 @@ export const Step1 = ({ handleStep1Submit, formData, setFormData, isLoading }: S
                                         type="number"
                                         placeholder="e.g., 8" 
                                         value={formData.cpu} 
-                                        onChange={(e) => setFormData({...formData, cpu: e.target.value})} 
+                                        onChange={(e) => setFormData({...formData, cpu: Number(e.target.value)})} 
                                         required 
                                     />
                                 </div>
@@ -111,7 +111,7 @@ export const Step1 = ({ handleStep1Submit, formData, setFormData, isLoading }: S
                                         type="number" 
                                         placeholder="e.g., 16" 
                                         value={formData.ram} 
-                                        onChange={(e) => setFormData({...formData, ram: e.target.value})} 
+                                        onChange={(e) => setFormData({...formData, ram: Number(e.target.value)})} 
                                         required 
                                     />
                                 </div>
@@ -122,7 +122,7 @@ export const Step1 = ({ handleStep1Submit, formData, setFormData, isLoading }: S
                                         type="number" 
                                         placeholder="e.g., 500" 
                                         value={formData.diskSize} 
-                                        onChange={(e) => setFormData({...formData, diskSize: e.target.value})} 
+                                        onChange={(e) => setFormData({...formData, diskSize: Number(e.target.value)})} 
                                         required 
                                     />
                                 </div>
@@ -207,6 +207,7 @@ export const Step1 = ({ handleStep1Submit, formData, setFormData, isLoading }: S
                                 disabled={isLoading} 
                                 className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white shadow-lg cursor-pointer" 
                                 size="lg"
+                                onClick={handleStep1Submit}
                             >
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {isLoading ? 'Saving...' : 'Save & Proceed to Verification'}

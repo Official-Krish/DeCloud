@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Server, Download, Shield, User } from "lucide-react";
-import { ComingSoon } from "@/components/ComingSoon";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -15,19 +14,22 @@ export function Hosting() {
             icon: User,
             title: "Register as Host",
             description: "Sign up to become a compute provider in our decentralized network",
-            command: "Join our hosting network"
+            command: "Join our hosting network",
+            isButton: true
         },
         {
             icon: Download,
             title: "Install Host CLI",
             description: "Download and install the decloud host CLI on your machine",
-            command: "curl -sSL https://assets.krishdev.xyz/DeCloud/verification_script.sh | bash"
+            command: "curl -sSL https://assets.krishdev.xyz/DeCloud/verification_script.sh | bash",
+            isButton: false
         },
         {
             icon: Shield,
             title: "Verification",
             description: "Our system will verify your machine's resources and capabilities",
-            command: "Run the verification command provided after installation"
+            command: "Run the verification command provided after installation",
+            isButton: false
         }
     ];
 
@@ -51,7 +53,6 @@ export function Hosting() {
 
     return (
         <div className="dark:bg-gradient-to-br from-background via-background to-muted/30 w-full h-full">
-            <ComingSoon isDepin={true}/>
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
                 {/* Header */}
                 <motion.div
@@ -118,6 +119,17 @@ export function Hosting() {
                                                 </p>
                                             
                                             </div>
+                                            {step.isButton && (
+                                                <Link to="/depin/register">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="mt-2 px-6 py-2 bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 cursor-pointer"
+                                                    >
+                                                        {step.command}
+                                                    </motion.button>
+                                                </Link>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>

@@ -5,7 +5,8 @@ export interface Machine {
     isActive: boolean;
     cpu: number;
     ram: number;
-    storage: number;
-    earnings: number;
+    diskSize: number;
+    claimedSOL: number;
     ipAddress: string;
+    isOccupied: boolean;
 }

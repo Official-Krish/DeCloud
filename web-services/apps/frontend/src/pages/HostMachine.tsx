@@ -19,9 +19,9 @@ export function HostRegister() {
     const [formData, setFormData] = useState({
         machineType: "",
         ipAddress: "",
-        cpu: "",
-        ram: "",
-        diskSize: "",
+        cpu: 0,
+        ram: 0,
+        diskSize: 0,
         region: "",
         os: "",
         Key: "" 
@@ -29,16 +29,22 @@ export function HostRegister() {
     const handleStep1Submit = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${BACKEND_URL}/depin/register`, formData, {
-                headers: {
-                    "Authorization": `${localStorage.getItem("token")}`
+            const res = await axios.post(`${BACKEND_URL}/depin/register`, 
+                {
+                    ...formData,
+                    userPublicKey: wallet.publicKey?.toBase58()
                 },
-            });
+                {
+                    headers: {
+                        "Authorization": `${localStorage.getItem("token")}`
+                    },
+                }
+            );
             if (res.status === 200) {
                 setId(res.data.vm.id);
                 toast.success("Machine details saved successfully. Proceed to verification.");
+                setCurrentStep(2);
             } 
-            setCurrentStep(2);
         } catch (error) {
             console.error("Error saving machine details:", error);
             toast.error("Failed to save machine details. Please try again.");   
@@ -59,7 +65,7 @@ export function HostRegister() {
                     "Authorization": `${localStorage.getItem("token")}`
                 },
             });
-            if (res.data.vm.verified) {
+            if (res.data.verified) {
                 toast.success("Machine verified! One final step remaining.");
                 setCurrentStep(3);
             } else {
@@ -71,19 +77,11 @@ export function HostRegister() {
         }
         setIsLoading(false);
     };
-
-    const goBack = () => {
-        if (currentStep === 1) {
-            window.history.back();
-        } else {
-            setCurrentStep(prev => prev - 1);
-        }
-    };
     
     const stepTitles = [
         { number: 1, title: "Machine Details" },
         { number: 2, title: "Machine Verification" },
-        { number: 3, title: "Machine Verification" }
+        { number: 3, title: "Install this script to start accepting requests." }
     ];
 
     if (!wallet || !localStorage.getItem("token")) {
@@ -108,10 +106,12 @@ export function HostRegister() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header Section */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-                <Button variant="ghost" className="mb-4 cursor-pointer" onClick={goBack}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
+                {currentStep === 1 && 
+                    <Button variant="ghost" className="mb-4 cursor-pointer" onClick={() => window.location.href="/"}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                    </Button>
+                }
                 <div>
                     <div className="flex items-center justify-center space-x-8 mb-6">
                         {stepTitles.map((step, index) => (

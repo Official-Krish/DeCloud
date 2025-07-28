@@ -4,32 +4,60 @@ import { Container } from "lucide-react";
 import { toast } from "sonner";
 import { Form } from "@/components/DeployImage/Form";
 import { CostEstimation } from "@/components/DeployImage/CostEstimation";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
+import axios from "axios";
+import { BACKEND_URL } from "@/config";
 
 export function DeployApp() {
+    const [endTime, setEndTime] = useState<number | null>(null);
+    const navigate = useNavigate();
     const wallet = useWallet();
     const [formData, setFormData] = useState({
         appName: "",
         dockerImage: "",
         description: "",
-        cpu: "1",
-        memory: "1",
-        storage: "10",
-        ports: "80",
+        cpu: "",
+        ram: "",
+        diskSize: "",
+        ports: "",
         envVars: "",
-        regions: [] as string[],
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast(
-            <div>
-                <strong>Application Deployed!</strong>
-                <p>Your Docker container is being deployed across the DePIN network.</p>
-            </div>
-        );
+        try {
+            const res = await axios.post(`${BACKEND_URL}/depin/user/deploy`, {
+                ...formData,
+                endTime: endTime,
+            }, {
+                headers: {
+                    Authorization: `${localStorage.getItem("token")}`,
+                },
+            });
+            if (res.status === 200) {
+                toast(
+                    <div>
+                        <strong>Application Deployed!</strong>
+                        <p>Your Docker container is being deployed across the DePIN network.</p>
+                    </div>
+                );
+                navigate("/dashboard");
+                return;
+
+            }
+             else {
+                console.error("Failed to deploy application:", res.data);
+                toast.error(res.data.error || "Failed to deploy application. Please try again.");
+                return;
+            }
+
+        } catch (error) {
+            console.error("Error deploying application:", error);
+            toast.error("Failed to deploy application. Please try again.");
+            return;
+        }
     };
 
     if (!wallet || !localStorage.getItem("token")) {
