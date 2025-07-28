@@ -12,3 +12,11 @@ export const vmQueue = new Queue("vm-termination", {
 export const DepinVerificationQueue = new Queue("vm-verification", {
     connection
 });
+
+export const changeStatus = new Queue("changeVMSatus", {
+    connection
+})
+
+export const depinVMQueue = new Queue("terminate-depin-vm", {
+    connection
+});

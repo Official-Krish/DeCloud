@@ -3,6 +3,7 @@ import { ChangeVMStatusSchema, ClaimSOLSchema, RegisterVMSchema } from "@decloud
 import { Router } from "express";
 import { authMiddleware } from "../utils/middleware";
 import bcrypt from "bcrypt";
+import { changeStatus } from "../redis";
 
 const depinRouter = Router();
 
@@ -65,6 +66,11 @@ depinRouter.post("/changeVisibility", authMiddleware, async (req, res) => {
                 userPublicKey: pubKey
             },
             data: { isActive: status },
+        });
+        changeStatus.add("changeVMSatus", {
+            id: vm.id,
+            userPubKey: vm.userPublicKey,
+            status: status,
         });
         res.status(200).json({ message: "VM visibility updated successfully" });
     } catch (error) {
