@@ -1,5 +1,5 @@
 use::anchor_lang::prelude::*;
-use crate::{errors::DepinErrors, state::HostMachineRegistration};
+use crate::{constants::ADMIN_PUBKEY, errors::DepinErrors, state::HostMachineRegistration};
 
 pub fn deactivate_host(
     ctx: Context<DeactivateHost>,
@@ -7,6 +7,13 @@ pub fn deactivate_host(
 ) -> Result<()> {
     let host = &mut ctx.accounts.host;
     let host_machine = &mut ctx.accounts.host_machine;
+    let user = &ctx.accounts.user;
+
+    require!(
+        user.key() == host.key() || user.key() == ADMIN_PUBKEY,
+        DepinErrors::UnauthorizedAdmin
+    );
+
     require!(
         host.key() == host_machine.host_key,
         DepinErrors::HostKeyMismatch
@@ -41,7 +48,11 @@ pub fn deactivate_host(
 #[instruction(id: String)]
 pub struct DeactivateHost<'info> {
     #[account(mut)]
-    pub host: Signer<'info>,
+    pub user: Signer<'info>,
+
+    ///CHECK: This account must be the host's key
+    pub host: UncheckedAccount<'info>,
+    
     #[account(
         mut,
         seeds = [b"host_machine", host.key().as_ref(), id.as_bytes()],

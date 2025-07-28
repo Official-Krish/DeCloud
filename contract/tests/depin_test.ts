@@ -124,8 +124,9 @@ describe("contract", () => {
     const tx = await program.methods.activateHost(id)
     .accounts({
         host: user.publicKey,
+        user: admin.publicKey,
     })
-    .signers([user])
+    .signers([admin])
     .rpc();
     console.log("Your transaction signature", tx);
     const hostMachineAccount = await program.account.hostMachineRegistration.fetch(hostMachine);
@@ -138,8 +139,9 @@ describe("contract", () => {
     const tx = await program.methods.deactivateHost(id)
       .accounts({
         host: user.publicKey,
+        user: admin.publicKey,
       })
-      .signers([user])
+      .signers([admin])
       .rpc();
     console.log("Your transaction signature", tx);
     const hostMachineAccount = await program.account.hostMachineRegistration.fetch(hostMachine);
