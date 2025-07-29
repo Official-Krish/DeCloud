@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { authMiddleware } from "../utils/middleware";
 import prisma from "@decloud/db";
-import { DepinDeployImageSchema } from "@decloud/types";
+import { DepinDeployVmSchema, FindVmSchema } from "@decloud/types";
 import { depinVMQueue } from "../redis";
 
 const depinVM = Router();
 
-depinVM.post("/deployImage", authMiddleware, async (req, res) => {
+depinVM.post("/findVM", authMiddleware, async (req, res) => {
     const userId = req.userId;
     const user = await prisma.user.findFirst({
         where: {
@@ -19,7 +19,7 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
         });
         return;
     }
-    const parseData = DepinDeployImageSchema.safeParse(req.body);
+    const parseData = FindVmSchema.safeParse(req.body);
     if (!parseData.success) {
         res.status(400).json({
             error: "Invalid request body",
@@ -27,7 +27,7 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
         return;
     }
     try {
-        const { appName, dockerImage, cpu, ram, diskSize, ports, envVars, endTime } = parseData.data;
+        const { cpu, ram, diskSize } = parseData.data;
         const findVm = await prisma.depinHostMachine.findFirst({
             where: {
                 isActive: true,
@@ -36,7 +36,11 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
                 },
                 ram: {
                     gte: parseInt(ram), 
-                }
+                },
+                diskSize: {
+                    gte: parseInt(diskSize),
+                },
+                isOccupied: false
             },
         });
         if (!findVm) {
@@ -46,9 +50,56 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
             return;
         }
 
-        // TODO: Send deployment request to the VM provider
+        res.status(200).json({
+            message: "Deployment request sent successfully",
+            vm: findVm
+        });
 
+    } catch (error) {
+        console.error("Error deploying image:", error);
+        res.status(500).json({
+            error: "Internal server error",
+        });
+    }
+});
+
+depinVM.post("/deploy", authMiddleware, async (req, res) => {
+    const userId = req.userId;
+    const user = await prisma.user.findFirst({
+        where: {
+            id: userId,
+        },
+    });
+    if (!user) {
+        res.status(404).json({
+            error: "User not found",
+        });
+        return;
+    }
+    const parseData = DepinDeployVmSchema.safeParse(req.body);
+    if (!parseData.success) {
+        res.status(400).json({
+            error: "Invalid request body",
+        });
+        return;
+    }
+    try {
+        const { appName, dockerImage, cpu, ram, diskSize, ports, envVars, escrowAmount, endTime, VmId, id } = parseData.data;
+        const findVm = await prisma.depinHostMachine.findFirst({
+            where: {
+                id: VmId,
+                isActive: true,
+                isOccupied: false,
+            },
+        });
+        if (!findVm) {
+            res.status(404).json({
+                error: "No suitable VM found for deployment",
+            });
+            return;
+        }
         const txn = await prisma.$transaction(async (tx) => {
+            //TODO: Add logic to send deployment request to the VM provider
             await prisma.depinHostMachine.update({
                 where: {
                     id: findVm.id,
@@ -63,11 +114,12 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
                 pubKey: user.publicKey,
                 id: findVm.id,
             }, {
-                delay: 10 * 60 * 1000,
+                delay: endTime * 60 * 1000,
             });
 
             await prisma.vMInstance.create({
                 data: {
+                    id: id,
                     name: appName,
                     userId: userId!,
                     jobId: job.id || findVm.id,
@@ -75,15 +127,16 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
                     PaymentType: "ESCROW",
                     region: findVm.region,
                     ipAddress: findVm.ipAddress,
-                    endTime: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
+                    endTime: new Date(Date.now() + Number(endTime) * 60 * 1000),
                     provider: "LOCAL",
-                    price: 0,
+                    price: escrowAmount,
                     startTime: new Date(),
                 }
             });
 
             await prisma.vMImage.create({
                 data: {
+                    id: id,
                     name: appName,
                     description: "",
                     dockerImage: dockerImage,
@@ -91,21 +144,18 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
                     ram: parseInt(ram),
                     diskSize: parseInt(diskSize),
                     depinHostMachineId: findVm.id,
-                    os: findVm.os
+                    os: findVm.os,
+                    applicationPort: Number(ports),
+                    envVariables: envVars ? envVars.split(",") : [],
                 }
             });
         });
-
-        res.status(200).json({
-            message: "Deployment request sent successfully",
-            vmId: findVm.id,
-        });
-
     } catch (error) {
-        console.error("Error deploying image:", error);
-        res.status(500).json({
-            error: "Internal server error",
+        console.error("Error parsing request body:", error);
+        res.status(400).json({
+            error: "Invalid request body",
         });
+        return;
     }
 });
 
