@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -73,16 +72,24 @@ export function Dashboard() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between mb-8"
             >
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">Virtual Machines</h1>
+                    <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
                     <p className="text-muted-foreground">Manage your cloud compute instances</p>
                 </div>
                 
-                <Link to="/rent">
-                    <Button className="mt-4 sm:mt-0 cursor-pointer">
-                        <Plus className="h-4 w-4 mr-2" />
-                        New VM
-                    </Button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                    <Link to="/rent">
+                        <Button className="mt-4 sm:mt-0 cursor-pointer dark:bg-white dark:hover:bg-gray-100">
+                            <Plus className="h-4 w-4 mr-2" />
+                            New VM
+                        </Button>
+                    </Link>
+                    <Link to="/depin/deploy">
+                        <Button className="mt-4 sm:mt-0 cursor-pointer dark:bg-white dark:hover:bg-gray-100">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Deploy Image
+                        </Button>
+                    </Link>
+                </div>
             </motion.div>
 
             {/* Controls */}
@@ -184,7 +191,12 @@ export function Dashboard() {
                         
                         <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-sm text-muted-foreground">
                             <span>Created On: {formatter.format(new Date(vm.createdAt))}</span>
-                            <span className="font-mono">Instance Id: {vm.instanceId}</span>
+                            {vm.provider !== "LOCAL" && 
+                                <span className="font-mono">Instance Id: {vm.instanceId}</span>
+                            }
+                            {vm.provider === "LOCAL" && 
+                                <span className="font-mono">Image Deployed: {vm.VMImage.dockerImage}</span>
+                            }
                         </div>
                     </motion.div>
                 ))}
@@ -201,6 +213,9 @@ export function Dashboard() {
                     </div>
                     <Link to="/rent">
                         <Button className="cursor-pointer">Create your first VM</Button>
+                    </Link>
+                    <Link to="/depin/deploy" className="block mt-4 text-sm text-primary hover:underline">
+                        Or deploy a custom image
                     </Link>
                 </motion.div>
             )}

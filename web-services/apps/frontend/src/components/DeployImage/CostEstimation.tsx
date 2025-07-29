@@ -1,4 +1,3 @@
-import { DollarSign } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 
 interface CostEstimationProps {
@@ -20,7 +19,6 @@ export const CostEstimation = ({ formData }: CostEstimationProps) => {
             <Card className="border-border/50 bg-card/50">
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                        <DollarSign className="h-5 w-5" />
                         <span>Cost Estimation</span>
                     </CardTitle>
                 </CardHeader>

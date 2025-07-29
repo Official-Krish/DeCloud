@@ -21,7 +21,11 @@ export const Hardware = ({ vm }: { vm: VM}) => {
                     <div className="flex items-center justify-center w-12 h-12 bg-cyan-500/10 rounded-xl mb-3 mx-auto">
                       <Cpu className="h-6 w-6 text-cyan-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).cpu}</div>
+                    {vm.provider === "LOCAL" ? (
+                      <div className="text-2xl font-bold mb-1">{vm.VMImage.cpu}</div>
+                    ) : (
+                      <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).cpu}</div>
+                    )}
                     <div className="text-sm text-muted-foreground">vCPUs</div>
                   </div>
                   
@@ -29,7 +33,11 @@ export const Hardware = ({ vm }: { vm: VM}) => {
                     <div className="flex items-center justify-center w-12 h-12 bg-emerald-500/10 rounded-xl mb-3 mx-auto">
                       <MemoryStick className="h-6 w-6 text-emerald-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).ram} GB</div>
+                    {vm.provider === "LOCAL" ? (
+                      <div className="text-2xl font-bold mb-1">{vm.VMImage.ram} GB</div>
+                    ) : (
+                      <div className="text-2xl font-bold mb-1">{getVmDetails(vm.VMConfig.machineType).ram} GB</div>
+                    )}
                     <div className="text-sm text-muted-foreground">Ram</div>
                   </div>
                   
@@ -37,7 +45,11 @@ export const Hardware = ({ vm }: { vm: VM}) => {
                     <div className="flex items-center justify-center w-12 h-12 bg-amber-500/10 rounded-xl mb-3 mx-auto">
                       <HardDrive className="h-6 w-6 text-amber-600" />
                     </div>
-                    <div className="text-2xl font-bold mb-1">{vm.VMConfig.diskSize} GB</div>
+                    {vm.provider === "LOCAL" ? (
+                      <div className="text-2xl font-bold mb-1">{vm.VMImage.diskSize} GB</div>
+                    ) : (
+                      <div className="text-2xl font-bold mb-1">{vm.VMConfig.diskSize} GB</div>
+                    )}
                     <div className="text-sm text-muted-foreground">Disk Storage</div>
                   </div>
                 </div>

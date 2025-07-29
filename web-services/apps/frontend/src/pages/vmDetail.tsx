@@ -91,7 +91,7 @@ export function VMDetails() {
           {vm.PaymentType === "ESCROW" && <BillingStatus vm={vm} />}
           <Overview vm={vm} />
           <Hardware vm={vm} />
-          <SSH vm={vm} />
+          {vm.provider != "LOCAL" && <SSH vm={vm} />}
         </div>
 
         {/* Sidebar */}
