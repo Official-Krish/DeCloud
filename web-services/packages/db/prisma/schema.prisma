@@ -70,10 +70,13 @@ model VMImage {
   cpu                 Int
   ram                 Int
   diskSize            Int
+  os                  String
+  applicationUrl      String?
+  applicationPort     Int?
   createdAt           DateTime    @default(now())
   depinHostMachineId  String      @unique
 
-  DepinHostMachine    DepinHostMachine @relation(fields: [depinHostMachineId], references: [id])
+  DepinHostMachine    DepinHostMachine @relation(fields: [depinHostMachineId], references: [id], onDelete: Cascade)
   VmInstance VMInstance  @relation(fields: [id], references: [id])
 
   @@index([name])
