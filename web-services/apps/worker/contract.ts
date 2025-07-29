@@ -90,15 +90,26 @@ export async function endRentalSession(
 }
 
 export async function InitialiseHostPDA(id: string, hostName: string, machineType: string, os: string, diskSize: number, pricePerHour: number, userPubKey: string) {
-    try{
+    try {
+        const userPublicKey = new PublicKey(userPubKey)
+        const [hostMachinePda, bump] = PublicKey.findProgramAddressSync(
+            [
+                Buffer.from("host_machine"),
+                userPublicKey.toBuffer(), 
+                Buffer.from(id)
+            ],
+            program.programId
+        );
         const tx = await program.methods.initialiseHostRegistration(id, hostName, machineType, os, new BN(diskSize), new BN(pricePerHour))
         .accounts({
             admin: payerKeypair.publicKey,
-            userKey: new PublicKey(userPubKey),
+            userKey: userPublicKey,
         })
         .signers([payerKeypair])
         .rpc();
-        return tx;
+        return {
+            hostMachinePda
+        };
     } catch (error) {
         console.error("Error initializing host PDA:", error);
         throw error;    
@@ -111,6 +122,7 @@ export async function deActivateHost(id: string, userPubKey: string) {
     try {
         const tx = await program.methods.deactivateHost(id)
         .accounts({
+            user: payerKeypair.publicKey,
             host: userPublicKey,
         })
         .signers([payerKeypair])
@@ -129,6 +141,7 @@ export async function activateHost(id: string, userPubKey: string) {
     try {
         const tx = await program.methods.activateHost(id)
         .accounts({
+            user: payerKeypair.publicKey,
             host: userPublicKey,
         })
         .signers([payerKeypair])

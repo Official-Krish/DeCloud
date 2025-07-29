@@ -61,7 +61,6 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
             const job = await depinVMQueue.add("terminate-depin-vm", { 
                 zone: findVm.region,
                 pubKey: user.publicKey,
-                isEscrow: true,
                 id: findVm.id,
             }, {
                 delay: 10 * 60 * 1000,
@@ -92,6 +91,7 @@ depinVM.post("/deployImage", authMiddleware, async (req, res) => {
                     ram: parseInt(ram),
                     diskSize: parseInt(diskSize),
                     depinHostMachineId: findVm.id,
+                    os: findVm.os
                 }
             });
         });

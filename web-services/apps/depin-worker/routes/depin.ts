@@ -2,7 +2,7 @@ require("dotenv").config();
 import { Router } from "express";
 import { DepinVerificationSchema } from "@decloud/types";
 import prisma from "@decloud/db";
-import { deActivateHost, initialiseAccount } from "../redis";
+import { changeStatus, initialiseAccount } from "../redis";
 import { calculatePricePerHour } from "../utils/calculatePrice";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -109,11 +109,11 @@ depinRouter.post("/depin/changeStatus", async (req, res) => {
         await prisma.depinHostMachine.update({
             where: { id: vm.id },
             data: {
-                isActive: status,
+                isOccupied: status,
             }
         });
         // Add job to deactivate host
-        deActivateHost.add("changeVMSatus", {
+        changeStatus.add("changeVMSatus", {
             id: vm.id,
             userPubKey: vm.userPublicKey,
             status: status,

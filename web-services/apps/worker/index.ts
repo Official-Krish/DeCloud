@@ -62,6 +62,14 @@ const DepinWorker = new Worker ("initialise-host-pda", async job => {
         const { id, hostName, machineType, os, diskSize, pricePerHour, userPubKey } = job.data;
         const tx = await InitialiseHostPDA(id, hostName, machineType, os, diskSize, pricePerHour, userPubKey);
         console.log(`Host PDA initialised successfully for job ${job.id}:`, tx);
+        await prisma.depinHostMachine.update({
+            where: {
+                id: id
+            },
+            data: {
+                pdaAddress: tx.hostMachinePda.toBase58(),
+            }
+        })
     } catch (error) {
         console.error(`Error processing job ${job.id}:`, error);
     }
@@ -91,6 +99,34 @@ deActivateWorker.on("failed", (job, err) => {
     console.error(`Deactivation job ${job?.id} failed: ${err.message}`);
 });
 
+const terminateDepinVm = new Worker("terminate-depin-vm", async job => {
+   const { zone, pubKey, id } = job.data; 
+
+   try {
+        const findVm = await prisma.depinHostMachine.findFirst({
+            where: {            
+                id: id,
+            },
+        });
+        if (!findVm) {
+            console.error(`No VM found with ID ${id}`);
+            return;
+        }
+
+        //TODO: Send termination request to the VM provider
+        await endRentalSession(findVm.id, pubKey, true);
+
+    } catch (error) {
+       console.error(`Error processing terminate depin VM job ${job.id}:`, error);
+    }
+});
+
+terminateDepinVm.on("completed", (job) => {
+    console.log(`Terminate depin VM job completed successfully: ${job.id}`);
+});
+terminateDepinVm.on("failed", (job, err) => {
+    console.error(`Terminate depin VM job ${job?.id} failed: ${err.message}`);
+});
 
 async function deleteInstance(zone: string, instanceId: string) {
     const instancesClient = new compute.InstancesClient();

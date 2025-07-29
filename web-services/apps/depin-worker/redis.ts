@@ -9,6 +9,6 @@ export const initialiseAccount = new Queue("initialise-host-pda", {
     connection
 })
 
-export const deActivateHost = new Queue("changeVMSatus", {
+export const changeStatus = new Queue("changeVMSatus", {
     connection
 })
