@@ -67,13 +67,23 @@ export const DepinVerificationSchema = z.object({
     Key: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
 });
 
-export const DepinDeployImageSchema = z.object({
-    appName: z.string().min(1).max(50),
-    dockerImage: z.string().url(),
+export const FindVmSchema = z.object({
     cpu: z.string().min(1).max(10),
     ram: z.string().min(1).max(10),
     diskSize: z.string().min(1).max(10),
-    ports: z.string().min(1).max(2),
-    envVars: z.string().max(10).optional(),
+});
+
+export const DepinDeployVmSchema = z.object({
+    appName: z.string().min(1).max(50),
+    dockerImage: z.string().min(1).max(100),
+    description: z.string().min(1).max(200),
+    cpu: z.string().min(1).max(10),
+    ram: z.string().min(1).max(10),
+    diskSize: z.string().min(1).max(10),
+    ports: z.string().min(1).max(50),
+    envVars: z.string().optional(),
+    escrowAmount: z.number().positive(),
     endTime: z.number(),
+    VmId: z.string(),
+    id: z.string(),
 });

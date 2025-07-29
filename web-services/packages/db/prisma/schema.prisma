@@ -73,6 +73,7 @@ model VMImage {
   os                  String
   applicationUrl      String?
   applicationPort     Int?
+  envVariables        String[]
   createdAt           DateTime    @default(now())
   depinHostMachineId  String      @unique
 
@@ -107,6 +108,7 @@ model DepinHostMachine {
   region        String
   userPublicKey String      @unique
   pdaAddress    String?
+  perHourPrice  Float       @default(0)
   claimedSOL    Float?      @default(0)
   createdAt     DateTime    @default(now())
   user          User?       @relation(fields: [userPublicKey], references: [publicKey])
