@@ -1,18 +1,19 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Container } from "lucide-react";
-import { toast } from "sonner";
 import { Form } from "@/components/DeployImage/Form";
 import { CostEstimation } from "@/components/DeployImage/CostEstimation";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
-import axios from "axios";
-import { BACKEND_URL } from "@/config";
+import type { Machine } from "types/depinMachines";
+import { PayementGateway } from "@/components/DeployImage/PaymentGateway";
 
 export function DeployApp() {
-    const [endTime, setEndTime] = useState<number | null>(null);
-    const navigate = useNavigate();
+    const [vm, setVm] = useState<Machine>();
+    const [escrowAmount, setEscrowAmount] = useState(0.1);
+    const [step, setStep] = useState(0);
+
     const wallet = useWallet();
     const [formData, setFormData] = useState({
         appName: "",
@@ -24,41 +25,6 @@ export function DeployApp() {
         ports: "",
         envVars: "",
     });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post(`${BACKEND_URL}/depin/user/deploy`, {
-                ...formData,
-                endTime: endTime,
-            }, {
-                headers: {
-                    Authorization: `${localStorage.getItem("token")}`,
-                },
-            });
-            if (res.status === 200) {
-                toast(
-                    <div>
-                        <strong>Application Deployed!</strong>
-                        <p>Your Docker container is being deployed across the DePIN network.</p>
-                    </div>
-                );
-                navigate("/dashboard");
-                return;
-
-            }
-             else {
-                console.error("Failed to deploy application:", res.data);
-                toast.error(res.data.error || "Failed to deploy application. Please try again.");
-                return;
-            }
-
-        } catch (error) {
-            console.error("Error deploying application:", error);
-            toast.error("Failed to deploy application. Please try again.");
-            return;
-        }
-    };
 
     if (!wallet || !localStorage.getItem("token")) {
         return (
@@ -100,24 +66,27 @@ export function DeployApp() {
                 </p>
             </motion.div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className={`${vm ? "grid lg:grid-cols-3 gap-8 transisition duration-300 ease-in-out": "flex justify-center items-center w-full"}`}>
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="lg:col-span-2"
+                    className={`${vm ? "lg:col-span-2" : "w-4xl"}`}
                 >
-                    <Form handleSubmit={handleSubmit} formData={formData} setFormData={setFormData}/>
+                    {step === 0 && <Form formData={formData} setFormData={setFormData} setVm={setVm} setStep={setStep}/>}
+                    {(step === 1 && vm) && <PayementGateway escrowAmount={escrowAmount} setEscrowAmount={setEscrowAmount} vmId={vm?.id} form={formData} PricePerHour={vm?.PerHourPrice}/>}
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-6"
-                >
-                    <CostEstimation formData={formData} />
-                </motion.div>
+                {vm && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-6"
+                    >
+                        <CostEstimation PerHourPrice={vm.PerHourPrice || 0} />
+                    </motion.div>
+                )}
             </div>
         </div>
     );

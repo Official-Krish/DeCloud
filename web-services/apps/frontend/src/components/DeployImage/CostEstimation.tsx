@@ -1,19 +1,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 
 interface CostEstimationProps {
-    formData: {
-        cpu: string;
-        ram: string;     
-        diskSize: string;
-    };  
+    PerHourPrice: number;
 }
 
-export const CostEstimation = ({ formData }: CostEstimationProps) => {
-    const estimatedCost = (
-        parseFloat(formData.cpu) * 0.02 + 
-        parseFloat(formData.ram) * 0.01 + 
-        parseFloat(formData.diskSize) * 0.001
-    ) * 24;
+export const CostEstimation = ({ PerHourPrice }: CostEstimationProps) => {
     return (
         <div>
             <Card className="border-border/50 bg-card/50">
@@ -25,21 +16,16 @@ export const CostEstimation = ({ formData }: CostEstimationProps) => {
                 <CardContent>
                     <div className="space-y-4">
                         <div className="flex justify-between">
-                            <span className="text-sm">CPU ({formData.cpu} cores)</span>
-                            <span className="text-sm">{(parseFloat(formData.cpu) * 0.02 * 24).toFixed(2)} SOL/day</span>
+                            <span className="text-sm">1 Hour Cost</span>
+                            <span className="text-sm">{PerHourPrice} SOL</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm">Memory ({formData.ram} GB)</span>
-                            <span className="text-sm">{(parseFloat(formData.ram) * 0.01 * 24).toFixed(2)} SOL/day</span>
+                            <span className="text-sm">24 Hour Cost</span>
+                            <span className="text-sm">{PerHourPrice * 24} SOL</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm">Storage ({formData.diskSize} GB)</span>
-                            <span className="text-sm">{(parseFloat(formData.diskSize) * 0.001 * 24).toFixed(2)} SOL/day</span>
-                        </div>
-                        <hr className="my-2" />
-                        <div className="flex justify-between font-semibold">
-                            <span>Total Estimated Cost</span>
-                            <span className="text-blue-600">{estimatedCost.toFixed(2)} SOL/day</span>
+                            <span className="text-sm">30 Days Cost</span>
+                            <span className="text-sm">{PerHourPrice * 24 * 30} SOL</span>
                         </div>
                     </div>
                 </CardContent>

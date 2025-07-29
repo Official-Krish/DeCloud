@@ -14,6 +14,7 @@ import { ModeToggle } from "./toggle-theme";
 import { useWallet } from "@solana/wallet-adapter-react";
 import UserProfileDropdown from "./user-dropdown";
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { Button } from "./ui/button";
 
 export default function Appbar() {
   const { wallet } = useWallet();
@@ -41,7 +42,7 @@ export default function Appbar() {
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems}/>
-          <div className="flex"> 
+          <div className="flex items-center"> 
             <NavbarButton variant="secondary"><ModeToggle/></NavbarButton>
             {(localStorage.getItem("token") && wallet?.adapter.connected) ? (
               <NavbarButton className="flex items-center gap-1 cursor-pointer" onClick={() => setUserDropdownOpen(!userDropdownOpen)}>
@@ -55,7 +56,7 @@ export default function Appbar() {
                 </span>
               </NavbarButton>
             ) : (
-              <NavbarButton variant="primary" onClick={() => window.location.href="/signin"}>SignIn</NavbarButton>
+              <Button className="cursor-pointer" onClick={() => window.location.href="/signin"}>SignIn</Button>
             )}
           </div>
         </NavBody>

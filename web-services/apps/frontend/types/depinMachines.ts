@@ -9,4 +9,5 @@ export interface Machine {
     claimedSOL: number;
     ipAddress: string;
     isOccupied: boolean;
+    PerHourPrice: number;
 }
