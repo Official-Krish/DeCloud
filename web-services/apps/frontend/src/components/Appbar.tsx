@@ -1,13 +1,13 @@
 import {
   Navbar,
   NavBody,
-  NavItems,
   MobileNav,
   NavbarLogo,
   NavbarButton,
   MobileNavHeader,
   MobileNavToggle,
   MobileNavMenu,
+  NavItems,
 } from "@/components/ui/Resizable-Appbar";
 import { useState } from "react";
 import { ModeToggle } from "./toggle-theme";
@@ -27,21 +27,21 @@ export default function Appbar() {
       link: "/rent",
     },
     {
-      name: "DePIN Hosting",
-      link: "/hosting",
+      name: "Deploy Image",
+      link: "/depin/deploy",
     },
   ];
 
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   return (
-    <div className="relative w-full border-b border-neutral-200 dark:border-neutral-800">
+    <div className="w-full border-b border-neutral-200 dark:border-neutral-800">
       <Navbar>
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navItems} />
-          <div className="flex items-center gap-4">
+          <NavItems items={navItems}/>
+          <div className="flex"> 
             <NavbarButton variant="secondary"><ModeToggle/></NavbarButton>
             {(localStorage.getItem("token") && wallet?.adapter.connected) ? (
               <NavbarButton className="flex items-center gap-1 cursor-pointer" onClick={() => setUserDropdownOpen(!userDropdownOpen)}>

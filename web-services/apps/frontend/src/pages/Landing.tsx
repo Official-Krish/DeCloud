@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 const Landing = () => {
     return (
-        <motion.div className="dark:bg-neutral-950 bg-neutral-100 min-h-screen"
+        <motion.div className="dark:bg-neutral-950 bg-neutral-100 min-h-screen realtive"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 2 }}

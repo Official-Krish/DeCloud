@@ -53,7 +53,7 @@ export function HostDashboard() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-screen mt-10">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}

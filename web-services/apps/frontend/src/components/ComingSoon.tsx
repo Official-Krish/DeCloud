@@ -15,7 +15,7 @@ export function ComingSoon({ isDepin }: { isDepin: boolean }) {
     };
 
     return (
-        <div className="relative flex overflow-hidden bg-background py-10">
+        <div className="relative flex overflow-hidden bg-background py-10 mt-10">
             {/* Background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/30" />
             
