@@ -2,7 +2,7 @@
 
 set -e
 
-echo "🔧 DeCloud Host Registration Script (Cross-Platform)"
+echo "🔧 DeCloud Host Registration & Environment Setup Script (Cross-Platform)"
 
 # === CONFIG ===
 BACKEND_API="https://api.depin-worker.decloud.krishdev.xyz/v2/depinVerification"
@@ -14,6 +14,28 @@ CONFIG_FILE="$CONFIG_DIR/config.json"
 # Check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Print colored output
+print_step() {
+    echo "🔄 $1"
+}
+
+print_success() {
+    echo "✅ $1"
+}
+
+print_error() {
+    echo "❌ $1"
+}
+
+print_warning() {
+    echo "⚠️  $1"
+}
+
+# Check if running as root
+is_root() {
+    [ "$(id -u)" -eq 0 ]
 }
 
 # Get CPU cores count
@@ -105,7 +127,289 @@ get_public_ip() {
     fi
 }
 
-Check for required tools
+# Install basic dependencies
+install_basic_dependencies() {
+    print_step "Installing basic dependencies..."
+    
+    case "$OS_TYPE" in
+        "Linux")
+            # Detect Linux distribution
+            if [ -f /etc/debian_version ]; then
+                DISTRO="debian"
+            elif [ -f /etc/redhat-release ]; then
+                DISTRO="redhat"
+            elif [ -f /etc/arch-release ]; then
+                DISTRO="arch"
+            else
+                DISTRO="unknown"
+            fi
+            
+            case "$DISTRO" in
+                "debian")
+                    sudo apt-get update
+                    sudo apt-get install -y curl wget jq ca-certificates gnupg lsb-release
+                    ;;
+                "redhat")
+                    if command_exists dnf; then
+                        sudo dnf install -y curl wget jq ca-certificates gnupg
+                    else
+                        sudo yum install -y curl wget jq ca-certificates gnupg
+                    fi
+                    ;;
+                "arch")
+                    sudo pacman -Sy --noconfirm curl wget jq ca-certificates gnupg
+                    ;;
+                *)
+                    print_warning "Unknown Linux distribution. Please install curl, wget, and jq manually."
+                    ;;
+            esac
+            ;;
+        "macOS")
+            if ! command_exists brew; then
+                print_step "Installing Homebrew..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            fi
+            brew install curl wget jq
+            ;;
+        "Windows")
+            print_warning "Running on Windows. Please ensure you have curl, wget, and jq installed in your environment."
+            ;;
+    esac
+}
+
+# Install Rust and Cargo (required for websocat)
+install_rust() {
+    if command_exists cargo; then
+        print_success "Rust/Cargo is already installed."
+        return
+    fi
+    
+    print_step "Installing Rust and Cargo (required for websocat)..."
+    
+    case "$OS_TYPE" in
+        "Linux"|"macOS")
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            # Source the cargo environment
+            if [ -f "$HOME/.cargo/env" ]; then
+                source "$HOME/.cargo/env"
+            fi
+            export PATH="$HOME/.cargo/bin:$PATH"
+            ;;
+        "Windows")
+            print_warning "Please install Rust from https://rustup.rs/ and restart your terminal."
+            print_warning "Then run this script again to install websocat."
+            ;;
+    esac
+}
+
+# Install websocat
+install_websocat() {
+    if command_exists websocat; then
+        print_success "websocat is already installed."
+        return
+    fi
+    
+    print_step "Installing websocat..."
+    
+    # Ensure Rust/Cargo is available
+    if ! command_exists cargo; then
+        install_rust
+    fi
+    
+    # Make sure cargo is in PATH
+    export PATH="$HOME/.cargo/bin:$PATH"
+    
+    case "$OS_TYPE" in
+        "Linux"|"macOS")
+            if command_exists cargo; then
+                cargo install websocat
+                print_success "websocat installed successfully!"
+            else
+                print_error "Failed to install Rust/Cargo. Please install manually from https://rustup.rs/"
+                return 1
+            fi
+            ;;
+        "Windows")
+            if command_exists cargo; then
+                cargo install websocat
+                print_success "websocat installed successfully!"
+            else
+                print_warning "Please install Rust from https://rustup.rs/ first, then run: cargo install websocat"
+            fi
+            ;;
+    esac
+}
+
+# Install Docker
+install_docker() {
+    if command_exists docker; then
+        print_success "Docker is already installed."
+        return
+    fi
+    
+    print_step "Installing Docker..."
+    
+    case "$OS_TYPE" in
+        "Linux")
+            # Use Docker's official installation script
+            curl -fsSL https://get.docker.com | bash
+            
+            # Add current user to docker group
+            if ! is_root; then
+                sudo usermod -aG docker "$USER"
+                print_warning "You need to log out and back in for Docker group changes to take effect."
+            fi
+            
+            # Start and enable Docker service
+            if command_exists systemctl; then
+                sudo systemctl start docker
+                sudo systemctl enable docker
+            fi
+            ;;
+        "macOS")
+            print_warning "Please install Docker Desktop for Mac from https://www.docker.com/products/docker-desktop"
+            print_warning "Script will continue, but Docker functionality may not work until installed."
+            ;;
+        "Windows")
+            print_warning "Please install Docker Desktop for Windows from https://www.docker.com/products/docker-desktop"
+            print_warning "Script will continue, but Docker functionality may not work until installed."
+            ;;
+    esac
+}
+
+# Install Caddy
+install_caddy() {
+    if command_exists caddy; then
+        print_success "Caddy is already installed."
+        return
+    fi
+    
+    print_step "Installing Caddy..."
+    
+    case "$OS_TYPE" in
+        "Linux")
+            # Detect Linux distribution for Caddy installation
+            if [ -f /etc/debian_version ]; then
+                # Debian/Ubuntu
+                sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+                curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+                curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+                sudo apt update
+                sudo apt install -y caddy
+            elif [ -f /etc/redhat-release ]; then
+                # RHEL/CentOS/Fedora
+                if command_exists dnf; then
+                    sudo dnf copr enable @caddy/caddy
+                    sudo dnf install -y caddy
+                else
+                    sudo yum install -y yum-utils
+                    sudo yum-config-manager --add-repo https://dl.cloudsmith.io/public/caddy/stable/rpm/el/caddy.repo
+                    sudo yum install -y caddy
+                fi
+            elif [ -f /etc/arch-release ]; then
+                # Arch Linux
+                sudo pacman -S --noconfirm caddy
+            else
+                # Generic Linux - try to install from GitHub releases
+                print_step "Installing Caddy from GitHub releases..."
+                CADDY_VERSION=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name)
+                ARCH=$(uname -m)
+                case "$ARCH" in
+                    x86_64) CADDY_ARCH="amd64" ;;
+                    aarch64|arm64) CADDY_ARCH="arm64" ;;
+                    armv7l) CADDY_ARCH="armv7" ;;
+                    *) CADDY_ARCH="amd64" ;;
+                esac
+                
+                curl -L "https://github.com/caddyserver/caddy/releases/download/${CADDY_VERSION}/caddy_${CADDY_VERSION#v}_linux_${CADDY_ARCH}.tar.gz" -o /tmp/caddy.tar.gz
+                tar xzf /tmp/caddy.tar.gz -C /tmp
+                sudo mv /tmp/caddy /usr/local/bin/
+                sudo chmod +x /usr/local/bin/caddy
+                
+                # Create systemd service
+                sudo tee /etc/systemd/system/caddy.service > /dev/null <<EOF
+[Unit]
+Description=Caddy
+Documentation=https://caddyserver.com/docs/
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=notify
+User=caddy
+Group=caddy
+ExecStart=/usr/local/bin/caddy run --environ --config /etc/caddy/Caddyfile
+ExecReload=/usr/local/bin/caddy reload --config /etc/caddy/Caddyfile --force
+TimeoutStopSec=5s
+LimitNOFILE=1048576
+LimitNPROC=1048576
+PrivateTmp=true
+ProtectSystem=full
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
+EOF
+                
+                # Create caddy user and directories
+                sudo useradd --system --home /var/lib/caddy --create-home --shell /usr/sbin/nologin caddy
+                sudo mkdir -p /etc/caddy
+                sudo chown -R root:caddy /etc/caddy
+                sudo mkdir -p /var/lib/caddy
+                sudo chown caddy:caddy /var/lib/caddy
+                
+                sudo systemctl daemon-reload
+                sudo systemctl enable caddy
+            fi
+            ;;
+        "macOS")
+            if command_exists brew; then
+                brew install caddy
+            else
+                print_warning "Homebrew not found. Please install Caddy manually from https://caddyserver.com/download"
+            fi
+            ;;
+        "Windows")
+            print_warning "Please install Caddy manually from https://caddyserver.com/download"
+            ;;
+    esac
+}
+
+# Configure Caddy
+configure_caddy() {
+    if [ "$OS_TYPE" != "Linux" ]; then
+        print_warning "Caddy configuration is only supported on Linux systems."
+        return
+    fi
+    
+    print_step "Configuring Caddy with wildcard reverse proxy..."
+    
+    CADDYFILE_PATH="/etc/caddy/Caddyfile"
+    
+    # Create Caddyfile with wildcard configuration
+    sudo tee "$CADDYFILE_PATH" > /dev/null <<EOF
+*.krishdev.xyz {
+  reverse_proxy localhost:{http.reverse_proxy.port}
+}
+EOF
+    
+    # Set proper permissions
+    sudo chown root:caddy "$CADDYFILE_PATH"
+    sudo chmod 644 "$CADDYFILE_PATH"
+    
+    # Restart caddy to apply changes
+    if command_exists systemctl; then
+        print_step "Starting and enabling Caddy service..."
+        sudo systemctl start caddy
+        sudo systemctl enable caddy
+        sudo systemctl reload caddy
+        print_success "Caddy configured and started successfully!"
+    else
+        print_warning "systemctl not found. Please start Caddy manually."
+    fi
+}
+
+# Check dependencies
 check_dependencies() {
     local missing_tools=()
     
@@ -118,14 +422,20 @@ check_dependencies() {
     fi
     
     if [ ${#missing_tools[@]} -gt 0 ]; then
-        echo "Missing required tools: ${missing_tools[*]}"
+        print_error "Missing required tools: ${missing_tools[*]}"
         echo ""
-        echo "Please install the missing tools:"
-        echo "  • On Ubuntu/Debian: sudo apt-get install jq curl"
-        echo "  • On CentOS/RHEL: sudo yum install jq curl"
-        echo "  • On macOS: brew install jq curl"
-        echo "  • On Windows: Install Git Bash or WSL with the above packages"
-        exit 1
+        read -p "🤔 Would you like to install missing dependencies automatically? (y/N): " install_deps
+        if [[ "$install_deps" =~ ^[Yy]$ ]]; then
+            install_basic_dependencies
+        else
+            echo ""
+            echo "Please install the missing tools manually:"
+            echo "  • On Ubuntu/Debian: sudo apt-get install jq curl"
+            echo "  • On CentOS/RHEL: sudo yum install jq curl"
+            echo "  • On macOS: brew install jq curl"
+            echo "  • On Windows: Install Git Bash or WSL with the above packages"
+            exit 1
+        fi
     fi
 }
 
@@ -138,11 +448,38 @@ case "$OS_RAW" in
     *)          OS_TYPE="Unknown";;
 esac
 
-# === DEPENDENCY CHECK ===
-# check_dependencies
+echo "🖥️  Detected OS: $OS_TYPE ($OS_RAW)"
+
+# === ENVIRONMENT SETUP ===
+echo ""
+echo "=== ENVIRONMENT SETUP ==="
+
+# Check and install dependencies
+check_dependencies
+
+# Ask user if they want to install components
+echo ""
+read -p "🐳 Would you like to install Docker? (y/N): " install_docker_choice
+read -p "🌐 Would you like to install and configure Caddy? (y/N): " install_caddy_choice
+read -p "🔌 Would you like to install websocat (required for job runner)? (y/N): " install_websocat_choice
+
+if [[ "$install_docker_choice" =~ ^[Yy]$ ]]; then
+    install_docker
+fi
+
+if [[ "$install_caddy_choice" =~ ^[Yy]$ ]]; then
+    install_caddy
+    configure_caddy
+fi
+
+if [[ "$install_websocat_choice" =~ ^[Yy]$ ]]; then
+    install_websocat
+fi
 
 # === SYSTEM INFO COLLECTION ===
-echo "🔍 Detecting system information..."
+echo ""
+echo "=== SYSTEM REGISTRATION ==="
+print_step "Collecting system information..."
 
 OS="$OS_RAW"
 CPU_CORES=$(get_cpu_cores)
@@ -157,7 +494,7 @@ read -p "📨 Enter your key (you provided at the time of registration): " KEY
 
 # Validate inputs
 if [ -z "$WALLET" ] || [ -z "$KEY" ]; then
-    echo "Wallet address and key cannot be empty!"
+    print_error "Wallet address and key cannot be empty!"
     exit 1
 fi
 
@@ -177,13 +514,13 @@ echo "  • Key          : $KEY"
 echo ""
 read -p "🤔 Do the specs look correct? (y/N): " confirm
 if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-    echo "Registration cancelled by user."
+    print_error "Registration cancelled by user."
     exit 1
 fi
 
 # === REGISTER HOST ===
 echo ""
-echo "Sending registration request to DeCloud..."
+print_step "Sending registration request to DeCloud..."
 
 # Use curl if available, otherwise wget
 if command_exists curl; then
@@ -215,7 +552,7 @@ fi
 
 # Check if we got a response
 if [ -z "$RESPONSE" ]; then
-    echo "No response from server. Please check your internet connection."
+    print_error "No response from server. Please check your internet connection."
     exit 1
 fi
 
@@ -225,13 +562,13 @@ TOKEN=$(echo "$RESPONSE" | jq -r '.token' 2>/dev/null || echo "null")
 
 # Validate response
 if [ "$HOST_ID" == "null" ] || [ -z "$HOST_ID" ] || [ "$TOKEN" == "null" ] || [ -z "$TOKEN" ]; then
-    echo "Registration failed or missing token:"
+    print_error "Registration failed or missing token:"
     echo "$RESPONSE"
     exit 1
 fi
 
 # === STORE CONFIG ===
-echo "💾 Storing configuration..."
+print_step "Storing configuration..."
 
 # Create config directory (cross-platform)
 mkdir -p "$CONFIG_DIR"
@@ -253,6 +590,9 @@ echo "{
   \"token\": \"$TOKEN\",
   \"wallet\": \"$WALLET\",
   \"os_type\": \"$OS_TYPE\",
+  \"docker_installed\": $(command_exists docker && echo "true" || echo "false"),
+  \"caddy_installed\": $(command_exists caddy && echo "true" || echo "false"),
+  \"websocat_installed\": $(command_exists websocat && echo "true" || echo "false"),
   \"registered_at\": \"$TIMESTAMP\"
 }" > "$CONFIG_FILE"
 
@@ -261,9 +601,35 @@ if [ "$OS_TYPE" != "Windows" ]; then
     chmod 600 "$CONFIG_FILE"
 fi
 
+# === COMPLETION ===
 echo ""
-echo "Host registered successfully!"
-echo "Configuration saved to: $CONFIG_FILE"
-echo "Host ID: $HOST_ID"
+print_success "DeCloud Host setup completed successfully!"
 echo ""
-echo "Your DeCloud host is now registered and ready to use!"
+echo "📁 Configuration saved to: $CONFIG_FILE"
+echo "🆔 Host ID: $HOST_ID"
+echo "🐳 Docker installed: $(command_exists docker && echo "✅ Yes" || echo "❌ No")"
+echo "🌐 Caddy installed: $(command_exists caddy && echo "✅ Yes" || echo "❌ No")"
+echo "🔌 websocat installed: $(command_exists websocat && echo "✅ Yes" || echo "❌ No")"
+echo ""
+
+if [[ "$install_caddy_choice" =~ ^[Yy]$ ]] && [ "$OS_TYPE" = "Linux" ]; then
+    print_warning "DNS Configuration Required:"
+    echo "   Ensure DNS wildcard for *.decloud.krishdev.xyz points to: $IP_ADDRESS"
+fi
+
+if command_exists docker && ! docker info >/dev/null 2>&1; then
+    print_warning "Docker is installed but not accessible. You may need to:"
+    echo "   1. Log out and back in (for group changes)"
+    echo "   2. Start Docker service: sudo systemctl start docker"
+fi
+
+if [[ "$install_websocat_choice" =~ ^[Yy]$ ]] && [ "$OS_TYPE" != "Windows" ] && ! command_exists websocat; then
+    print_warning "websocat installation may have failed. Try manually:"
+    echo "   1. Ensure Rust is installed: curl https://sh.rustup.rs -sSf | sh"
+    echo "   2. Source cargo environment: source ~/.cargo/env"
+    echo "   3. Install websocat: cargo install websocat"
+fi
+
+echo ""
+print_success "Your DeCloud host is now registered and ready to use!"
+echo "You can now run your job listener script to serve Docker apps."
