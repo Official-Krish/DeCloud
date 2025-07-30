@@ -46,7 +46,7 @@ export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, Pri
                 return;
             }
 
-            const res = await axios.post(`${BACKEND_URL}/depin/user/deploy`, {
+            const res = await axios.post(`${BACKEND_URL}/user/depin/deploy`, {
                 ...form,
                 escrowAmount: escrowAmount,
                 endTime: (escrowAmount / PricePerHour) * 60,

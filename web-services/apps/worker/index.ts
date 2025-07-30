@@ -12,6 +12,8 @@ const connection = new IORedis({
   maxRetriesPerRequest: null,
 });
 
+const ws = new WebSocket(process.env.WS_URL || "ws://localhost:8080");
+
 const worker = new Worker("vm-termination", async job => {
     console.log(`Processing job ${job.id} for VM instance with ID ${job.data.vmId}`);
     try {
@@ -73,6 +75,8 @@ const DepinWorker = new Worker ("initialise-host-pda", async job => {
     } catch (error) {
         console.error(`Error processing job ${job.id}:`, error);
     }
+}, {
+    connection
 })
 
 DepinWorker.on("completed", (job) => {
@@ -82,7 +86,7 @@ DepinWorker.on("failed", (job, err) => {
     console.error(`Depin job ${job?.id} failed: ${err.message}`);
 });
 
-const deActivateWorker = new Worker("changeVMSatus", async job => {
+const changeVmStatus = new Worker("changeVMStatus", async job => {
     const { id, userPubKey, status } = job.data;
     try {
         status === false && await deActivateHost(id, userPubKey);
@@ -90,35 +94,47 @@ const deActivateWorker = new Worker("changeVMSatus", async job => {
     } catch (error) {
         console.error(`Error processing deactivation job ${job.id}:`, error);
     }
+}, {
+    connection
 });
 
-deActivateWorker.on("completed", (job) => {
+changeVmStatus.on("completed", (job) => {
     console.log(`Deactivation job completed successfully: ${job.id}`);
 });
-deActivateWorker.on("failed", (job, err) => {
+changeVmStatus.on("failed", (job, err) => {
     console.error(`Deactivation job ${job?.id} failed: ${err.message}`);
 });
 
 const terminateDepinVm = new Worker("terminate-depin-vm", async job => {
-   const { zone, pubKey, id } = job.data; 
+   const { pubKey, id } = job.data; 
 
    try {
         const findVm = await prisma.depinHostMachine.findFirst({
             where: {            
                 id: id,
             },
+            include: {
+                VMImage: true,
+            }
         });
         if (!findVm) {
             console.error(`No VM found with ID ${id}`);
             return;
         }
 
-        //TODO: Send termination request to the VM provider
+        ws.send(JSON.stringify({
+            type: "end-job",
+            machineId: findVm.id,
+            jobId: findVm.VMImage?.id,
+        }));
         await endRentalSession(findVm.id, pubKey, true);
+        await deActivateHost(findVm.id, findVm.userPublicKey);
 
     } catch (error) {
        console.error(`Error processing terminate depin VM job ${job.id}:`, error);
     }
+}, {
+    connection
 });
 
 terminateDepinVm.on("completed", (job) => {

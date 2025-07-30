@@ -9,10 +9,10 @@ export const vmQueue = new Queue("vm-termination", {
     connection
 })
 
-export const changeStatus = new Queue("changeVMSatus", {
+export const terminateDepinVMQueue = new Queue("terminate-depin-vm", {
     connection
-})
+});
 
-export const depinVMQueue = new Queue("terminate-depin-vm", {
+export const activateHostQueue = new Queue("changeVMStatus", {
     connection
 });

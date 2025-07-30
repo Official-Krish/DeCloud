@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type Machine } from "../../types/depinMachines";
 import axios from "axios";
-import { BACKEND_URL } from "@/config";
+import { DEPIN_WORKER } from "@/config";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Link } from "react-router-dom";
 import { DashboardTable } from "@/components/DepinHostDashboard/Table";
@@ -17,7 +17,7 @@ export function HostDashboard() {
         const fetchMachines = async () => {
             try {
                 if (!wallet || !wallet.publicKey) return;
-                const res = await axios.get(`${BACKEND_URL}/depin/getAll?userPublicKey=${wallet.publicKey.toBase58()}`, {
+                const res = await axios.get(`${DEPIN_WORKER}/depin/getAll?userPublicKey=${wallet.publicKey.toBase58()}`, {
                     headers: {
                         "Authorization": `${localStorage.getItem("token")}`
                     },

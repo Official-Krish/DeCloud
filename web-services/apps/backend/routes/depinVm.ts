@@ -2,9 +2,11 @@ import { Router } from "express";
 import { authMiddleware } from "../utils/middleware";
 import prisma from "@decloud/db";
 import { DepinDeployVmSchema, FindVmSchema } from "@decloud/types";
-import { depinVMQueue } from "../redis";
+import { activateHostQueue, terminateDepinVMQueue } from "../redis";
+import jwt from "jsonwebtoken";
 
 const depinVM = Router();
+const ws = new WebSocket(process.env.DEPIN_WS_URL || "ws://localhost:8080");
 
 depinVM.post("/findVM", authMiddleware, async (req, res) => {
     const userId = req.userId;
@@ -84,7 +86,7 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
         return;
     }
     try {
-        const { appName, dockerImage, cpu, ram, diskSize, ports, envVars, escrowAmount, endTime, VmId, id } = parseData.data;
+        const { appName, dockerImage, cpu, ram, diskSize, ports, envVars, escrowAmount, endTime, VmId, id, description } = parseData.data;
         const findVm = await prisma.depinHostMachine.findFirst({
             where: {
                 id: VmId,
@@ -99,7 +101,17 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
             return;
         }
         const txn = await prisma.$transaction(async (tx) => {
-            //TODO: Add logic to send deployment request to the VM provider
+            // websocket connection to send job details
+            ws.send(JSON.stringify({
+                type: "start-job",
+                jobId: id,
+                dockerImage: dockerImage,
+                ports: ports,
+                env: envVars ? envVars.split(",") : [],
+                machineId: findVm.id,
+                token: jwt.sign({ id: userId, machineId: findVm.id }, process.env.JWT_SECRET || ""),
+            }));
+
             await prisma.depinHostMachine.update({
                 where: {
                     id: findVm.id,
@@ -109,7 +121,13 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
                 },
             });
 
-            const job = await depinVMQueue.add("terminate-depin-vm", { 
+            activateHostQueue.add("changeVMStatus", {
+                id: findVm.id,
+                userPubKey: findVm.userPublicKey,
+                status: true,
+            });
+
+            const job = await terminateDepinVMQueue.add("terminate-depin-vm", { 
                 zone: findVm.region,
                 pubKey: user.publicKey,
                 id: findVm.id,
@@ -138,7 +156,7 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
                 data: {
                     id: id,
                     name: appName,
-                    description: "",
+                    description: description,
                     dockerImage: dockerImage,
                     cpu: parseInt(cpu),
                     ram: parseInt(ram),
@@ -178,16 +196,26 @@ depinVM.delete("/terminate/:id", authMiddleware, async (req, res) => {
             id: vmId,
             userId: userId,
         },
+        include: {
+            VMImage: true,
+        }
     });
+
     if (!vmInstance) {
         res.status(404).json({
             error: "VM instance not found",
         });
         return;
     }
+
     try {
-        // TODO: Add logic to send termination request to the VM provider
         const txn = await prisma.$transaction(async (tx) => {
+            ws.send(JSON.stringify({
+                type: "end-job",
+                jobId: vmId,
+                machineId: vmInstance.VMImage?.depinHostMachineId,
+                token: jwt.sign({ id: userId, machineId: vmInstance.VMImage?.depinHostMachineId }, process.env.JWT_SECRET || "", { expiresIn: "5Mins"}),
+            }));
             await prisma.vMInstance.update({
                 where: {
                     id: vmId,
@@ -204,6 +232,7 @@ depinVM.delete("/terminate/:id", authMiddleware, async (req, res) => {
                     isOccupied: false,
                 },
             });
+
         });
 
         res.status(200).json({

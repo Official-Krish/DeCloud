@@ -7,7 +7,7 @@ import { Step1 } from "@/components/DepinHosting/Step1";
 import { Step2 } from "@/components/DepinHosting/Step2";
 import { Step3 } from "@/components/DepinHosting/Step3";
 import axios from "axios";
-import { BACKEND_URL } from "@/config";
+import { BACKEND_URL, DEPIN_WORKER } from "@/config";
 import { Link } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 
@@ -29,7 +29,7 @@ export function HostRegister() {
     const handleStep1Submit = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${BACKEND_URL}/depin/register`, 
+            const res = await axios.post(`${DEPIN_WORKER}/depin/register`, 
                 {
                     ...formData,
                     userPublicKey: wallet.publicKey?.toBase58()

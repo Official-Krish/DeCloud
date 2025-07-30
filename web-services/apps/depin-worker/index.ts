@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use("/v2", depinRouter);
+app.use("/api/v2/depin", depinRouter);
 
 app.listen(6000, () => {
   console.log('Depin Worker server is running on http://localhost:6000');
