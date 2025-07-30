@@ -1,0 +1,16 @@
+{
+  "name": "depin-ws-realyer",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@decloud/db": "workspace:*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}
