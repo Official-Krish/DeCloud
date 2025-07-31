@@ -7,7 +7,7 @@ import { Step1 } from "@/components/DepinHosting/Step1";
 import { Step2 } from "@/components/DepinHosting/Step2";
 import { Step3 } from "@/components/DepinHosting/Step3";
 import axios from "axios";
-import { BACKEND_URL, DEPIN_WORKER } from "@/config";
+import { DEPIN_WORKER } from "@/config";
 import { Link } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 
@@ -60,7 +60,7 @@ export function HostRegister() {
                 setIsLoading(false);
                 return;
             }
-            const res = await axios.get(`${BACKEND_URL}/depin/getById?id=${id}`, {
+            const res = await axios.get(`${DEPIN_WORKER}/depin/getById?id=${id}`, {
                 headers: {
                     "Authorization": `${localStorage.getItem("token")}`
                 },

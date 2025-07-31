@@ -7,14 +7,18 @@ import { motion } from "framer-motion";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import axios from "axios";
-import { BACKEND_URL } from "@/config";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { DEPIN_WORKER } from "@/config";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../ui/dialog";
 import { Input } from "../ui/input";
+import Tooltip from "../Tooltip";
+import { claimSolana, getEarnedSOL } from "@/lib/depin";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { CodeBlock } from "../DepinHosting/CodeBlock";
+import { onboardingScript } from "../DepinHosting/constants/scripts";
 
 export const DashboardTable = ({ machines, setMachines }: { machines: Machine[], setMachines: (machines: Machine[]) => void }) => {
-    const wallet = useWallet();
+    const wallet = useAnchorWallet();
     const [key, setKey] = useState("");
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedMachine, setSelectedMachine] = useState<{ id: string, isActive: boolean } | null>(null);
@@ -41,9 +45,9 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
             return;
         }
         try {
-            const res = await axios.post(`${BACKEND_URL}/depin/changeVisibility`, {
+            const res = await axios.post(`${DEPIN_WORKER}/depin/changeVisibility`, {
                 id: machineId,
-                pubKey: wallet.publicKey?.toBase58(),
+                pubKey: wallet?.publicKey?.toBase58(),
                 status: !isActive,
                 Key: key,
             }, {
@@ -63,6 +67,37 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
         } catch (error) {
             console.error("Error changing machine status:", error);
             toast.error("Failed to change machine status. Please try again.");
+        }
+    }
+
+    const handleClaimSOL = async (machineId: string) => {
+        try {
+            const amount = await getEarnedSOL(machineId, wallet?.publicKey!, wallet!);
+            const txn = await claimSolana(wallet!, machineId);
+            if (!txn){
+                toast.error("Failed to claim SOL. Please try again.");
+                return;
+            }
+            const res = await axios.post(`${DEPIN_WORKER}/depin/claimSol`, {
+                id: machineId,
+                pubKey: wallet?.publicKey?.toBase58(),
+                amount: amount, 
+                Key: key,
+            }, {
+                headers: {
+                    "Authorization": `${localStorage.getItem("token")}`
+                },
+            });
+            if (res.status === 200) {
+                toast.success("SOL claimed successfully");
+                const updatedMachines = machines.map(machine =>
+                    machine.id === machineId ? { ...machine, claimedSOL: machine.claimedSOL + 1 } : machine
+                );
+                setMachines(updatedMachines);
+            } 
+        } catch (error) {
+            console.error("Error claiming SOL:", error);
+            toast.error("Failed to claim SOL. Please try again.");
         }
     }
     return (
@@ -87,6 +122,7 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                             <TableHead>Specs</TableHead>
                             <TableHead>Earnings</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
+                            <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -96,7 +132,7 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 + index * 0.1 }}
-                                    className="group hover:bg-muted/50 transition-colors"
+                                    className="hover:bg-muted/50 transition-colors"
                                 >
                                     <TableCell>
                                         <div className="flex items-center space-x-2">
@@ -109,7 +145,7 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className={`w-2 h-2 rounded-full items-center ${getStatusColor(machine.isOccupied)}`} />
+                                        <div className={`w-2 h-2 rounded-full items-center ${getStatusColor(machine.isActive)}`} />
                                     </TableCell>
                                     <TableCell>
                                         <div className="text-sm space-y-1">
@@ -122,7 +158,7 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                                             {machine.claimedSOL} SOL
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell>
                                         <div className="flex items-center justify-end space-x-2">
                                             <Button
                                                 variant="ghost"
@@ -139,12 +175,21 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                                                 }}
                                             >
                                                 {machine.isActive ? 
-                                                    <PowerOff className="h-4 w-4 text-red-500" />
-                                                : 
-                                                    <Power className="h-4 w-4 text-green-500" />
+                                                    <Tooltip Icon={PowerOff } description="Turn Off Machine" className="h-4 w-4 text-red-500"/>
+                                                    : 
+                                                    <Tooltip Icon={Power} description="Turn On Machine" className="h-4 w-4 text-green-500"/>
                                                 }
                                             </Button>
                                         </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button className="bg-emerald-500 text-white hover:bg-emerald-600 transition cursor-pointer"
+                                            onClick={() => {
+                                                handleClaimSOL(machine.id);
+                                            }}
+                                        >
+                                            Claim SOL
+                                        </Button>
                                     </TableCell>
                                 </motion.tr>
                             ))}
@@ -167,6 +212,12 @@ export const DashboardTable = ({ machines, setMachines }: { machines: Machine[],
                         value={key}
                         onChange={e => setKey(e.target.value)}
                     />
+                    {!selectedMachine?.isActive && 
+                        <div className="max-w-md mx-auto mb-4 text-sm text-gray-600">
+                            Run this script to turn on your machine:
+                            <CodeBlock script={onboardingScript} />
+                        </div>
+                    }
                     <DialogFooter>
                         <Button
                             className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition cursor-pointer"

@@ -50,7 +50,7 @@ export function DeployApp() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-12"
+                className="text-center"
             >
                 <div className="inline-flex items-center space-x-2 bg-blue-500/10 text-blue-700 dark:text-blue-300 rounded-full px-4 py-2 text-sm font-medium mb-6">
                     <Container className="h-4 w-4" />
@@ -66,7 +66,7 @@ export function DeployApp() {
                 </p>
             </motion.div>
 
-            <div className={`${vm ? "grid lg:grid-cols-3 gap-8 transisition duration-300 ease-in-out": "flex justify-center items-center w-full"}`}>
+            <div className={`${vm ? "grid lg:grid-cols-3 transisition duration-300 ease-in-out": "flex justify-center items-center w-full"}`}>
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -74,14 +74,15 @@ export function DeployApp() {
                     className={`${vm ? "lg:col-span-2" : "w-4xl"}`}
                 >
                     {step === 0 && <Form formData={formData} setFormData={setFormData} setVm={setVm} setStep={setStep}/>}
-                    {(step === 1 && vm) && <PayementGateway escrowAmount={escrowAmount} setEscrowAmount={setEscrowAmount} vmId={vm?.id} form={formData} PricePerHour={vm?.PerHourPrice}/>}
+                    {(step === 1 && vm) && <PayementGateway escrowAmount={escrowAmount} setEscrowAmount={setEscrowAmount} vmId={vm?.id} form={formData} PricePerHour={vm?.PerHourPrice} setVm={setVm}/>}
                 </motion.div>
 
                 {vm && (
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ delay: 0.3 }}
+                        exit={{ opacity: 0, x: 20 }}
                         className="space-y-6"
                     >
                         <CostEstimation PerHourPrice={vm.PerHourPrice || 0} />

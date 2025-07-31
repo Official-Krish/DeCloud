@@ -24,7 +24,7 @@ export const Step3 = () => {
                 <CardContent className="space-y-6">
                     <CodeBlock script={onboardingScript}/>
                     <Button 
-                        onClick={() => navigate("/dashboard")} 
+                        onClick={() => navigate("/depin/host/dashboard")} 
                         className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white shadow-lg cursor-pointer" 
                         size="lg"
                     >

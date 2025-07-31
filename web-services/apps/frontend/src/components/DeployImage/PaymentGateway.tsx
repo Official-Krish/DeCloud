@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import { StartRentalSessionWithEscrow } from "@/lib/Escrow";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
 
 interface PaymentGatewayProps {
     escrowAmount: number;
@@ -29,14 +30,18 @@ interface PaymentGatewayProps {
     };
     vmId?: string;
     PricePerHour: number;
+    setVm: (vm: any) => void;
 }
 
-export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, PricePerHour } : PaymentGatewayProps ) => {
+export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, PricePerHour, setVm } : PaymentGatewayProps ) => {
     const naviagte = useNavigate();
     const wallet = useAnchorWallet();
     const [loading, setLoading] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const handlePayment = async () => {
         setLoading(true);
+        setDialogOpen(false);
+        setVm(null);
         try {
             const id = generateUUID().substring(0, 32);
             const txn = await StartRentalSessionWithEscrow(wallet!, escrowAmount, id)
@@ -73,21 +78,21 @@ export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, Pri
     };
     return (
         <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             className="space-y-8 h-screen"
         >
             {!loading && (
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="mb-8">
                         <CardTitle className="flex items-center space-x-2">
                             <Wallet className="h-5 w-5" />
                             <span>Payment Method</span>
                         </CardTitle>
                         <CardDescription>Choose how you want to pay for your VM instance</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 mt-6">
                         <RadioGroup>
                             <motion.div 
                                 className={`flex items-start space-x-3 p-4 rounded-lg border transition-all duration-200 cursor-pointer'`}
@@ -133,7 +138,7 @@ export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, Pri
                                         </div>
                                         <div className="mt-4 flex justify-end">
                                             <Button
-                                                onClick={handlePayment}
+                                                onClick={() => setDialogOpen(true)}
                                                 disabled={escrowAmount < 0.1}
                                                 className="px-4 py-2 transition cursor-pointer"
                                             >
@@ -153,6 +158,31 @@ export const PayementGateway = ({ escrowAmount, setEscrowAmount, form, vmId, Pri
                     <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
                 </div>
             )}
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Deployment</DialogTitle>
+                        <DialogDescription>
+                            You're about to deploy your docker image.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="text-center">
+                            <div className="text-3xl font-bold font-mono mb-2">
+                                Escrow Deposit: {escrowAmount} SOL
+                            </div>
+                        </div>
+                        <Button className="w-full cursor-pointer" 
+                            onClick={async () => {
+                                handlePayment();
+                            }}
+                        >
+                            Confirm & Pay with Solana
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     )
 }

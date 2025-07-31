@@ -40,7 +40,7 @@ export const Form = ({ formData, setFormData, setVm, setStep }: FormProps) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`${BACKEND_URL}/depin/user/findVM`, {
+            const res = await axios.post(`${BACKEND_URL}/user/depin/findVM`, {
                 cpu: formData.cpu,
                 ram: formData.ram,
                 diskSize: formData.diskSize,
@@ -175,6 +175,16 @@ export const Form = ({ formData, setFormData, setVm, setStep }: FormProps) => {
                                         onChange={(e) => setFormData({...formData, diskSize: e.target.value})}
                                         min="1"
                                         max="1000"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="ports" className="mb-3">Ports (comma separated)</Label>
+                                    <Input
+                                        id="ports"
+                                        placeholder="80,443,3000"
+                                        value={formData.ports}
+                                        onChange={(e) => setFormData({...formData, ports: e.target.value})}
+                                        required
                                     />
                                 </div>
                             </div>

@@ -3,12 +3,12 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 
 export const CodeBlock = ({ script }: { script: string }) => (
-    <div className="relative group bg-gray-900/70 dark:bg-black/50 rounded-lg p-4 font-mono text-sm text-gray-300 border border-border/40">
+    <div className="relative group bg-gray-900/70 dark:bg-black/50 rounded-lg p-4 font-mono text-sm text-gray-300 border border-border/40 overflow-y-auto flex items-center justify-between">
         <pre><code>{script}</code></pre>
         <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 h-8 w-8 opacity-50 group-hover:opacity-100 transition-opacity cursor-pointer"
+            className="h-8 w-8 opacity-50 group-hover:opacity-100 transition-opacity cursor-pointer items-center"
             onClick={() => onCopy(script)}
             aria-label="Copy code to clipboard"
         >
