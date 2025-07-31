@@ -104,11 +104,10 @@ vm.post("/topup", authMiddleware, async (req, res) => {
     }
 
     try {
-        const { id, amount, additionalEscrowDuration, instanceId } = parsedData.data;
+        const { id, amount, additionalEscrowDuration } = parsedData.data;
         const vmInstance = await prisma.vMInstance.findFirst({
             where: { 
-                id: id, 
-                instanceId: instanceId,
+                id: id
             },
         });
         if (!vmInstance) {
@@ -124,14 +123,21 @@ vm.post("/topup", authMiddleware, async (req, res) => {
 
         const oldJob = await vmQueue.getJob(vmInstance.jobId);
         if (oldJob) await oldJob.remove();
-        const newJob = await vmQueue.add("terminate-vm", {
-            instanceId: vmInstance.instanceId, 
-            vmId: vmInstance.id,
-            zone: vmInstance.region,
-            pubKey: user.publicKey
-        }, {
-            delay: remainingTime + (additionalEscrowDuration * 60 * 1000),
-        });
+        const newJob = vmInstance.provider === "LOCAL" ?
+            await vmQueue.add("terminate-depin-vm", {
+                pubKey: user.publicKey,
+                id: id,
+            }, {
+                delay: remainingTime + (additionalEscrowDuration * 60 * 1000),  
+            }) :
+            await vmQueue.add("terminate-vm", {
+                instanceId: vmInstance.instanceId,
+                vmId: vmInstance.id,
+                zone: vmInstance.region,
+                pubKey: user.publicKey
+            }, {
+                delay: remainingTime + (additionalEscrowDuration * 60 * 1000),
+            });
 
         const updatedVM = await prisma.vMInstance.update({
             where: { id: id },

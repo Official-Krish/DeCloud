@@ -106,7 +106,7 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
                 type: "start-job",
                 jobId: id,
                 dockerImage: dockerImage,
-                ports: ports,
+                ports: ports ? ports.split(",").map(port => parseInt(port)) : [],
                 env: envVars ? envVars.split(",") : [],
                 machineId: findVm.id,
                 token: jwt.sign({ id: userId, machineId: findVm.id }, process.env.JWT_SECRET || ""),
@@ -128,7 +128,6 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
             });
 
             const job = await terminateDepinVMQueue.add("terminate-depin-vm", { 
-                zone: findVm.region,
                 pubKey: user.publicKey,
                 id: findVm.id,
             }, {
