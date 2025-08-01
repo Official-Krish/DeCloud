@@ -25,3 +25,31 @@ spec:
   commonName: wss.decloud.krishdev.xyz
   dnsNames:
   - wss.decloud.krishdev.xyz
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: decloud-depin-ws-relayer-cert
+  namespace: decloud
+spec:
+  secretName: decloud-depin-ws-relayer-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: wss.depin.decloud.krishdev.xyz
+  dnsNames:
+  - wss.depin.decloud.krishdev.xyz
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: decloud-depin-worker-cert
+  namespace: decloud
+spec:
+  secretName: decloud-depin-worker-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: api.depin.decloud.krishdev.xyz
+  dnsNames:
+  - api.depn.decloud.krishdev.xyz

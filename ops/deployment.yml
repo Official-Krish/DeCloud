@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: decloud-frontend
-          image: krishanand01/decloud-frontend:v1.4
+          image: krishanand01/decloud-frontend:v2
           ports:
             - containerPort: 5173
           volumeMounts:
@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
         - name: decloud-backend
-          image: krishanand01/decloud-backend:v1.1
+          image: krishanand01/decloud-backend:v2
           ports:
             - containerPort: 3000
           volumeMounts:
@@ -87,7 +87,7 @@ spec:
     spec:
       containers:
         - name: decloud-worker
-          image: krishanand01/decloud-worker:v1
+          image: krishanand01/decloud-worker:v2
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/worker/.env
@@ -122,7 +122,7 @@ spec:
     spec:
       containers:
         - name: decloud-ws-relayer
-          image: krishanand01/decloud-ws-relayer:v1.1
+          image: krishanand01/decloud-ws-relayer:v2
           ports:
             - containerPort: 9093
           volumeMounts:
@@ -133,6 +133,60 @@ spec:
         - name: env-file
           secret:
             secretName: decloud-ws-relayer-env
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decloud-depin-worker
+  namespace: decloud
+  labels:
+    app: decloud-depin-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: decloud-depin-worker
+  template:
+    metadata:
+      labels:
+        app: decloud-depin-worker
+    spec:
+      containers:
+        - name: decloud-depin-worker
+          image: krishanand01/decloud-depin-worker:v2
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: env-file
+              mountPath: /app/apps/depin-worker/.env
+              subPath: env
+      volumes:
+        - name: env-file
+          secret:
+            secretName: decloud-depin-worker-env
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decloud-depin-ws-relayer
+  namespace: decloud
+  labels:
+    app: decloud-depin-ws-relayer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: decloud-depin-ws-relayer
+  template:
+    metadata:
+      labels:
+        app: decloud-depin-ws-relayer
+    spec:
+      containers:
+        - name: decloud-depin-ws-relayer
+          image: krishanand01/decloud-depin-ws-relayer:v2
+          ports:
+            - containerPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
