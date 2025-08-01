@@ -18,10 +18,10 @@ spec:
         - wss.decloud.krishdev.xyz
       secretName: decloud-ws-relayer-tls
     - hosts:
-        - api.depin-worker.decloud.krishdev.xyz
+        - api.depin.decloud.krishdev.xyz
       secretName: decloud-depin-worker-tls
     - hosts:
-        - wss://depin-worker.decloud.krishdev.xyz
+        - wss.depin-worker.decloud.krishdev.xyz
       secretName: decloud-depin-ws-relayer-tls
 
   rules:

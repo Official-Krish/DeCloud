@@ -122,7 +122,7 @@ spec:
     spec:
       containers:
         - name: decloud-ws-relayer
-          image: krishanand01/decloud-ws-relayer:v2
+          image: krishanand01/decloud-ws-relayer:v1.1
           ports:
             - containerPort: 9093
           volumeMounts:

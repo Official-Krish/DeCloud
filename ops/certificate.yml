@@ -52,4 +52,4 @@ spec:
     kind: ClusterIssuer
   commonName: api.depin.decloud.krishdev.xyz
   dnsNames:
-  - api.depn.decloud.krishdev.xyz
+  - api.depin.decloud.krishdev.xyz
