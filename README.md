@@ -1,128 +1,324 @@
-# ☁️ DeCloud (v1) — Decentralized Cloud Compute with Solana
+# ☁️ DeCloud - Decentralized Cloud Computing Platform
 
-**DeCloud** is a decentralized platform where users can **rent cloud virtual machines** (e.g., EC2 or GCP instances) by paying with **SOL**.  
-In this version (v1), users **prepay** for compute time, and the platform provisions cloud instances accordingly.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Solana](https://img.shields.io/badge/Powered%20by-Solana-purple.svg)](https://solana.com/)
+[![Anchor](https://img.shields.io/badge/Built%20with-Anchor-blue.svg)](https://www.anchor-lang.com/)
 
-## 🚀 Upcoming in v2
+> **DeCloud** is a revolutionary decentralized cloud computing platform that enables users to rent virtual machines using **SOL tokens** while providing DePIN (Decentralized Physical Infrastructure Network) services for host machines.
 
-In version 2 (v2), the platform will introduce a **real-time usage-based payment system**.  
-Key changes include:
+## 🚀 Overview
 
-- **Dynamic Escrow Contract**: Users will pay for compute time based on their **real-time usage** instead of prepaying.
-- **Enhanced Session Tracking**: Improved on-chain tracking for accurate billing and refunds.
-- **Seamless User Experience**: Automatic fund adjustments during active sessions.
+DeCloud bridges the gap between traditional cloud computing and Web3 by offering:
 
-## 📦 Monorepo Structure
+- **Crypto-Native Payments**: Pay for cloud resources using SOL tokens
+- **DePIN Hosting**: Earn SOL by sharing your compute resources
+- **Instant Deployment**: Deploy VMs across AWS, GCP, or decentralized networks
+- **Smart Contract Escrow**: Secure, transparent payment handling
+- **Global Infrastructure**: Multi-region deployment with low latency
 
-```bash
-DeCloud/
-├── contract/ # Solana smart contract (Anchor)
-├── web-services/ # App services (API and frontend)
-│ ├── apps/
-│ │ ├── backend/ # bun-based backend
-│ │ └── frontend/ # React frontend
-│ └── packages/ # Databse, Shared code, utils, or SDK
+## ✨ Key Features
+
+### 🔐 Crypto-Native Experience
+- **No Credit Cards Required**: Pay directly with SOL tokens
+- **Instant Transactions**: No lengthy verification processes
+- **Transparent Pricing**: Real-time cost calculations
+- **Secure Escrow**: Smart contract-managed payments
+
+### 🌐 Multi-Provider Support
+- **AWS Integration**: Deploy on Amazon Web Services
+- **GCP Integration**: Deploy on Google Cloud Platform
+- **DePIN Network**: Access decentralized compute resources (Docker images only)
+- **Global Regions**: Deploy across multiple geographic locations
+
+### 💻 Developer-Friendly
+- **SSH Terminal Access**: Direct command-line access to VMs
+- **Real-time Monitoring**: Track resource usage and costs
+
+### 🏗️ DePIN Hosting
+- **Host Registration**: Register your machines to earn SOL
+- **Docker Image Support**: Currently supports Docker container deployments
+- **Automated Verification**: Script-based machine validation
+- **Reward System**: Earn based on usage and uptime
+- **Dashboard Management**: Monitor your hosted resources
+
+## 🏗️ Architecture
+
+### Smart Contract Layer (Solana/Anchor)
+```rust
+// Core Functions
+- initialize_vault()           // Setup admin vault
+- transfer_to_vault_and_rent() // Start rental with escrow
+- transfer_from_vault()        // End session & settle payment
+- end_rental_session()        // Complete rental period
+
+// DePIN Functions
+- initialise_host_registration() // Register host machine
+- activate_host()              // Activate host for requests
+- claim_rewards()              // Claim earned SOL
+- penalize_host()              // Penalize misbehaving hosts
 ```
 
+### Backend Services
+- **API Gateway**: RESTful endpoints for VM management
+- **VM Provisioning**: Automated cloud resource allocation
+- **Session Tracking**: Real-time usage monitoring
+- **Payment Processing**: Smart contract integration
 
-## 🔐 Smart Contract (Anchor)
-| Function | Description |
-|----------|-------------|
-| `initialize_vault` | Sets up a vault account for the admin |
-| `transfer_to_vault_and_rent` | Transfers SOL from user to vault and Starts a rental session with user, amount, and duration|
-| `transfer_from_vault` | Ends session and settles payment |
-| `end_rental_session` | Ends session when time is completed |
+### Frontend Application
+- **React + TypeScript**: Modern, responsive UI
+- **TailwindCSS**: Beautiful, consistent design
+- **Wallet Integration**: Solana wallet connectivity
+- **Real-time Updates**: WebSocket-based live data
 
-## 🌐 Web Services
+## 📦 Project Structure
 
-### Backend (`web-services/apps/backend`)
-- Handles:
-  - User authentication
-  - GCP/EC2 provisioning 
-  - Track actual usage off-chain
-  - Finalize sessions (trigger smart contract to release funds)
-- Tech: `Bun`, WebSockets
+```
+DeCloud/
+├── contract/                 # Solana smart contracts (Anchor)
+│   ├── programs/contract/
+│   │   ├── src/
+│   │   │   ├── instructions/ # VM rental instructions
+│   │   │   ├── depin/        # DePIN host management
+│   │   │   ├── state/        # Account state definitions
+│   │   │   └── lib.rs        # Main program entry
+│   │   └── Cargo.toml
+│   └── tests/               # Contract test suites
+├── web-services/            # Application services
+│   ├── apps/
+│   │   ├── backend/         # Bun-based API server
+│   │   ├── frontend/        # React application
+│   │   ├── depin-worker/    # DePIN service worker
+│   │   └── ws-relayer/      # WebSocket relay service
+│   └── packages/
+│       ├── db/              # Database schema & migrations
+│       ├── types/           # Shared TypeScript types
+│       └── ui/              # Reusable UI components
+└── ops/                     # Kubernetes deployment configs
+```
 
-### Frontend (`web-services/apps/frontend`)
-- Users:
-  - Connect wallet
-  - Select machine specs and rental time
-  - Pay SOL for usage
-- Tech: `React`, `TailwindCSS`, `shadcn/ui`, etc.
+## 🚀 Quick Start
 
----
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [Bun](https://bun.sh/) (for backend)
+- [Anchor CLI](https://www.anchor-lang.com/docs/installation)
+- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
+- [PostgreSQL](https://www.postgresql.org/) database
 
-## 💻 Getting Started
+### 1. Smart Contract Deployment
 
-# Anchor Setup
 ```bash
+# Navigate to contract directory
 cd contract
+
+# Install dependencies
+cargo install
+
+# Build the program
 anchor build
+
+# Deploy to Solana devnet
 anchor deploy
 ```
 
-# Backend
+### 2. Database Setup
+
 ```bash
-cd web-services/apps/backend
+# Navigate to database package
+cd web-services/packages/db
+
+# Install dependencies
 bun install
+
+# Run migrations
+bunx prisma migrate dev
+
+# Generate Prisma client
+bunx prisma generate
+```
+
+### 3. Backend Services
+
+```bash
+# Navigate to backend
+cd web-services/apps/backend
+
+# Install dependencies
+bun install
+
+# Set environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development server
 bun dev
 ```
 
-# frontend
-```bash 
+### 4. Frontend Application
+
+```bash
+# Navigate to frontend
 cd web-services/apps/frontend
+
+# Install dependencies
 bun install
-bun dev  
+
+# Set environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development server
+bun dev
 ```
 
-# Database
-```bash 
-cd web-services/packages/db
-bun install
-bunx prisma migrate dev  
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```bash
+DATABASE_URL="postgresql://user:password@localhost:5432/decloud"
+REDIS_URL="redis://localhost:6379"
+JWT_SECRET="your-jwt-secret"
+SOLANA_RPC_URL="https://api.devnet.solana.com"
+PROGRAM_ID="your-anchor-program-id"
 ```
 
-## 🧪 Flow (v1 – Prepaid Billing)
-User connects wallet
+#### Frontend (.env)
+```bash
+BACKEND_URL = "http://localhost:3000";
+SECRET_KEY = "your-secret-key";
+ADMIN_KEY = "your-admin-key";
+WS_RELAYER_URL = "ws://localhost:9093";
+DEPIN_WORKER = "http://localhost:6000";
+```
 
-User selects VM specs + duration
+## 📊 Database Schema
 
-App calculates total SOL cost (duration × rate)
+### Core Models
+- **User**: Wallet-based user accounts
+- **VMInstance**: Virtual machine instances
+- **VMConfig**: Machine configuration details
+- **DepinHostMachine**: DePIN host registrations
+- **VMImage**: Pre-configured Docker application images
 
-User signs and transfers to vault
+### Key Relationships
+```sql
+User -> VMInstance (1:1)
+VMInstance -> VMConfig (1:1)
+VMInstance -> VMImage (1:1)
+User -> DepinHostMachine (1:many)
+DepinHostMachine -> VMImage (1:1)
+```
 
-Session starts + VM is provisioned off-chain
+## 🔌 API Endpoints
 
-VM auto-terminates after start_time + duration
+### VM Management
+```http
+POST   /api/v2/vmInstance/create    # Create new VM instance
+GET    /api/v2/vmInstance/:id       # Get VM details
+PUT    /api/v2/vmInstance/:id       # Update VM configuration
+DELETE /api/v2/vmInstance/:id       # Terminate VM instance
+```
 
-## 🚧 v2 Roadmap (Upcoming)
-✅ Flexible Escrow: Lock max amount, charge per actual usage
+### DePIN Services
+```http
+POST   /api/v2/user/depin/register  # Register host machine
+GET    /api/v2/user/depin/status    # Get host status
+POST   /api/v2/user/depin/activate  # Activate host machine
+```
 
-🔁 Usage-Based Billing: Stream billing per second/minute
+### User Management
+```http
+POST   /api/v2/user/signup          # User registration
+POST   /api/v2/user/signin          # User authentication
+GET    /api/v2/user/profile         # Get user profile
+```
 
-📈 Real-time Usage Tracking: CPU/RAM/network metrics
+## 🧪 Testing
 
+### Smart Contract Tests
+```bash
+cd contract
+anchor test
+```
+
+## 🚀 Deployment
+
+
+### Kubernetes Deployment
+```bash
+# Apply Kubernetes manifests
+kubectl apply -f ops/
+
+# Check deployment status
+kubectl get pods -n decloud
+```
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+- Follow the existing code style and conventions
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
+
+## 📈 Roadmap
+
+### v3.0 (Future)
+- 📋 AI-powered resource optimization
+- 📋 Cross-chain payment support
+- 📋 Decentralized storage integration
+- 📋 Advanced security features
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Smart Contract Deployment
+```bash
+# If deployment fails, check:
+anchor build --skip-lint
+anchor deploy --provider.cluster devnet --program-keypair target/deploy/contract-keypair.json
+```
+
+#### Database Connection
+```bash
+# Ensure PostgreSQL is running
+sudo systemctl start postgresql
+
+# Check connection
+psql -h localhost -U your_user -d decloud
+```
+
+#### Frontend Build Issues
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+bun install
+```
 
 ## 📞 Support
 
-For support, please email Krishanand974@gmail.com.
-
-## ✨ Credits
-Built with Solana + Anchor
-
-Powered by TurboRepo
-
-Cloud provisioned via GCP
-
+- **Email**: Krishanand974@gmail.com
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Solana Foundation** for blockchain infrastructure
+- **Anchor Framework** for smart contract development
+- **TurboRepo** for monorepo management
+- **Google Cloud Platform** for cloud infrastructure
+
+---
