@@ -20,38 +20,44 @@ export function FeaturesSection() {
           description: "Deploy across multiple regions with low-latency access worldwide"
         },
         {
-          icon: Code,
-          title: "Developer First",
-          description: "Built by developers, for developers with APIs and CLI tools"
+            icon: Code,
+            title: "Developer Friendly",
+            description: "Built for developers with a focus on simplicity and flexibility"
         }
     ];
     return (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 dark:bg-gradient-to-br from-background via-background to-muted/30">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-center mb-16"
-            >
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                    Why Choose DeCloud?
-                </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    Experience the future of cloud computing with our decentralized, crypto-native platform
-                </p>
-            </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  relative z-10 py-10 max-w-7xl mx-auto">
-            {features.map((feature, index) => (
+        <div className="relative dark:bg-gradient-to-br from-background via-background to-muted/30">
+            <img
+                src="background.png"
+                className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
+            />
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
                 <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    className="text-center mb-16"
                 >
-                    <Feature {...feature} index={index} icon={<feature.icon />} />
+                    <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                        Why Choose DeCloud?
+                    </h2>
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        Experience the future of cloud computing with our decentralized, crypto-native platform
+                    </p>
                 </motion.div>
-            ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  relative z-10 py-10 max-w-7xl mx-auto">
+                {features.map((feature, index) => (
+                    <motion.div
+                        key={feature.title}
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.2 }}
+                    >
+                        <Feature {...feature} index={index} icon={<feature.icon />} />
+                    </motion.div>
+                ))}
+            </div>
         </div>
     </div>
   );

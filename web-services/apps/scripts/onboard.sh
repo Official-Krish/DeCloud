@@ -2,10 +2,10 @@
 
 set -e
 
-echo "🚀 Starting DeCloud Job Runner..."
+echo "Starting DeCloud Job Runner..."
 
 # === CONFIG ===
-WEBSOCKET_ENDPOINT="ws://localhost:8080"
+WEBSOCKET_ENDPOINT="wss://depin-worker.krishdev.xyz"
 CONFIG_DIR="$HOME/.decloud"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 
@@ -204,7 +204,7 @@ process_start_job() {
     local deployment_url="https://${job_id}-decloud.krishdev.xyz"
     
     print_success "Container started successfully!"
-    print_success "🌐 Deployed at: $deployment_url"
+    print_success "Deployed at: $deployment_url"
     print_info "Container ID: $container_id"
     
     # Send RUNNING status

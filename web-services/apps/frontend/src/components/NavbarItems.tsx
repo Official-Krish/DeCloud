@@ -15,7 +15,7 @@ export function NavbarItems({ className }: { className?: string }) {
             <ProductItem
               title="Host Dashboard"
               href="/depin/host/dashboard"
-              src="https://assets.krishdev.xyz/DeCloud/RegistrationSteps.png"
+              src="https://assets.krishdev.xyz/DeCloud/dashboard.png"
               description="Manage your DePIN nodes with ease."
             />
             <ProductItem

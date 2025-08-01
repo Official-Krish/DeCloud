@@ -43,7 +43,7 @@ export default function Appbar() {
           <NavbarLogo />
           <NavItems items={navItems}/>
           <div className="flex items-center"> 
-            <NavbarButton variant="secondary"><ModeToggle/></NavbarButton>
+            {/* <NavbarButton variant="secondary"><ModeToggle/></NavbarButton> */}
             {(localStorage.getItem("token") && wallet?.adapter.connected) ? (
               <NavbarButton className="flex items-center gap-1 cursor-pointer" onClick={() => setUserDropdownOpen(!userDropdownOpen)}>
                 <img

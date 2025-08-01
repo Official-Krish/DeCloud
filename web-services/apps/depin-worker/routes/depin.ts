@@ -201,7 +201,7 @@ depinRouter.post("/claimSOL", authMiddleware, async (req, res) => {
         return;
     }
     try {
-        const { id, pubKey, amount, Key } = parseData.data;
+        const { id, pubKey, amount } = parseData.data;
 
         const vm = await prisma.depinHostMachine.findFirst({
             where: { 
@@ -211,11 +211,6 @@ depinRouter.post("/claimSOL", authMiddleware, async (req, res) => {
         });
         if (!vm) {
             res.status(404).json({ error: "VM not found" });
-            return;
-        }
-        const isKeyValid = await bcrypt.compare(Key, vm.Key);
-        if (!isKeyValid) {
-            res.status(400).json({ error: "Invalid Key" });
             return;
         }
         if (vm.isActive){

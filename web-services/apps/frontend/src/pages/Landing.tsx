@@ -1,5 +1,6 @@
 import { FeaturesSection } from "@/components/LandingPage/Features";
 import Hero from "@/components/LandingPage/Hero";
+import { PoweredBy } from "@/components/LandingPage/PoweredBy";
 import { PricingCalculator } from "@/components/LandingPage/PricingCalculator";
 import Steps from "@/components/LandingPage/Steps";
 import WaitList from "@/components/LandingPage/waitlist";
@@ -16,6 +17,7 @@ const Landing = () => {
             <FeaturesSection />
             <PricingCalculator />
             <Steps />
+            <PoweredBy/>
             <WaitList />
         </motion.div>
     )

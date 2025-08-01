@@ -8,6 +8,6 @@ app.use(cors());
 
 app.use("/api/v2/depin", depinRouter);
 
-app.listen(6000, () => {
-  console.log('Depin Worker server is running on http://localhost:6000');
+app.listen(9000, () => {
+  console.log('Depin Worker server is running on http://localhost:9000');
 });

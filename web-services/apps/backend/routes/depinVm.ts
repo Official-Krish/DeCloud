@@ -134,7 +134,7 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
                 delay: endTime * 60 * 1000,
             });
 
-            await prisma.vMInstance.create({
+            const config = await prisma.vMInstance.create({
                 data: {
                     id: id,
                     name: appName,
@@ -164,6 +164,7 @@ depinVM.post("/deploy", authMiddleware, async (req, res) => {
                     os: findVm.os,
                     applicationPort: Number(ports),
                     envVariables: envVars ? envVars.split(",") : [],
+                    applicationUrl: `https://${config.id}-decloud.krishdev.xyz`,
                 }
             });
         });
