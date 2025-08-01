@@ -10,8 +10,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Terminal as TerminalIcon, Wifi, WifiOff, AlertCircle } from 'lucide-react';
 import { useTheme } from '@/components/themeProvider';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import 'xterm/css/xterm.css';
 import { WS_RELAYER_URL } from '@/config';
 
@@ -294,21 +292,8 @@ const SSHTerminal = () => {
     }, []);
 
     if (!wallet.connected || !localStorage.getItem("token")) {
-        return (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center"
-                >
-                    <h1 className="text-3xl font-bold mb-4">Please SignIn</h1>
-                    <p className="text-muted-foreground mb-6">Please connect your wallet and sign in to manage your virtual machines.</p>
-                    <Link to="/signin">
-                        <Button className="cursor-pointer">SignIn</Button>
-                    </Link>
-                </motion.div>
-            </div>
-        );
+        window.location.href = '/signin';
+        return null;
     }
 
     if (!isAuthenticated) {

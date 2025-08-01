@@ -184,7 +184,7 @@ export const RentVM = () => {
               className="text-center"
           >
               <h1 className="text-3xl font-bold mb-4">Please SignIn</h1>
-              <p className="text-muted-foreground mb-6">Please connect your wallet and signInto manage your virtual machines.</p>
+              <p className="text-muted-foreground mb-6">Please connect your wallet and ensure you are signed in to proceed.</p>
               <Link to="/signin">
                   <Button className="cursor-pointer">SignIn</Button>
               </Link>

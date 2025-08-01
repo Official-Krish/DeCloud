@@ -5,7 +5,7 @@ set -e
 echo "Starting DeCloud Job Runner..."
 
 # === CONFIG ===
-WEBSOCKET_ENDPOINT="wss://depin-worker.krishdev.xyz"
+WEBSOCKET_ENDPOINT="wss.depin-worker.krishdev.xyz"
 CONFIG_DIR="$HOME/.decloud"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 

@@ -26,7 +26,6 @@ export const VmInstanceSchema = z.object({
 
 export const EscrowTopUpSchema = z.object({
     id: z.string(),
-    instanceId: z.string(),
     amount: z.number().positive(),
     additionalEscrowDuration: z.number(),
 })

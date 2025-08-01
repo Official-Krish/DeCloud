@@ -36,11 +36,27 @@ Bun.serve({
             if(data.type === "SUBSCRIBE") {
                 const verifiedToken = verifyToken(data.token || "");
                 activeConnections.set(verifiedToken.id, ws);
+                await prisma.depinHostMachine.update({
+                    where: {
+                        id: verifiedToken.id,
+                    },
+                    data: {
+                        isActive: true,    
+                    }
+                });
             }
             if (data.type === "UNSUBSCRIBE") {
                 const verifiedToken = verifyToken(data.token || "");
                 activeConnections.delete(verifiedToken.id);
                 activeJobs.delete(verifiedToken.id);
+                await prisma.depinHostMachine.update({
+                    where: {
+                        id: verifiedToken.id,
+                    },
+                    data: {
+                        isActive: false,    
+                    }
+                });
             }
             if(data.type === "start-job"){
                 const checkUser = verifyUser(data.token || "");

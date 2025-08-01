@@ -33,21 +33,21 @@ export function Hosting() {
         }
     ];
 
-    if (!wallet.connected || !localStorage.getItem("token")) {
+    if (!wallet || !localStorage.getItem("token")) {
         return (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center"
-                >
-                    <h1 className="text-3xl font-bold mb-4">Please SignIn</h1>
-                    <p className="text-muted-foreground mb-6">Please connect your wallet and signInto manage your virtual machines.</p>
-                    <Link to="/signin">
-                        <Button className="cursor-pointer">SignIn</Button>
-                    </Link>
-                </motion.div>
-            </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex items-center justify-center">
+              <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center"
+              >
+                  <h1 className="text-3xl font-bold mb-4">Please SignIn</h1>
+                  <p className="text-muted-foreground mb-6">Please connect your wallet and ensure you are signed in to proceed.</p>
+                  <Link to="/signin">
+                      <Button className="cursor-pointer">SignIn</Button>
+                  </Link>
+              </motion.div>
+          </div>
         );
     }
 
