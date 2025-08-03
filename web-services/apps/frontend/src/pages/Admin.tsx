@@ -199,7 +199,7 @@ export function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-6 mt-10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-6 mt-20">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-48 bg-gradient-to-br from-primary/5 to-accent/5 rounded-3xl blur-3xl animate-pulse" />

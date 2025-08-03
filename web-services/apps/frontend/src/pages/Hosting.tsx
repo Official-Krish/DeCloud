@@ -52,7 +52,7 @@ export function Hosting() {
     }
 
     return (
-        <div className="dark:bg-gradient-to-br from-background via-background to-muted/30 w-full h-full mt-10">
+        <div className="dark:bg-gradient-to-br from-background via-background to-muted/30 w-full h-full mt-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
                 {/* Header */}
                 <motion.div

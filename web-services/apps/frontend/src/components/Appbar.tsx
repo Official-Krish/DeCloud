@@ -30,7 +30,7 @@ export const Appbar = () => {
         }
     ];
     useMotionValueEvent(scrollY, "change", (latest) => {
-        if (latest > 10){
+        if (latest > 40){
             setScrolled(true);
         } else {
             setScrolled(false);
@@ -51,7 +51,9 @@ export const Appbar = () => {
                 style={{ position: "fixed", left: "0", right: "0", margin: "0 auto" }}
             >
                 <div className="flex justify-between items-center shadow-sm">
-                    <div className="flex items-center gap-2 p-4">
+                    <div className="flex items-center gap-2 p-4 cursor-pointer"
+                        onClick={() => window.location.href = "/"}
+                    >
                         <img
                             src="https://assets.krishdev.xyz/DeCloud/Logo.png"
                             className="rounded-full"
