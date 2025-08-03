@@ -7,7 +7,7 @@ export function NavbarItems({ className }: { className?: string }) {
   const [active, setActive] = useState<string | null>(null);
   return (
     <div
-      className={cn(className, "hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-3xl cursor-pointer transition-colors duration-200")}
+      className={cn(className, "cursor-pointer")}
     >
       <Menu setActive={setActive}>
         <MenuItem setActive={setActive} active={active} item="DePIN Services">

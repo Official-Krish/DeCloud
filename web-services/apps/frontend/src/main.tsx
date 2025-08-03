@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import Appbar from './components/Appbar.tsx'
 import { ThemeProvider } from './components/themeProvider.tsx'
 import Footer from './components/Footer.tsx'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
@@ -9,6 +8,7 @@ import { clusterApiUrl } from '@solana/web3.js'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { ToastContainer } from 'react-toastify'
 import { Toaster } from 'sonner'
+import { Appbar } from './components/Appbar.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <ThemeProvider defaultTheme='dark'>

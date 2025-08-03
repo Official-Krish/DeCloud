@@ -13,6 +13,7 @@ import { ComingSoon } from './components/ComingSoon'
 import { HostRegister } from './pages/HostMachine'
 import { HostDashboard } from './pages/HostDashboard'
 import { DeployApp } from './pages/deployImage'
+import { Test } from './components/Appbar'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/depin/register" element={<HostRegister/>} />
           <Route path="/depin/host/dashboard" element={<HostDashboard/>} />
           <Route path="/depin/deploy" element={<DeployApp/>} />
+          <Route path="/test" element={<Test/>} />
           <Route path="*" element={<ComingSoon isDepin={false}/>} />
         </Routes>
       </BrowserRouter>

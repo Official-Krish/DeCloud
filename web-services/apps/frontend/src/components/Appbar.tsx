@@ -1,114 +1,116 @@
-import {
-  Navbar,
-  NavBody,
-  MobileNav,
-  NavbarLogo,
-  NavbarButton,
-  MobileNavHeader,
-  MobileNavToggle,
-  MobileNavMenu,
-  NavItems,
-} from "@/components/ui/Resizable-Appbar";
 import { useState } from "react";
-import { ModeToggle } from "./toggle-theme";
+import { Button } from "./ui/button";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { NavbarItems } from "./NavbarItems";
 import { useWallet } from "@solana/wallet-adapter-react";
 import UserProfileDropdown from "./user-dropdown";
-import '@solana/wallet-adapter-react-ui/styles.css';
-import { Button } from "./ui/button";
 
-export default function Appbar() {
-  const { wallet } = useWallet();
-  const navItems = [
-    {
-      name: "Dashboard",
-      link: "/dashboard",
-    },
-    {
-      name: "Rent VM",
-      link: "/rent",
-    },
-    {
-      name: "Deploy Image",
-      link: "/depin/deploy",
-    },
-  ];
+export const Appbar = () => {
+    const { wallet } = useWallet();
+    const [hovered, setHovered] = useState<number | null>(null);
+    const [scrolled, setScrolled] = useState(false);
+    const { scrollY } = useScroll();
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  return (
-    <div className="w-full border-b border-neutral-200 dark:border-neutral-800">
-      <Navbar>
-        {/* Desktop Navigation */}
-        <NavBody>
-          <NavbarLogo />
-          <NavItems items={navItems}/>
-          <div className="flex items-center"> 
-            {/* <NavbarButton variant="secondary"><ModeToggle/></NavbarButton> */}
-            {(localStorage.getItem("token") && wallet?.adapter.connected) ? (
-              <NavbarButton className="flex items-center gap-1 cursor-pointer" onClick={() => setUserDropdownOpen(!userDropdownOpen)}>
-                <img
-                  src={wallet.adapter.icon || ""}
-                  alt="Wallet Address"
-                  className="h-8 w-8 rounded-full"
-                />
-                <span className="ml-2 text-sm text-neutral-800">
-                  {wallet?.adapter.publicKey?.toString().slice(0,10).concat("...") || ""}
-                </span>
-              </NavbarButton>
-            ) : (
-              <Button className="cursor-pointer" onClick={() => window.location.href="/signin"}>SignIn</Button>
-            )}
-          </div>
-        </NavBody>
-        <UserProfileDropdown
-          isOpen={userDropdownOpen}
-          onClose={() => setUserDropdownOpen(false)}
-        />
-        
-
-        {/* Mobile Navigation */}
-        <MobileNav>
-          <MobileNavHeader>
-            <NavbarLogo />
-            <MobileNavToggle
-              isOpen={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
-          </MobileNavHeader>
-
-          <MobileNavMenu
-            isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
-          >
-            {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))}
-            <div className="flex w-full flex-col gap-4">
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full cursor-pointer"
-              >
-                <ModeToggle />
-              </NavbarButton>
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Profile
-              </NavbarButton>
-            </div>
-          </MobileNavMenu>
-        </MobileNav>
-      </Navbar>
-    </div>
-  );
+    const navItems = [
+        {
+          name: "Dashboard",
+          link: "/dashboard",
+        },
+        {
+          name: "Rent VM",
+          link: "/rent",
+        },
+        {
+          name: "Deploy Image",
+          link: "/depin/deploy",
+        },
+        {
+            name: "DePIN Services",
+        }
+    ];
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        if (latest > 10){
+            setScrolled(true);
+        } else {
+            setScrolled(false);
+        }
+    });
+    return (
+        <div className="fixed top-0 left-0 right-0 z-50">
+            <motion.div 
+                className={`w-full px-4 py-2 ${scrolled ? "rounded-full border border-neutral-800" : "rounded-xl border-b border-neutral-800"}`}
+                animate={{
+                    width: scrolled ? "60%" : "100%",
+                    transition: { 
+                        duration: 0.3,
+                        ease: "easeInOut"
+                    },
+                    y: scrolled ? 20 : 0,
+                }}
+                style={{ position: "fixed", left: "0", right: "0", margin: "0 auto" }}
+            >
+                <div className="flex justify-between items-center shadow-sm">
+                    <div className="flex items-center gap-2 p-4">
+                        <img
+                            src="https://assets.krishdev.xyz/DeCloud/Logo.png"
+                            className="rounded-full"
+                            alt="logo"
+                            width={30}
+                            height={30}
+                        />
+                        <span className="font-medium text-black dark:text-white">DeCloud</span>
+                    </div>
+                    <div className="flex items-center max-w-lg">
+                        {navItems.map((item, idx) => (
+                            <motion.div
+                                key={item.name}
+                                className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 cursor-pointer"
+                                onMouseEnter={() => setHovered(idx)}
+                                onMouseLeave={() => setHovered(null)}
+                                onClick={() => item.link && (window.location.href = item.link)}
+                            >
+                                {hovered === idx && (
+                                    <motion.div className="absolute inset-0 rounded-xl w-full h-full bg-neutral-800" layoutId="nav-item"/>
+                                )}
+                                {item.name !== "DePIN Services" && <span className="relative">{item.name}</span>}
+                                {item.name === "DePIN Services" && (
+                                    <NavbarItems/>
+                                )}
+                            </motion.div>
+                            
+                        ))}
+                    </div>
+                    <div className="flex items-center">
+                        {(localStorage.getItem("token") && wallet?.adapter.connected) ?
+                            <button 
+                                className="space-x-2 flex items-center cursor-pointer text-neutral-600 bg-neutral-50 hover:bg-neutral-100 px-2 py-2 rounded-xl"
+                                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                            >
+                                <img
+                                    src={wallet.adapter.icon || ""}
+                                    alt="Wallet Address"
+                                    className="h-8 w-8 rounded-full"
+                                />
+                                <span className="ml-2 text-sm text-neutral-800 font-semibold">
+                                    {wallet?.adapter.publicKey?.toString().slice(0,10).concat("...") || ""}
+                                </span>
+                            </button>
+                            :
+                            <Button 
+                                className="px-4 py-2 hover:bg-neutral-200 cursor-pointer bg-neutral-100"
+                                onClick={() => window.location.href="/signin"}
+                            >
+                                SignIn
+                            </Button>
+                        }
+                    </div>
+                    <UserProfileDropdown
+                        isOpen={userDropdownOpen}
+                        onClose={() => setUserDropdownOpen(false)}
+                    />
+                </div>
+            </motion.div>
+        </div>
+    )
 }
