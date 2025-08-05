@@ -6,7 +6,21 @@ import { HoverBorderGradient } from "../ui/hover-border-gradient";
 export default function Hero() {
   const navigate = useNavigate();
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <motion.div 
+        className="relative w-full h-screen overflow-hidden bg-black"
+        initial={{ 
+            opacity: 0, 
+            filter: "blur(5px)",
+        }}
+        animate={{ 
+            opacity: 1, 
+            filter: "blur(0px)",
+        }}
+        transition={{ 
+            duration: 1.5, 
+            ease: "easeInOut"
+        }}
+    >
         {/* Video background */}
         <video
             src="hero-video.mp4"
@@ -103,6 +117,6 @@ export default function Hero() {
                 </Button>
             </motion.div>
         </div>
-    </div>
+    </motion.div>
   );
 }

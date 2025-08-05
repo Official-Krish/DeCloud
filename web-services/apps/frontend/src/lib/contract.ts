@@ -34,13 +34,19 @@ export const InitiatesVaultAccount = async (wallet: AnchorWallet, secretKey: str
             admin: wallet.publicKey,
         })
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             success: true,
             signature: tx,
             message: "Vault account initialized successfully",
+            transaction,
         };
-    } catch (error) {
-      console.error("Error fetching stake account", error);
+        } catch (error) {
+          console.error("Error initializing vault account", error);
       return null;
     }
 };
@@ -62,6 +68,11 @@ export const FundVaultAccount = async (wallet: AnchorWallet, amount: number, sec
         })
         .rpc();
         const vaultAccountBalance = await program.provider.connection.getBalance(vaultAccount);
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             success: true,
             signature: tx,
@@ -83,12 +94,18 @@ export const transferFromVault = async (amount: number, id: String, wallet: Anch
     }
   
     try {
-        const tx = program.methods.transferFromVault(new BN(amount * LAMPORTS_PER_SOL), id, SECRET_KEY)
-            .accounts({
-                admin: new PublicKey(ADMIN_KEY),
-                payer: wallet.publicKey,
-            })
-            .rpc();
+        const tx = await program.methods.transferFromVault(new BN(amount * LAMPORTS_PER_SOL), id, SECRET_KEY)
+        .accounts({
+            admin: new PublicKey(ADMIN_KEY),
+            payer: wallet.publicKey,
+        })
+        .rpc();
+
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             success: true,
             signature: tx,
@@ -122,6 +139,11 @@ export const EndRentalSession = async (id: String, wallet: AnchorWallet) => {
             rentalSession: rentalSessionPDA,
         })
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             success: true,
             signature: tx,
@@ -158,6 +180,11 @@ export const TransferToVaultAndStartRental = async (amount: number, duration: nu
             payer: wallet.publicKey,
         })
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         
         return {
             success: true,
@@ -184,6 +211,11 @@ export const WithdrawFromVault = async (amount: number, wallet: AnchorWallet, se
             admin: wallet.publicKey,
         })
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             success: true,
             signature: tx,

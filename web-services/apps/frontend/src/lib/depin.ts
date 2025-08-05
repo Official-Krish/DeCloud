@@ -7,16 +7,22 @@ export const claimSolana = async (wallet: AnchorWallet, id: String) => {
     try {
         const program = Contarct(wallet);
         const txn = await program.methods.claimRewards(id, SECRET_KEY)
-            .accounts({
-                admin: new PublicKey(ADMIN_KEY),
-                host: wallet.publicKey,
-            })
-            .rpc();
-            return {
-                success: true,
-                signature: txn,
-                message: "Claim successful"
-            };
+        .accounts({
+            admin: new PublicKey(ADMIN_KEY),
+            host: wallet.publicKey,
+        })
+        .rpc();
+
+        const transaction = await program.provider.connection.confirmTransaction(txn);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
+        return {
+            success: true,
+            signature: txn,
+            message: "Claim successful"
+        };
     } catch (error) {
         console.error("Error claiming Solana:", error);
         throw error;
