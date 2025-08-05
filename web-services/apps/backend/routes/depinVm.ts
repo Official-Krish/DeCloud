@@ -224,13 +224,18 @@ depinVM.delete("/terminate/:id", authMiddleware, async (req, res) => {
                     status: "TERMINATED",
                 },
             });
-            await prisma.depinHostMachine.update({
+            const depinHost = await prisma.depinHostMachine.update({
                 where: {
                     id: vmInstance.id,
                 },
                 data: {
                     isOccupied: false,
                 },
+            });
+            activateHostQueue.add("changeVMStatus", {
+                id: depinHost.id,
+                userPubKey: depinHost.userPublicKey,
+                status: false,
             });
 
         });
