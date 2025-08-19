@@ -66,6 +66,11 @@ export async function endRentalSession(
                 })
                 .signers([payerKeypair]) 
                 .rpc();
+            const transaction = await program.provider.connection.confirmTransaction(tx);
+            if (transaction.value.err) {
+                console.error("Transaction failed", transaction.value.err);
+                return null;
+            }
 
             return tx;
         } else {
@@ -81,6 +86,11 @@ export async function endRentalSession(
                 })
                 .signers([payerKeypair])
                 .rpc();
+            const transaction = await program.provider.connection.confirmTransaction(txn);
+            if (transaction.value.err) {
+                console.error("Transaction failed", transaction.value.err);
+                return null;
+            }
             return txn;
         }
     } catch (error) {
@@ -107,6 +117,11 @@ export async function InitialiseHostPDA(id: string, hostName: string, machineTyp
         })
         .signers([payerKeypair])
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return {
             hostMachinePda
         };
@@ -127,6 +142,11 @@ export async function deActivateHost(id: string, userPubKey: string) {
         })
         .signers([payerKeypair])
         .rpc();
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
 
         return tx;
     } catch (error) {
@@ -146,7 +166,11 @@ export async function activateHost(id: string, userPubKey: string) {
         })
         .signers([payerKeypair])
         .rpc();
-
+        const transaction = await program.provider.connection.confirmTransaction(tx);
+        if (transaction.value.err) {
+            console.error("Transaction failed", transaction.value.err);
+            return null;
+        }
         return tx;
     } catch (error) {
         console.error("Error activating host:", error);

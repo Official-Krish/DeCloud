@@ -27,7 +27,11 @@ const worker = new Worker("vm-termination", async job => {
         if (!vmInstance) {
             return;
         }
-        await endRentalSession(vmInstance.id, pubKey, isEscrow);
+        const txn = await endRentalSession(vmInstance.id, pubKey, isEscrow);
+        if (!txn) {
+            console.error(`Failed to end rental session for VM instance with ID ${instanceId}`);
+            return;
+        }
         const operationDone = await deleteInstance(zone, instanceId);
         if (!operationDone) {
             console.error(`Failed to delete VM instance with ID ${instanceId}`);
@@ -63,6 +67,10 @@ const DepinWorker = new Worker ("initialise-host-pda", async job => {
     try {
         const { id, hostName, machineType, os, diskSize, pricePerHour, userPubKey } = job.data;
         const tx = await InitialiseHostPDA(id, hostName, machineType, os, diskSize, pricePerHour, userPubKey);
+        if (!tx) {
+            console.error(`Failed to initialise host PDA for job ${job.id}`);
+            return;
+        }
         console.log(`Host PDA initialised successfully for job ${job.id}:`, tx);
         await prisma.depinHostMachine.update({
             where: {

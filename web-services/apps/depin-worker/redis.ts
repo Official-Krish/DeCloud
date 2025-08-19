@@ -8,7 +8,3 @@ const connection = new IORedis({
 export const initialiseAccount = new Queue("initialise-host-pda", {
     connection
 })
-
-export const changeStatus = new Queue("changeVMSatus", {
-    connection
-})
