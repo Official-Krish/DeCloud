@@ -2,6 +2,7 @@ import { Router } from "express";
 import { SignInSchema, SignUpSchema } from "@decloud/types";
 import prisma from "@decloud/db";
 import jwt from "jsonwebtoken";
+import { authMiddleware } from "../utils/middleware";
 
 const UserRouter = Router();
 
@@ -111,7 +112,7 @@ UserRouter.get("/me", async (req, res) => {
     }
 });
 
-UserRouter.get("/checkTimeout", async (req, res) => {
+UserRouter.get("/checkTimeout", authMiddleware ,async (req, res) => {
     const userId = req.userId;
     try {
         const user = await prisma.user.findFirst({
