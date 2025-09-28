@@ -23,7 +23,7 @@ export default function Hero() {
     >
         {/* Video background */}
         <video
-            src="hero-video.mp4"
+            src="https://assets.krishdev.xyz/DeCloud/decloud-hero.png"
             autoPlay
             loop
             muted

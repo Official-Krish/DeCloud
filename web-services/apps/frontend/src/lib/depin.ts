@@ -32,7 +32,7 @@ export const claimSolana = async (wallet: AnchorWallet, id: String) => {
 
 export async function getEarnedSOL(machineId: string, userPublicKey: PublicKey, wallet: AnchorWallet) {
     const program = Contarct(wallet);
-    const [pda, bump] = await PublicKey.findProgramAddressSync(
+    const [pda] = PublicKey.findProgramAddressSync(
         [Buffer.from("host_machine"), userPublicKey.toBuffer(), Buffer.from(machineId)],
         program.programId
     );

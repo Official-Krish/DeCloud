@@ -1,4 +1,4 @@
-const Tooltip = ({Icon, description, className }: { Icon: React.ElementType, description: string, className: string}) => {
+const Tooltip = ({Icon, description, className }: { Icon: React.ComponentType<{ className?: string }>, description: string, className: string}) => {
   return (
     <div className="items-center relative group">
       <Icon className={className}/>

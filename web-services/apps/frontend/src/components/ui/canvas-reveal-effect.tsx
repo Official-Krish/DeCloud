@@ -281,9 +281,13 @@ const ShaderMaterial = ({
   }, [size.width, size.height, source]);
 
   return (
+    // @ts-ignore
     <mesh ref={ref as any}>
+      {/* @ts-ignore */}
       <planeGeometry args={[2, 2]} />
+      {/* @ts-ignore */}
       <primitive object={material} attach="material" />
+      {/* @ts-ignore */}
     </mesh>
   );
 };
