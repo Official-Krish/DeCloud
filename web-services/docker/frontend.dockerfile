@@ -1,14 +1,23 @@
-FROM node:20
+# ---- Stage 1: Build the React app ----
+FROM node:20 AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the rest of the application
-COPY apps/frontend/package.json ./
+COPY apps/frontend/package*.json ./
+
+RUN npm install --legacy-peer-deps --verbose
+
 COPY apps/frontend/ ./
 
-RUN npm install --verbose
+RUN npm run build
+
+# ---- Stage 2: Serve with Nginx ----
+FROM nginx:alpine AS runner
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+COPY apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev"]
+CMD ["nginx", "-g", "daemon off;"]
