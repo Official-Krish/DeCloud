@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: decloud-frontend
-          image: krishanand01/decloud-frontend:v2
+          image: krishanand01/decloud-frontend:v2.2
           ports:
             - containerPort: 5173
           volumeMounts:
@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
         - name: decloud-backend
-          image: krishanand01/decloud-backend:v2
+          image: krishanand01/decloud-backend:v2.1
           ports:
             - containerPort: 3000
           volumeMounts:
@@ -87,7 +87,7 @@ spec:
     spec:
       containers:
         - name: decloud-worker
-          image: krishanand01/decloud-worker:v2
+          image: krishanand01/decloud-worker:v2.1
           volumeMounts:
             - name: env-file
               mountPath: /app/apps/worker/.env
@@ -153,7 +153,7 @@ spec:
     spec:
       containers:
         - name: decloud-depin-worker
-          image: krishanand01/decloud-depin-worker:v2
+          image: krishanand01/decloud-depin-worker:v2.1
           ports:
             - containerPort: 9000
           volumeMounts:
@@ -184,7 +184,7 @@ spec:
     spec:
       containers:
         - name: decloud-depin-ws-relayer
-          image: krishanand01/decloud-depin-ws-relayer:v2
+          image: krishanand01/decloud-depin-ws-relayer:v2.1
           ports:
             - containerPort: 8080
 ---
