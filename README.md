@@ -1,14 +1,14 @@
-# ☁️ DeCloud - Decentralized Cloud Computing Platform
+# ☁️ SolNet - Decentralized Cloud Computing Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Solana](https://img.shields.io/badge/Powered%20by-Solana-purple.svg)](https://solana.com/)
 [![Anchor](https://img.shields.io/badge/Built%20with-Anchor-blue.svg)](https://www.anchor-lang.com/)
 
-> **DeCloud** is a revolutionary decentralized cloud computing platform that enables users to rent virtual machines using **SOL tokens** while providing DePIN (Decentralized Physical Infrastructure Network) services for host machines.
+> **SolNet** is a revolutionary decentralized cloud computing platform that enables users to rent virtual machines using **SOL tokens** while providing DePIN (Decentralized Physical Infrastructure Network) services for host machines.
 
 ## 🚀 Overview
 
-DeCloud bridges the gap between traditional cloud computing and Web3 by offering:
+SolNet bridges the gap between traditional cloud computing and Web3 by offering:
 
 - **Crypto-Native Payments**: Pay for cloud resources using SOL tokens
 - **DePIN Hosting**: Earn SOL by sharing your compute resources
@@ -73,7 +73,7 @@ DeCloud bridges the gap between traditional cloud computing and Web3 by offering
 ## 📦 Project Structure
 
 ```
-DeCloud/
+SolNet/
 ├── contract/                 # Solana smart contracts (Anchor)
 │   ├── programs/contract/
 │   │   ├── src/
@@ -177,7 +177,7 @@ bun dev
 
 #### Backend (.env)
 ```bash
-DATABASE_URL="postgresql://user:password@localhost:5432/decloud"
+DATABASE_URL="postgresql://user:password@localhost:5432/SolNet"
 REDIS_URL="redis://localhost:6379"
 JWT_SECRET="your-jwt-secret"
 SOLANA_RPC_URL="https://api.devnet.solana.com"
@@ -252,7 +252,7 @@ anchor test
 kubectl apply -f ops/
 
 # Check deployment status
-kubectl get pods -n decloud
+kubectl get pods -n SolNet
 ```
 
 ## 🤝 Contributing
@@ -296,7 +296,7 @@ anchor deploy --provider.cluster devnet --program-keypair target/deploy/contract
 sudo systemctl start postgresql
 
 # Check connection
-psql -h localhost -U your_user -d decloud
+psql -h localhost -U your_user -d SolNet
 ```
 
 #### Frontend Build Issues
