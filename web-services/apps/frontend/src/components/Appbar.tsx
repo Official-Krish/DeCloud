@@ -61,7 +61,7 @@ export const Appbar = () => {
                             width={30}
                             height={30}
                         />
-                        <span className="font-medium text-black dark:text-white">DeCloud</span>
+                        <span className="font-medium text-black dark:text-white">SolNet</span>
                     </div>
                     <div className="flex items-center max-w-lg">
                         {navItems.map((item, idx) => (

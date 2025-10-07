@@ -64,14 +64,14 @@ export const SSH = ({ vm }: { vm: VM }) => {
 
                         <div className="flex items-center space-x-2 justify-between bg-black rounded-lg">
                             <div className="text-green-400 p-3 rounded font-mono text-sm">
-                                ssh -i {vm.name}-key.pem decloud@{vm.ipAddress}
+                                ssh -i {vm.name}-key.pem solnet@{vm.ipAddress}
                             </div>
                             <div className="flex space-x-2">
                                 <Button 
                                 className="cursor-pointer"
                                     variant="ghost" 
                                     size="sm"
-                                    onClick={() => copyToClipboard(`ssh -i ${vm.name}-key.pem decloud@${vm.ipAddress}`)}
+                                    onClick={() => copyToClipboard(`ssh -i ${vm.name}-key.pem solnet@${vm.ipAddress}`)}
                                 >
                                     <Copy className="h-4 w-4" />
                                 </Button>

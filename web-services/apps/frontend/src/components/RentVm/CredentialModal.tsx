@@ -88,14 +88,14 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         className="cursor-pointer"
                                         size="sm"
                                         onClick={() => {
-                                            copyToClipboard(`ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}`)
+                                            copyToClipboard(`ssh -i ${vmName}-key.pem solnet@${finalConfig?.ipAddress}`)
                                         }}
                                     >
                                         <Copy className="h-4 w-4" />
                                     </Button>
                                 </div>
                                 <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                                    ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}
+                                    ssh -i ${vmName}-key.pem solnet@${finalConfig?.ipAddress}
                                 </div>
                             </div>
 
@@ -143,12 +143,12 @@ export const CredentialModal = ({ isCredentialsOpen, setIsCredentialsOpen, regio
                                         </Button>
                                     </div>
                                     <div className="bg-muted p-1 rounded font-mono text-xs mt-1 flex justify-between items-center">
-                                        <span className="font-mono">ssh -i {vmName}-key.pem decloud@{finalConfig?.ipAddress}</span>
+                                        <span className="font-mono">ssh -i {vmName}-key.pem solnet@{finalConfig?.ipAddress}</span>
                                         <Button 
                                             variant="ghost" 
                                             size="sm"
                                             className="cursor-pointer"
-                                            onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem decloud@${finalConfig?.ipAddress}`)}
+                                            onClick={() => copyToClipboard(`ssh -i ${vmName}-key.pem solnet@${finalConfig?.ipAddress}`)}
                                         >
                                             <Copy className="h-4 w-4" />
                                         </Button>

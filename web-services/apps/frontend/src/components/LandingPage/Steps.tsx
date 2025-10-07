@@ -27,7 +27,7 @@ export default function Steps() {
                 Just follow these quick steps to get started:
                 <ul className="list-none mt-4 space-y-4">
                     <Step title="Register your machine with us" />
-                    <Step title="Install the Decloud Node CLI" />
+                    <Step title="Install the SolNet Node CLI" />
                     <Step title="Verify Your Wallet & Region" />
                     <Step title="Start Earning SOL" />
                 </ul>

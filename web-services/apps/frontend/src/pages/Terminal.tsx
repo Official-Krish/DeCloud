@@ -72,7 +72,7 @@ const SSHTerminal = () => {
                         
                         // Clear current line
                         terminal.write('\r\x1b[K');
-                        terminal.write('decloud@test2:~$ ');
+                        terminal.write('solnet@test2:~$ ');
                         
                         // Write historical command
                         terminal.write(historicalCommand);
@@ -89,7 +89,7 @@ const SSHTerminal = () => {
                         
                         // Clear current line
                         terminal.write('\r\x1b[K');
-                        terminal.write('decloud@test2:~$ ');
+                        terminal.write('solnet@test2:~$ ');
                         
                         if (newIndex === -1 || newIndex === commandHistory.length) {
                             // No more history, clear command
@@ -226,7 +226,7 @@ const SSHTerminal = () => {
                             type: 'connect',
                             config: {
                                 host: data.allowedVMs,
-                                username: "decloud",
+                                username: "solnet",
                                 port: 22
                             }
                         }));

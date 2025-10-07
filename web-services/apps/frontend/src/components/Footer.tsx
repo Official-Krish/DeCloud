@@ -77,7 +77,7 @@ function Footer() {
                 <div className="flex items-center justify-center rounded-full">
                   <img src="/Logo.png" alt="DeCloud Logo" className="w-9 h-9 rounded-full" />
                 </div>
-                <span className="text-xl font-bold">DeCloud</span>
+                <span className="text-xl font-bold">SolNet</span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-sm">
                 Decentralized cloud computing powered by Solana. Rent compute resources 
@@ -162,7 +162,7 @@ function Footer() {
                 Built with ❤️ for the Solana community.
               </p>
               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                <span>© 2025 DeCloud</span>
+                <span>© 2025 SolNet</span>
                 <span>•</span>
                 <span>All rights reserved</span>
               </div>

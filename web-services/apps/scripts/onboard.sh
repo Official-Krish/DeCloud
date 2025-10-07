@@ -2,11 +2,11 @@
 
 set -e
 
-echo "Starting DeCloud Job Runner..."
+echo "Starting SolNet Job Runner..."
 
 # === CONFIG ===
 WEBSOCKET_ENDPOINT="wss.depin-worker.krishdev.xyz"
-CONFIG_DIR="$HOME/.decloud"
+CONFIG_DIR="$HOME/.solnet"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 
 # === HELPER FUNCTIONS ===
@@ -76,7 +76,7 @@ cleanup() {
         sleep 1
     fi
     
-    local containers=$(docker ps -q --filter "label=decloud.job=true" 2>/dev/null || true)
+    local containers=$(docker ps -q --filter "label=solnet.job=true" 2>/dev/null || true)
     if [ -n "$containers" ]; then
         print_step "Stopping running job containers..."
         echo "$containers" | xargs -r docker stop --time=30
@@ -147,7 +147,7 @@ process_start_job() {
     send_status_update "$job_id" "CREATING"
     
     # Generate container name
-    local container_name="${job_id}-decloud"
+    local container_name="${job_id}-solnet"
     
     # Stop existing container with same name
     docker stop "$container_name" >/dev/null 2>&1 || true
@@ -177,9 +177,9 @@ process_start_job() {
     local container_id
     if ! container_id=$(docker run -d \
         --name "$container_name" \
-        --label "decloud.job=true" \
-        --label "decloud.job_id=$job_id" \
-        --label "decloud.machine_id=$MACHINE_ID" \
+        --label "solnet.job=true" \
+        --label "solnet.job_id=$job_id" \
+        --label "solnet.machine_id=$MACHINE_ID" \
         --restart=unless-stopped \
         $port_flags \
         $env_vars \
@@ -201,7 +201,7 @@ process_start_job() {
     fi
     
     # Generate deployment URL
-    local deployment_url="https://${job_id}-decloud.krishdev.xyz"
+    local deployment_url="https://${job_id}-solnet.krishdev.xyz"
     
     print_success "Container started successfully!"
     print_success "Deployed at: $deployment_url"
@@ -211,7 +211,7 @@ process_start_job() {
     send_status_update "$job_id" "RUNNING"
     
     # Store job info for monitoring (job_id:container_id:image_name)
-    echo "$job_id:$container_id:$image" >> "/tmp/decloud_jobs_$MACHINE_ID.txt"
+    echo "$job_id:$container_id:$image" >> "/tmp/solnet_jobs_$MACHINE_ID.txt"
     
     return 0
 }
@@ -233,7 +233,7 @@ process_end_job() {
     send_status_update "$job_id" "TERMINATING"
     
     # Find and stop container
-    local container_name="${job_id}-decloud"
+    local container_name="${job_id}-solnet"
     local container_id=$(docker ps -q --filter "name=$container_name" 2>/dev/null || true)
     local image_name=""
     
@@ -260,9 +260,9 @@ process_end_job() {
     fi
     
     # Remove from job tracking
-    if [ -f "/tmp/decloud_jobs_$MACHINE_ID.txt" ]; then
-        grep -v "^$job_id:" "/tmp/decloud_jobs_$MACHINE_ID.txt" > "/tmp/decloud_jobs_$MACHINE_ID.txt.tmp" 2>/dev/null || true
-        mv "/tmp/decloud_jobs_$MACHINE_ID.txt.tmp" "/tmp/decloud_jobs_$MACHINE_ID.txt" 2>/dev/null || true
+    if [ -f "/tmp/solnet_jobs_$MACHINE_ID.txt" ]; then
+        grep -v "^$job_id:" "/tmp/solnet_jobs_$MACHINE_ID.txt" > "/tmp/solnet_jobs_$MACHINE_ID.txt.tmp" 2>/dev/null || true
+        mv "/tmp/solnet_jobs_$MACHINE_ID.txt.tmp" "/tmp/solnet_jobs_$MACHINE_ID.txt" 2>/dev/null || true
     fi
     
     # Send DELETED status
@@ -285,7 +285,7 @@ process_job_status() {
     print_info "Processing job-status request: $job_id"
     
     # Check if container is running
-    local container_name="${job_id}-decloud"
+    local container_name="${job_id}-solnet"
     local container_id=$(docker ps -q --filter "name=$container_name" 2>/dev/null || true)
     
     if [ -n "$container_id" ]; then
@@ -336,8 +336,8 @@ start_websocket_connection() {
     print_info "Starting WebSocket connection..."
     
     # Create named pipes for WebSocket communication
-    ws_input="/tmp/decloud_ws_input_$$"
-    ws_output="/tmp/decloud_ws_output_$$"
+    ws_input="/tmp/solnet_ws_input_$$"
+    ws_output="/tmp/solnet_ws_output_$$"
     
     mkfifo "$ws_input" "$ws_output"
     
@@ -367,11 +367,11 @@ start_websocket_connection() {
 load_config
 validate_environment
 
-print_success "DeCloud Job Runner initialized"
+print_success "solnet Job Runner initialized"
 print_info "Machine ID: $MACHINE_ID"
 
 # Initialize job tracking file
-touch "/tmp/decloud_jobs_$MACHINE_ID.txt"
+touch "/tmp/solnet_jobs_$MACHINE_ID.txt"
 
 # Start WebSocket connection with automatic restart
 while true; do

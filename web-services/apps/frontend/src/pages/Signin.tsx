@@ -95,13 +95,13 @@ export function SignIn() {
                 <div className="flex items-center justify-center w-10 h-10">
                     <img src="/Logo.png" alt="DeCloud Logo" className="h-10 w-10 rounded-full" />
                 </div>
-                <span className="text-2xl font-bold">DeCloud</span>
+                <span className="text-2xl font-bold">SolNet</span>
                 </motion.div>
                 
                 <motion.div>
                 <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
                 <CardDescription className="text-muted-foreground">
-                    Sign in to your DeCloud account
+                    Sign in to your SolNet account
                 </CardDescription>
                 </motion.div>
             </CardHeader>

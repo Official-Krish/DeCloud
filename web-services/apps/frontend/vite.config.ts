@@ -13,6 +13,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['localhost', '.krishdev.xyz', '.decloud.krishdev.xyz'], 
+    allowedHosts: ['localhost', '.krishdev.xyz', '.solnet.krishdev.xyz'], 
   },
 })

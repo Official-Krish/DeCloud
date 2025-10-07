@@ -18,7 +18,7 @@ export const Step3 = () => {
                         Verification Successful!
                     </CardTitle>
                     <CardDescription>
-                        Your machine is verified. Run this final script to install the DeCloud agent, and start earning SOL.
+                        Your machine is verified. Run this final script to install the SolNet agent, and start earning SOL.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

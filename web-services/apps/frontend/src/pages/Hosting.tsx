@@ -20,7 +20,7 @@ export function Hosting() {
         {
             icon: Download,
             title: "Install Host CLI",
-            description: "Download and install the decloud host CLI on your machine",
+            description: "Download and install the solnet host CLI on your machine",
             command: "curl -sSL https://assets.krishdev.xyz/DeCloud/verification_script.sh | bash",
             isButton: false
         },

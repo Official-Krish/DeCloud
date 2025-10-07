@@ -98,7 +98,7 @@ export function SignUp() {
               <div className="flex items-center justify-center w-10 h-10 rounded-full">
                 <img src="/Logo.png" alt="Logo" className="h-10 w-10 rounded-full" />
               </div>
-              <span className="text-2xl font-bold">DeCloud</span>
+              <span className="text-2xl font-bold">SolNet</span>
             </motion.div>
             
             <motion.div>

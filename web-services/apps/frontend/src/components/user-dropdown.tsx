@@ -159,7 +159,7 @@ const UserProfileDropdown = ({ isOpen, onClose }: UserProfileDropdownProps) => {
                     <User className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Welcome to DeCloud
+                    Welcome to SolNet
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     Sign in to access your decentralized cloud dashboard

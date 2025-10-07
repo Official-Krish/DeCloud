@@ -43,7 +43,7 @@ export async function createInstance(instanceName: string, zone: string, machine
                 items: [
                     {
                         key: 'ssh-keys',
-                        value: `decloud:${sshPublicKey}`,
+                        value: `solnet:${sshPublicKey}`,
                     },
                 ],
             },
